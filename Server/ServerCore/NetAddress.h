@@ -1,24 +1,21 @@
 #pragma once
-
-/*--------------
-	NetAddress
----------------*/
-
 class NetAddress
 {
 public:
-	NetAddress() = default;
-	NetAddress(SOCKADDR_IN sockAddr);
-	NetAddress(wstring ip, uint16 port);
+    // 생성자
+    NetAddress() {};
+    NetAddress(SOCKADDR_IN address);
+    NetAddress(wstring ip, uint16 port);
 
-	SOCKADDR_IN&	GetSockAddr() { return _sockAddr; }
-	wstring			GetIpAddress();
-	uint16			GetPort() { return ::ntohs(_sockAddr.sin_port); }
+    // Getter
+    SOCKADDR_IN GetAddress() const { return _address; }
+    std::wstring GetIpAddress() const;
+    uint16_t GetPort() const { return ::ntohs(_address.sin_port); }
 
-public:
-	static IN_ADDR	Ip2Address(const WCHAR* ip);
+    // 유틸리티
+    static IN_ADDR Ip2Address(const WCHAR* ip);
 
 private:
-	SOCKADDR_IN		_sockAddr = {};
+    SOCKADDR_IN _address = {};
 };
 
