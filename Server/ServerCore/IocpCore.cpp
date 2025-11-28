@@ -1,57 +1,52 @@
 #include "pch.h"
-#include "IOCPCore.h"
+#include "IocpCore.h"
+#include "IocpEvent.h"
 
-IOCPCore::IOCPCore()
+/*--------------
+	IocpCore
+---------------*/
+
+IocpCore::IocpCore()
 {
-    _iocpHandle = ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
-    if (_iocpHandle == INVALID_HANDLE_VALUE)
-    {
-        cout << "CreateIoCompletionPort Error" << endl;
-    }
+	_iocpHandle = ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
+	ASSERT_CRASH(_iocpHandle != INVALID_HANDLE_VALUE);
 }
 
-IOCPCore::~IOCPCore()
+IocpCore::~IocpCore()
 {
-    ::CloseHandle(_iocpHandle);
+	::CloseHandle(_iocpHandle);
 }
 
-bool IOCPCore::Register(HANDLE handle)
+bool IocpCore::Register(IocpObjectRef iocpObject)
 {
-    // IOCP에 핸들 등록
-    const unsigned int threadNum = std::thread::hardware_concurrency() * 2; //스레드풀 크기 설정
-
-    if (::CreateIoCompletionPort(handle, _iocpHandle, 0, threadNum) == nullptr)
-    {
-        cout << "Register Error: " << GetLastError() << endl;
-        return false;
-    }
-
-    return true;
+	return ::CreateIoCompletionPort(iocpObject->GetHandle(), _iocpHandle, /*key*/0, 0);
 }
 
-bool IOCPCore::RegisterSocket(SOCKET socket)
+bool IocpCore::Dispatch(uint32 timeoutMs)
 {
-    // 소켓을 IOCP에 등록
-    return Register(reinterpret_cast<HANDLE>(socket));
+	DWORD numOfBytes = 0;
+	ULONG_PTR key = 0;	
+	IocpEvent* iocpEvent = nullptr;
+
+	if (::GetQueuedCompletionStatus(_iocpHandle, OUT &numOfBytes, OUT &key, OUT reinterpret_cast<LPOVERLAPPED*>(&iocpEvent), timeoutMs))
+	{
+		IocpObjectRef iocpObject = iocpEvent->owner;
+		iocpObject->Dispatch(iocpEvent, numOfBytes);
+	}
+	else
+	{
+		int32 errCode = ::WSAGetLastError();
+		switch (errCode)
+		{
+		case WAIT_TIMEOUT:
+			return false;
+		default:
+			// TODO : 로그 찍기
+			IocpObjectRef iocpObject = iocpEvent->owner;
+			iocpObject->Dispatch(iocpEvent, numOfBytes);
+			break;
+		}
+	}
+
+	return true;
 }
-
-bool IOCPCore::Dispatch(uint32 time)
-{
-    DWORD lpNumberOfBytes;
-    IOCPEvent* iocpEvent = nullptr;
-    ULONG_PTR key = 0;
-
-    if (::GetQueuedCompletionStatus(_iocpHandle, &lpNumberOfBytes, &key, reinterpret_cast<LPOVERLAPPED*>(&iocpEvent), static_cast<DWORD>(time)))
-    {
-        shared_ptr<IOCPObject> iocpObject = iocpEvent->owner;
-        iocpObject->Dispatch(iocpEvent, lpNumberOfBytes);
-    }
-    else
-    {
-        if (GetLastError() == WAIT_TIMEOUT) return false;
-
-        shared_ptr<IOCPObject> iocpObject = iocpEvent->owner;
-        iocpObject->Dispatch(iocpEvent, static_cast<uint32>(lpNumberOfBytes));
-    }
-}
-

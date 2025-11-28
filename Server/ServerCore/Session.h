@@ -1,78 +1,115 @@
 #pragma once
-
+#include "IocpCore.h"
+#include "IocpEvent.h"
 #include "NetAddress.h"
-#include "IOCPEvent.h"
 #include "RecvBuffer.h"
 
-class IOCPServer;
-class SendBuffer;
-class PacketHandler;
+class Service;
 
-class Session : public IOCPObject
+/*--------------
+	Session
+---------------*/
+
+class Session : public IocpObject
 {
-    enum { MAX_SEND_SIZE = 4096 };
+	friend class Listener;
+	friend class IocpCore;
+	friend class Service;
+
+	enum
+	{
+		BUFFER_SIZE = 0x10000, // 64KB
+	};
+
 public:
-    // 생성자 및 소멸자
-    Session();
-    virtual ~Session();
+	Session();
+	virtual ~Session();
 
-    void CreateSocket();
+public:
+						/* 외부에서 사용 */
+	void				Send(SendBufferRef sendBuffer);
+	bool				Connect();
+	void				Disconnect(const WCHAR* cause);
 
-    virtual void Dispatch(class IOCPEvent* iocpEvent, int32 numOfBytes = 0) override;
+	shared_ptr<Service>	GetService() { return _service.lock(); }
+	void				SetService(shared_ptr<Service> service) { _service = service; }
 
-    // 연결 관리
-    void Connect();
-    void ProcessConnect();
+public:
+						/* 정보 관련 */
+	void				SetNetAddress(NetAddress address) { _netAddress = address; }
+	NetAddress			GetAddress() { return _netAddress; }
+	SOCKET				GetSocket() { return _socket; }
+	bool				IsConnected() { return _connected; }
+	SessionRef			GetSessionRef() { return static_pointer_cast<Session>(shared_from_this()); }
 
-    void Disconnect();
-    void RegisterDisconnect();
-    void ProcessDisconnect();
+private:
+						/* 인터페이스 구현 */
+	virtual HANDLE		GetHandle() override;
+	virtual void		Dispatch(class IocpEvent* iocpEvent, int32 numOfBytes = 0) override;
 
-    // 데이터 전송 관리
-    void Send(shared_ptr<SendBuffer> sendBuffer);
-    void RegisterSend();
-    void ProcessSend(uint32 sentBytes);
+private:
+						/* 전송 관련 */
+	bool				RegisterConnect();
+	bool				RegisterDisconnect();
+	void				RegisterRecv();
+	void				RegisterSend();
 
-    // 데이터 수신 관리
-    void RegisterRecv();
-    void ProcessRecv(uint32 recvBytes);
+	void				ProcessConnect();
+	void				ProcessDisconnect();
+	void				ProcessRecv(int32 numOfBytes);
+	void				ProcessSend(int32 numOfBytes);
 
-    // 이벤트 핸들러
-    virtual void OnConnected();
-    virtual void OnDisconnected();
-    virtual void OnSend(uint32 sentBytes);
-    virtual void OnRecv(BYTE* buffer, int32 len);
-
-    // Setter
-    inline void SetServer(std::shared_ptr<IOCPServer> server) { _server = server; }
-    inline void SetIOCPHandle(HANDLE iocpHandle) { _iocpHandle = iocpHandle; }
-    inline void SetAddress(const NetAddress& address) { _address = address; }
-
-    // Getteter 
-    inline SOCKET GetSocket() { return _socket; }
-    inline RecvBuffer& GetRecvBuffer() { return _recvBuffer; }
-    inline const NetAddress& GetAddress() const { return _address; }
-    inline shared_ptr<Session> GetSharedPtr() { return static_pointer_cast<Session>(shared_from_this()); }
-    inline shared_ptr<IOCPServer> GetServer() { return _server; }
-
+	void				HandleError(int32 errorCode);
 
 protected:
-    atomic<bool> _isConnect;
-    SOCKET _socket;
-    std::shared_ptr<IOCPServer> _server;
-    HANDLE _iocpHandle;
+						/* 컨텐츠 코드에서 재정의 */
+	virtual void		OnConnected() { }
+	virtual int32		OnRecv(BYTE* buffer, int32 len) { return len; }
+	virtual void		OnSend(int32 len) { }
+	virtual void		OnDisconnected() { }
 
-    NetAddress _address;
+private:
+	weak_ptr<Service>	_service;
+	SOCKET				_socket = INVALID_SOCKET;
+	NetAddress			_netAddress = {};
+	atomic<bool>		_connected = false;
 
-    RecvBuffer _recvBuffer;
-    ConcurrentQueue<shared_ptr<SendBuffer>> _sendQueue;
+private:
+	USE_LOCK;
+							/* 수신 관련 */
+	RecvBuffer				_recvBuffer;
 
-    atomic<bool> _sendRegistered;
-//IOCP Event
-protected:
-    RecvEvent _recvEvent;
-    RegisterSendEvent _registerSendEvent;
-    SendEvent _sendEvent;
-    DisconnectEvent _disConnectEvent;
+							/* 송신 관련 */
+	queue<SendBufferRef>	_sendQueue;
+	atomic<bool>			_sendRegistered = false;
+
+private:
+						/* IocpEvent 재사용 */
+	ConnectEvent		_connectEvent;
+	DisconnectEvent		_disconnectEvent;
+	RecvEvent			_recvEvent;
+	SendEvent			_sendEvent;
 };
 
+/*-----------------
+	PacketSession
+------------------*/
+
+struct PacketHeader
+{
+	uint16 size;
+	uint16 id; // 프로토콜ID (ex. 1=로그인, 2=이동요청)
+};
+
+class PacketSession : public Session
+{
+public:
+	PacketSession();
+	virtual ~PacketSession();
+
+	PacketSessionRef	GetPacketSessionRef() { return static_pointer_cast<PacketSession>(shared_from_this()); }
+
+protected:
+	virtual int32		OnRecv(BYTE* buffer, int32 len) sealed;
+	virtual void		OnRecvPacket(BYTE* buffer, int32 len) abstract;
+};
