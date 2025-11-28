@@ -1,12 +1,6 @@
 #pragma once
 
-class SendBufferChunk;
-
-/*----------------
-	SendBuffer
------------------*/
-
-class SendBuffer : enable_shared_from_this<SendBuffer>
+class SendBuffer : public enable_shared_from_this<SendBuffer>
 {
 public:
 	SendBuffer(int32 bufferSize);

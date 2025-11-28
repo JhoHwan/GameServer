@@ -1,84 +1,76 @@
 #pragma once
+//#include "Session.h"
 
 class Session;
+class SendBuffer;
+class IOCPObject;
 
 enum class EventType : uint8
 {
-	Connect,
-	Disconnect,
 	Accept,
-	//PreRecv,
+	Connect,
+	RegisterSend,
+	Send, 
 	Recv,
-	Send
+	Disconnect,
 };
 
-/*--------------
-	IocpEvent
----------------*/
-
-class IocpEvent : public OVERLAPPED
+class IOCPEvent
 {
 public:
-	IocpEvent(EventType type);
+	IOCPEvent(EventType eventType) : _eventType(eventType) { Init(); }
+	inline void Init() {_overlapped = {}; }
 
-	void			Init();
+	inline EventType GetEventType() const { return _eventType; }
+
+private:
+	OVERLAPPED _overlapped{};
+	EventType _eventType;
 
 public:
-	EventType		eventType;
-	IocpObjectRef	owner;
+	shared_ptr<IOCPObject> owner;
 };
 
-/*----------------
-	ConnectEvent
------------------*/
-
-class ConnectEvent : public IocpEvent
+class AcceptEvent : public IOCPEvent
 {
 public:
-	ConnectEvent() : IocpEvent(EventType::Connect) { }
+	AcceptEvent() : IOCPEvent(EventType::Accept) {}
+
+	shared_ptr<Session> session;
 };
 
-/*--------------------
-	DisconnectEvent
-----------------------*/
-
-class DisconnectEvent : public IocpEvent
+class ConnectEvent : public IOCPEvent
 {
 public:
-	DisconnectEvent() : IocpEvent(EventType::Disconnect) { }
+	ConnectEvent() : IOCPEvent(EventType::Connect) {}
+
+	shared_ptr<Session> session;
 };
 
-/*----------------
-	AcceptEvent
------------------*/
-
-class AcceptEvent : public IocpEvent
+class RegisterSendEvent : public IOCPEvent
 {
 public:
-	AcceptEvent() : IocpEvent(EventType::Accept) { }
-
-public:
-	SessionRef	session = nullptr;
+	RegisterSendEvent() : IOCPEvent(EventType::RegisterSend) {}
 };
 
-/*----------------
-	RecvEvent
------------------*/
-
-class RecvEvent : public IocpEvent
+class SendEvent : public IOCPEvent
 {
 public:
-	RecvEvent() : IocpEvent(EventType::Recv) { }
+	SendEvent() : IOCPEvent(EventType::Send) {}
+
+	vector <shared_ptr<SendBuffer>> sendBuffers;
 };
 
-/*----------------
-	SendEvent
------------------*/
-
-class SendEvent : public IocpEvent
+class RecvEvent : public IOCPEvent
 {
 public:
-	SendEvent() : IocpEvent(EventType::Send) { }
-	 
-	vector<SendBufferRef> sendBuffers;
+	RecvEvent() : IOCPEvent(EventType::Recv) {}
+
+};
+
+class DisconnectEvent : public IOCPEvent
+{
+public:
+	DisconnectEvent() : IOCPEvent(EventType::Disconnect) {}
+
 };

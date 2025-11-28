@@ -1,31 +1,32 @@
 #pragma once
 
-/*--------------
-	RecvBuffer
-----------------*/
-
 class RecvBuffer
 {
-	enum { BUFFER_COUNT = 10 };
-
+	enum { BUFFER_COUNT = 4 };
 public:
-	RecvBuffer(int32 bufferSize);
-	~RecvBuffer();
+	RecvBuffer(uint32 bufferSize);
+	~RecvBuffer() {}
 
-	void			Clean();
-	bool			OnRead(int32 numOfBytes);
-	bool			OnWrite(int32 numOfBytes);
+	bool OnWirte(uint32 size);
+	bool OnRead(uint32 size);
 
-	BYTE*			ReadPos() { return &_buffer[_readPos]; }
-	BYTE*			WritePos() { return &_buffer[_writePos]; }
-	int32			DataSize() { return _writePos - _readPos; }
-	int32			FreeSize() { return _capacity - _writePos; }
+	inline BYTE* WritePos() { return &_buffer[_writePos]; }
+	inline BYTE* ReadPos() { return &_buffer[_readPos]; }
+
+	inline uint32 DataSize() const { return _writePos - _readPos; }
+	inline uint32 Capacity() const { return _bufferSize - _writePos; }
+		
+	void Clean();
 
 private:
-	int32			_capacity = 0;
-	int32			_bufferSize = 0;
-	int32			_readPos = 0;
-	int32			_writePos = 0;
-	vector<BYTE>	_buffer;
+	//uint32
+	vector<BYTE> _buffer;
+	uint32 _bufferSize;
+
+	const uint32 _maxDataSize;
+
+	uint32 _writePos;
+	uint32 _readPos;
+
 };
 
