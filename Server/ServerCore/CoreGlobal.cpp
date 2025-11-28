@@ -1,34 +1,18 @@
 #include "pch.h"
 #include "CoreGlobal.h"
-#include "pch.h"
-#include "CoreGlobal.h"
-#include "ThreadManager.h"
-#include "Memory.h"
-#include "SocketUtils.h"
-#include "SendBuffer.h"
-#include "GlobalQueue.h"
-#include "JobTimer.h"
 
-ThreadManager* GThreadManager = nullptr;
-GlobalQueue* GGlobalQueue = nullptr;
-JobTimer* GJobTimer = nullptr;
+JobManager* GJobManager;
 
 class CoreGlobal
 {
 public:
 	CoreGlobal()
 	{
-		GThreadManager = new ThreadManager();
-		GGlobalQueue = new GlobalQueue();
-		GJobTimer = new JobTimer();
-		SocketUtils::Init();
+		GJobManager = new JobManager();
 	}
 
 	~CoreGlobal()
 	{
-		delete GThreadManager;
-		delete GGlobalQueue;
-		delete GJobTimer;
-		SocketUtils::Clear();
+		delete GJobManager;
 	}
-} GCoreGlobal;
+};

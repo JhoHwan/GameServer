@@ -11,6 +11,6 @@
   </Folder>
   <Folder Name="/Server/">
     <Project Path="Server/GameServer/GameServer.vcxproj" Id="2a16f7c1-81a5-4a8e-adc9-391e1bae6300" />
-    <Project Path="Server/ServerCore/ServerCore.vcxproj" Id="705b6a11-f950-4ddc-9e67-f9accfa0b538" />
+    <Project Path="Server/ServerCore/ServerLib.vcxproj" Id="4f00d22c-0ac2-4d7d-8f4f-6a56498b64dc" />
   </Folder>
 </Solution>

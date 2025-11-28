@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="NetWork">
+      <UniqueIdentifier>{95d053e9-6175-4404-9107-282448c7f46c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Job">
+      <UniqueIdentifier>{1968b257-ce8c-4021-aca5-b6a898bd26e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Packet">
+      <UniqueIdentifier>{61a020c4-c486-4944-b772-9a44512fdd6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DataStruct">
+      <UniqueIdentifier>{b8b2be7b-c756-4823-ad16-bf29dd4baa9a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="Type.h" />
+    <ClInclude Include="IOCPServer.h">
+      <Filter>NetWork</Filter>
+    </ClInclude>
+    <ClInclude Include="Listener.h">
+      <Filter>NetWork</Filter>
+    </ClInclude>
+    <ClInclude Include="NetAddress.h">
+      <Filter>NetWork</Filter>
+    </ClInclude>
+    <ClInclude Include="CorePch.h" />
+    <ClInclude Include="IOCPEvent.h">
+      <Filter>NetWork</Filter>
+    </ClInclude>
+    <ClInclude Include="Session.h">
+      <Filter>NetWork</Filter>
+    </ClInclude>
+    <ClInclude Include="RecvBuffer.h">
+      <Filter>NetWork</Filter>
+    </ClInclude>
+    <ClInclude Include="SendBuffer.h">
+      <Filter>NetWork</Filter>
+    </ClInclude>
+    <ClInclude Include="SocketUtil.h">
+      <Filter>NetWork</Filter>
+    </ClInclude>
+    <ClInclude Include="CoreGlobal.h" />
+    <ClInclude Include="Job.h">
+      <Filter>Job</Filter>
+    </ClInclude>
+    <ClInclude Include="JobQueue.h">
+      <Filter>Job</Filter>
+    </ClInclude>
+    <ClInclude Include="JobManager.h" />
+    <ClInclude Include="IOCPCore.h">
+      <Filter>NetWork</Filter>
+    </ClInclude>
+    <ClInclude Include="IPacket.h">
+      <Filter>Packet</Filter>
+    </ClInclude>
+    <ClInclude Include="IOCPObject.h">
+      <Filter>NetWork</Filter>
+    </ClInclude>
+    <ClInclude Include="Connector.h">
+      <Filter>NetWork</Filter>
+    </ClInclude>
+    <ClInclude Include="DoubleJobQueue.h">
+      <Filter>Job</Filter>
+    </ClInclude>
+    <ClInclude Include="SpinLock.h" />
+    <ClInclude Include="ThreadPool.h" />
+    <ClInclude Include="concurrentqueue.h" />
+    <ClInclude Include="ReservedJob.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="IOCPServer.cpp">
+      <Filter>NetWork</Filter>
+    </ClCompile>
+    <ClCompile Include="Listener.cpp">
+      <Filter>NetWork</Filter>
+    </ClCompile>
+    <ClCompile Include="NetAddress.cpp">
+      <Filter>NetWork</Filter>
+    </ClCompile>
+    <ClCompile Include="CorePch.cpp" />
+    <ClCompile Include="IOCPEvent.cpp">
+      <Filter>NetWork</Filter>
+    </ClCompile>
+    <ClCompile Include="Session.cpp">
+      <Filter>NetWork</Filter>
+    </ClCompile>
+    <ClCompile Include="RecvBuffer.cpp">
+      <Filter>NetWork</Filter>
+    </ClCompile>
+    <ClCompile Include="SendBuffer.cpp">
+      <Filter>NetWork</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketUtil.cpp">
+      <Filter>NetWork</Filter>
+    </ClCompile>
+    <ClCompile Include="CoreGlobal.cpp" />
+    <ClCompile Include="Job.cpp">
+      <Filter>Job</Filter>
+    </ClCompile>
+    <ClCompile Include="JobQueue.cpp">
+      <Filter>Job</Filter>
+    </ClCompile>
+    <ClCompile Include="JobManager.cpp" />
+    <ClCompile Include="IOCPCore.cpp">
+      <Filter>NetWork</Filter>
+    </ClCompile>
+    <ClCompile Include="IPacket.cpp">
+      <Filter>Packet</Filter>
+    </ClCompile>
+    <ClCompile Include="IOCPObject.cpp">
+      <Filter>NetWork</Filter>
+    </ClCompile>
+    <ClCompile Include="Connector.cpp">
+      <Filter>NetWork</Filter>
+    </ClCompile>
+    <ClCompile Include="DoubleJobQueue.cpp">
+      <Filter>Job</Filter>
+    </ClCompile>
+    <ClCompile Include="SpinLock.cpp" />
+    <ClCompile Include="ThreadPool.cpp" />
+    <ClCompile Include="ReservedJob.cpp" />
+  </ItemGroup>
+</Project>
