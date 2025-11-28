@@ -4,6 +4,12 @@
     <Filter Include="Main">
       <UniqueIdentifier>{dc4550f0-e26d-4d7e-bb0c-bf53c6f49cf0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Protocol">
+      <UniqueIdentifier>{bf74476f-4995-4053-89d0-39f2b37f8be8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Protocol\Proto">
+      <UniqueIdentifier>{374187cb-8cc6-4f71-9cdc-934de1c2963b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -19,6 +25,15 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Common\protoc-21.12-win64\bin\Protocol.proto">
+      <Filter>Protocol\Proto</Filter>
+    </None>
+    <None Include="..\Common\protoc-21.12-win64\bin\Struct.proto">
+      <Filter>Protocol\Proto</Filter>
+    </None>
+    <None Include="..\Common\protoc-21.12-win64\bin\Enum.proto">
+      <Filter>Protocol\Proto</Filter>
+    </None>
     <None Include="..\vcpkg.json" />
   </ItemGroup>
 </Project>

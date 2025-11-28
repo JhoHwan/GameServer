@@ -1,60 +1,34 @@
 #pragma once
-template<typename B, typename T>
-using Base_Check = typename enable_if<is_base_of<T, B>::value, bool>::type;
+#include <functional>
+
+/*---------
+	Job
+----------*/
+
+using CallbackType = std::function<void()>;
 
 class Job
 {
-	using Function = function<void()>;
-
 public:
-	Job() = delete;
-	Job(const Job&) = delete;
-	Job(Job&&) = default;
+	Job(CallbackType&& callback) : _callback(std::move(callback))
+	{
+	}
 
-	// Derived Member Function
-	template<typename R, typename T, typename B, typename... Args, Base_Check<T, B> = NULL>
-	Job(R(T::* func)(Args...), B* obj, Args... args);
+	template<typename T, typename Ret, typename... Args>
+	Job(shared_ptr<T> owner, Ret(T::* memFunc)(Args...), Args&&... args)
+	{
+		_callback = [owner, memFunc, args...]()
+		{
+			(owner.get()->*memFunc)(args...);
+		};
+	}
 
-	// Member Function
-	template<typename R, typename Obj, typename... Args>
-	Job(R(Obj::* func)(Args...), Obj* obj, Args... args);
-
-	template<typename R, typename Obj, typename... Args>
-	Job(R(Obj::* func)(Args...), shared_ptr<Obj> obj, Args... args);
-
-	// Static or Function
-	template<typename R, typename... Args>
-	Job(R(*func)(Args...), Args... args);
-
-	// Lamdba
-	Job(Function&& func);
-	
-	void Execute() const;
-	void operator() () const;
+	void Execute()
+	{
+		_callback();
+	}
 
 private:
-	Function _func;
+	CallbackType _callback;
 };
 
-template<typename R, typename T, typename B, typename ...Args, Base_Check<T, B>>
-inline Job::Job(R(T::* func)(Args...), B* obj, Args ...args)
-{
-	_func = std::move([obj, func, args...]() { (static_cast<T*>(obj)->*func)(args...); });
-}
-template<typename R, typename Obj, typename ...Args>
-inline Job::Job(R(Obj::* func)(Args...), Obj* obj, Args ...args)
-{
-	_func = std::move([obj, func, args...]() { (obj->*func)(args...); });
-}
-
-template<typename R, typename ...Args>
-inline Job::Job(R(*func)(Args...), Args ...args)
-{
-	_func = std::move([func, args...]() { (*func)(args...); });
-}
-
-template<typename R, typename Obj, typename... Args>
-inline Job::Job(R(Obj::* func)(Args...), shared_ptr<Obj> obj, Args... args)
-{
-	_func = std::move([obj, func, args...]() { (obj.get()->*func)(args...); });
-}
