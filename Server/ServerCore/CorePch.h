@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Type.h"
+#include "Types.h"
 
 #include <memory>
 #include <atomic>
@@ -27,7 +27,6 @@
 
 using namespace std;
 
-#include "ThreadPool.h"
 #include "SpinLock.h"
 #include "SocketUtil.h"
 
@@ -36,12 +35,11 @@ using namespace std;
 #include "IOCPObject.h"
 
 #include "SendBuffer.h"
-#include "IPacket.h"
+#include "Packet.h"
 //#include "PacketHandler.h"
 #include "IOCPServer.h"
 #include "Job.h"
 #include "JobQueue.h"
-#include "DoubleJobQueue.h"
 #include "JobManager.h"
 #include "Connector.h"
 

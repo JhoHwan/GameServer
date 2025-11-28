@@ -30,7 +30,6 @@ public:
 
     // 이벤트 디스패처
     void DispatchIocpEvent(uint16);
-    void DispatchJob(uint16);
     void Dispatch(uint16 iocpDispatchTime);
 
     // Getter

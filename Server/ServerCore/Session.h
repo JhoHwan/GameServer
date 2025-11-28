@@ -3,6 +3,7 @@
 #include "NetAddress.h"
 #include "IOCPEvent.h"
 #include "RecvBuffer.h"
+#include "concurrentqueue.h"
 
 class IOCPServer;
 class SendBuffer;
@@ -65,7 +66,7 @@ protected:
     NetAddress _address;
 
     RecvBuffer _recvBuffer;
-    ConcurrentQueue<shared_ptr<SendBuffer>> _sendQueue;
+    moodycamel::ConcurrentQueue<shared_ptr<SendBuffer>> _sendQueue;
 
     atomic<bool> _sendRegistered;
 //IOCP Event
