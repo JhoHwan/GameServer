@@ -1,30 +1,38 @@
 #pragma once
+#include "IocpCore.h"
+#include "NetAddress.h"
 
-class IOCPServer;
 class AcceptEvent;
+class ServerService;
 
-class Listener : public IOCPObject
+/*--------------
+	Listener
+---------------*/
+
+class Listener : public IocpObject
 {
 public:
-    // 생성자 및 소멸자
-    Listener(unsigned int maxAcceptNum = 100);
-    ~Listener();
+	Listener() = default;
+	~Listener();
 
-    // Accept 관리
-    bool StartAccept(std::shared_ptr<IOCPServer> server);
-    void RegisterAccept(AcceptEvent* acceptEvent);
-    void ProcessAccept(AcceptEvent* acceptEvent);
+public:
+	/* 외부에서 사용 */
+	bool StartAccept(ServerServiceRef service);
+	void CloseSocket();
 
-    void Dispatch(IOCPEvent* iocpEvent, int32 numOfBytes) override;
-
-    // Getter
-    inline const SOCKET& GetSocket() const { return _socket; }
+public:
+	/* 인터페이스 구현 */
+	virtual HANDLE GetHandle() override;
+	virtual void Dispatch(class IocpEvent* iocpEvent, int32 numOfBytes = 0) override;
 
 private:
-    const unsigned int MAX_ACCEPT_NUM;
-    std::shared_ptr<IOCPServer> _server;
-    std::vector<AcceptEvent> _acceptEvents; 
-    SOCKET _socket = {};
+	/* 수신 관련 */
+	void RegisterAccept(AcceptEvent* acceptEvent);
+	void ProcessAccept(AcceptEvent* acceptEvent);
 
-
+protected:
+	SOCKET _socket = INVALID_SOCKET;
+	vector<AcceptEvent*> _acceptEvents;
+	ServerServiceRef _service;
 };
+
