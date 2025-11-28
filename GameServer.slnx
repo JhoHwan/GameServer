@@ -1,0 +1,16 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Backend/">
+    <Project Path="Backend/Game.Data/Game.Data.csproj" />
+    <Project Path="Backend/Game.DBServer/Game.DBServer.csproj" />
+    <Project Path="Backend/Game.WebAPI/Game.WebAPI.csproj" />
+  </Folder>
+  <Folder Name="/Server/">
+    <Project Path="Server/GameServer/GameServer.vcxproj" Id="2a16f7c1-81a5-4a8e-adc9-391e1bae6300" />
+    <Project Path="Server/ServerCore/ServerCore.vcxproj" Id="705b6a11-f950-4ddc-9e67-f9accfa0b538" />
+  </Folder>
+</Solution>
