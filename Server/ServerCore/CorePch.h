@@ -2,8 +2,6 @@
 
 #include "Types.h"
 #include "CoreMacro.h"
-#include "CoreTLS.h"
-#include "CoreGlobal.h"
 
 #include <array>
 #include <vector>

@@ -24,12 +24,6 @@
     <ClInclude Include="pch.h">
       <Filter>Main</Filter>
     </ClInclude>
-    <ClInclude Include="CoreGlobal.h">
-      <Filter>Main</Filter>
-    </ClInclude>
-    <ClInclude Include="CoreTLS.h">
-      <Filter>Main</Filter>
-    </ClInclude>
     <ClInclude Include="CoreMacro.h">
       <Filter>Main</Filter>
     </ClInclude>
@@ -63,16 +57,10 @@
     <ClInclude Include="NetAddress.h">
       <Filter>Network</Filter>
     </ClInclude>
-    <ClInclude Include="ThreadManager.h">
-      <Filter>Thread</Filter>
-    </ClInclude>
     <ClInclude Include="JobQueue.h">
       <Filter>Job</Filter>
     </ClInclude>
     <ClInclude Include="JobTimer.h">
-      <Filter>Job</Filter>
-    </ClInclude>
-    <ClInclude Include="GlobalQueue.h">
       <Filter>Job</Filter>
     </ClInclude>
     <ClInclude Include="Job.h">
@@ -93,12 +81,6 @@
       <Filter>Main</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
-      <Filter>Main</Filter>
-    </ClCompile>
-    <ClCompile Include="CoreGlobal.cpp">
-      <Filter>Main</Filter>
-    </ClCompile>
-    <ClCompile Include="CoreTLS.cpp">
       <Filter>Main</Filter>
     </ClCompile>
     <ClCompile Include="SendBuffer.cpp">
@@ -128,16 +110,10 @@
     <ClCompile Include="RecvBuffer.cpp">
       <Filter>Network</Filter>
     </ClCompile>
-    <ClCompile Include="ThreadManager.cpp">
-      <Filter>Thread</Filter>
-    </ClCompile>
     <ClCompile Include="JobQueue.cpp">
       <Filter>Job</Filter>
     </ClCompile>
     <ClCompile Include="JobTimer.cpp">
-      <Filter>Job</Filter>
-    </ClCompile>
-    <ClCompile Include="GlobalQueue.cpp">
       <Filter>Job</Filter>
     </ClCompile>
     <ClCompile Include="Job.cpp">
