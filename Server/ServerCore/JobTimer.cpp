@@ -1,24 +1,28 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "JobTimer.h"
 #include "JobQueue.h"
 
 /*--------------
 	JobTimer
 ---------------*/
+JobTimer& GJobTimer = JobTimer::Instance();
 
-void JobTimer::Reserve(uint64 tickAfter, weak_ptr<JobQueue> owner, JobRef job)
+shared_ptr<JobCancelToken> JobTimer::Reserve(uint64 tickAfter, weak_ptr<JobQueue> owner, JobRef job)
 {
 	const uint64 executeTick = ::GetTickCount64() + tickAfter;
 	JobData* jobData = new JobData(owner, job);
-
-	WRITE_LOCK;
-
-	_items.push(TimerItem{ executeTick, jobData });
+	TimerItem item(executeTick, jobData);
+	{
+		WRITE_LOCK;
+		_items.push(item);
+	}
+	
+	return item.cancelToken;
 }
 
 void JobTimer::Distribute(uint64 now)
 {
-	// ÇÑ ¹ø¿¡ 1 ¾²·¹µå¸¸ Åë°ú
+	// í•œ ë²ˆì— 1 ì“°ë ˆë“œë§Œ í†µê³¼
 	if (_distributing.exchange(true) == true)
 		return;
 
@@ -40,13 +44,15 @@ void JobTimer::Distribute(uint64 now)
 
 	for (TimerItem& item : items)
 	{
-		if (JobQueueRef owner = item.jobData->owner.lock())
-			owner->Push(item.jobData->job);
-
+		if (item.cancelToken->IsCanceled() == false)
+		{
+			if (JobQueueRef owner = item.jobData->owner.lock())
+				owner->Push(item.jobData->job);
+		}
 		delete item.jobData;		
 	}
 
-	// ³¡³µÀ¸¸é Ç®¾îÁØ´Ù
+	// ëë‚¬ìœ¼ë©´ í’€ì–´ì¤€ë‹¤
 	_distributing.store(false);
 }
 

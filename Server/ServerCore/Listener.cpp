@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "Listener.h"
 #include "SocketUtils.h"
 #include "IocpEvent.h"
@@ -29,7 +29,10 @@ bool Listener::StartAccept(ServerServiceRef service)
 
 	_socket = SocketUtils::CreateSocket();
 	if (_socket == INVALID_SOCKET)
+	{
+		int error_code = WSAGetLastError();
 		return false;
+	}
 
 	if (_service->GetIocpCore()->Register(shared_from_this()) == false)
 		return false;
@@ -88,7 +91,7 @@ void Listener::RegisterAccept(AcceptEvent* acceptEvent)
 		const int32 errorCode = ::WSAGetLastError();
 		if (errorCode != WSA_IO_PENDING)
 		{
-			// ÀÏ´Ü ´Ù½Ã Accept °É¾îÁØ´Ù
+			// ì¼ë‹¨ ë‹¤ì‹œ Accept ê±¸ì–´ì¤€ë‹¤
 			RegisterAccept(acceptEvent);
 		}
 	}

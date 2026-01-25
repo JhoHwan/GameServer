@@ -10,7 +10,13 @@
     <Project Path="Backend/Game.WebAPI/Game.WebAPI.csproj" />
   </Folder>
   <Folder Name="/Server/">
-    <Project Path="Server/GameServer/GameServer.vcxproj" Id="2a16f7c1-81a5-4a8e-adc9-391e1bae6300" />
+    <Project Path="Server/GameServer/GameServer.vcxproj" Id="2a16f7c1-81a5-4a8e-adc9-391e1bae6300">
+      <BuildDependency Project="Server/ServerCore/ServerCore.vcxproj" />
+    </Project>
+    <Project Path="Server/PacketGenerator/PacketGenerator.pyproj" Type="888888a0-9f3d-457c-b088-3a5042f75d52" Id="2dcd6df2-6f34-4fc1-9bfe-327f851360cb">
+      <Platform Project="AnyCPU" />
+      <Build Project="false" />
+    </Project>
     <Project Path="Server/ServerCore/ServerCore.vcxproj" Id="705b6a11-f950-4ddc-9e67-f9accfa0b538" />
   </Folder>
 </Solution>

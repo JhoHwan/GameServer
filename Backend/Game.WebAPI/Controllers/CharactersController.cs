@@ -85,15 +85,12 @@ namespace Game.WebAPI.Controllers
             {
                 return NotFound(new APIResponse
                 {
-                    Error = true,
-                    Message = "캐릭터가 없습니다."
+                    ErrorCode = EErrorCode.Char_NoCharacter
                 });
             }
 
             return Ok(new APIResponse
             {
-                Error = false,
-                Message = "캐릭터 불러오기 성공",
                 Data = new { characters }
             });
         }
@@ -105,8 +102,7 @@ namespace Game.WebAPI.Controllers
             {
                 return BadRequest(new APIResponse
                 {
-                    Error = true,
-                    Message = "이미 존재하는 캐릭터 이름"
+                    ErrorCode = EErrorCode.Char_ExistingCharName
                 });
             }
 
@@ -140,15 +136,13 @@ namespace Game.WebAPI.Controllers
                 _logger.LogError(ex, "캐릭터 생성 중 DB 오류");
                 return StatusCode(500, new APIResponse
                 {
-                    Error = true,
-                    Message = "캐릭터 생성 중 오류가 발생했습니다."
+                    ErrorCode = EErrorCode.ServerInternal
                 });
             }
 
             return Ok(new APIResponse
             {
-                Error = false,
-                Message = "캐릭터 생성 성공",
+                ErrorCode = EErrorCode.None,
                 Data = new
                 {
                     character.Id,
@@ -170,8 +164,8 @@ namespace Game.WebAPI.Controllers
             {
                 return BadRequest(new APIResponse
                 {
-                    Error = true,
-                    Message = "존재하지 않거나 이미 삭제된 캐릭터"
+                    //Error = true,
+                    //Message = "존재하지 않거나 이미 삭제된 캐릭터"
                 });
             }
 
@@ -180,8 +174,6 @@ namespace Game.WebAPI.Controllers
 
             return Ok(new APIResponse
             {
-                Error = false,
-                Message = "캐릭터 삭제 성공"
             });
         }
     }

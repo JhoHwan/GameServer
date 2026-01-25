@@ -1,7 +1,8 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "Service.h"
 #include "Session.h"
 #include "Listener.h"
+#include "SocketUtils.h"
 
 /*-------------
 	Service
@@ -88,6 +89,8 @@ ServerService::ServerService(NetAddress address, IocpCoreRef core, SessionFactor
 
 bool ServerService::Start()
 {
+	SocketUtils::Init();
+
 	if (CanStart() == false)
 		return false;
 

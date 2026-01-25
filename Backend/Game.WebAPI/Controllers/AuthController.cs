@@ -42,6 +42,13 @@ namespace Game.WebAPI.Controllers
         private readonly IConfiguration _config;
         private readonly ILogger<AuthController> _logger;
 
+        enum EAuthErrorCode
+        {
+            Success = 0,
+            InvalidCreds,
+
+        }
+
         public AuthController(GameDbContext db, IConfiguration config, ILogger<AuthController> logger)
         {
             _db = db;
@@ -58,8 +65,7 @@ namespace Game.WebAPI.Controllers
             {
                 return BadRequest(new APIResponse
                 {
-                    Error = true,
-                    Message = "An Email that already exists."
+                    ErrorCode = EErrorCode.Auth_EmailDuplicated
                 });
             }
 
@@ -77,23 +83,23 @@ namespace Game.WebAPI.Controllers
             }
             catch (DbUpdateException e)
             {
+                _logger.LogError(e.InnerException?.Message ?? e.Message);
                 return BadRequest(new APIResponse
                 {
-                    Error = true,
-                    Message = e.InnerException?.Message ?? e.Message
+                    ErrorCode = EErrorCode.ServerInternal,
                 });
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 return StatusCode(500, new APIResponse
                 {
-                    Error = true,
-                    Message = ex.Message
+                    ErrorCode = EErrorCode.ServerInternal,
                 });
             }
 
             _logger.LogInformation($"회원가입 성공 : {user.Email}");
-            return Ok(new { message = "You have successfully signed up." });
+            return Ok(new APIResponse{  });
         }
 
         [HttpPost]
@@ -106,8 +112,7 @@ namespace Game.WebAPI.Controllers
             {
                 return Unauthorized(new APIResponse
                 {
-                    Error = true,
-                    Message = "Invalid email or password."
+                    ErrorCode = EErrorCode.Auth_InvalidCreds
                 });
             }
 
@@ -115,8 +120,6 @@ namespace Game.WebAPI.Controllers
 
             return Ok(new APIResponse
             {
-                Error = false,
-                Message = "로그인 성공",
                 Data = new { token }
             });
         }

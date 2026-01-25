@@ -1,0 +1,68 @@
+﻿syntax = "proto3";
+
+package Protocol;
+
+import "Struct.proto";
+
+message CS_REQ_ENTER_GAME
+{
+    int32 char_id = 1;
+    int32 token = 2;
+}
+
+message SC_ENTER_GAME_RESULT
+{ 
+    bool success = 1; 
+    int32 error_code = 2; 
+}
+
+message CS_REQ_MOVE_FIELD
+{
+    uint32 map_id = 1;
+}
+
+message SC_MOVE_FIELD_FAIL 
+{ 
+    int32 error_code = 1; 
+}
+
+message SC_START_FIELD_LOADING
+{
+    uint32 target_map_id = 1;
+    Vector3 start_pos = 2;
+}
+
+message CS_FIELD_LOADING_COMPLETE
+{
+    bool is_success = 1; 
+}
+
+message SC_ENTER_FIELD
+{ 
+    PlayerInfo my_info = 1;
+}
+
+message SC_SPAWN_PLAYER
+{
+    repeated PlayerInfo info = 1;
+}
+
+message SC_DESPAWN_PLAYER
+{
+    repeated uint64 player_id = 1;
+}
+
+message CS_MOVE 
+{
+    Vector3 pos = 1;
+}
+
+message CS_PING
+{
+    int32 id = 1;
+}
+
+message SC_PONG
+{
+    int32 id = 1;
+}

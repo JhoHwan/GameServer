@@ -1,0 +1,22 @@
+﻿syntax = "proto3";
+
+package Protocol;
+
+message Vector3
+{
+	double x = 1;
+	double y = 2;
+	double z = 3;
+}
+
+message ObjectInfo
+{
+	int32 id = 1;
+	Vector3 pos = 2;
+	double yaw = 3;
+}
+
+message PlayerInfo
+{
+	ObjectInfo object_info = 1;
+}

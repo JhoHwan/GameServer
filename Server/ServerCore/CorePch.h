@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Types.h"
 #include "CoreMacro.h"
@@ -12,6 +12,7 @@
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
+#include <shared_mutex>
 
 #include <windows.h>
 #include <iostream>
@@ -22,9 +23,9 @@ using namespace std;
 #include <mswsock.h>
 #include <ws2tcpip.h>
 #pragma comment(lib, "ws2_32.lib")
-
+#include "CoreTLS.h"
+#include "Singleton.h"
 #include "SendBuffer.h"
 #include "Session.h"
 #include "JobQueue.h"
-
 

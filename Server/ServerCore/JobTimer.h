@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 struct JobData
 {
@@ -11,8 +11,23 @@ struct JobData
 	JobRef				job;
 };
 
+struct JobCancelToken
+{
+public:
+	void CancelJob() { _isCanceld = true; }
+	bool IsCanceled() const { return _isCanceld; }
+
+private:
+	bool _isCanceld = false;
+};
+
 struct TimerItem
 {
+	TimerItem(uint64 executeTick, JobData* jobData) 
+		: executeTick(executeTick),
+		jobData(jobData),
+		cancelToken(make_shared<JobCancelToken>()) {}
+
 	bool operator<(const TimerItem& other) const
 	{
 		return executeTick > other.executeTick;
@@ -20,18 +35,19 @@ struct TimerItem
 
 	uint64 executeTick = 0;
 	JobData* jobData = nullptr;
+	shared_ptr<JobCancelToken> cancelToken;
 };
 
 /*--------------
 	JobTimer
 ---------------*/
 
-class JobTimer
+class JobTimer : public Singleton<JobTimer>
 {
 public:
-	void			Reserve(uint64 tickAfter, weak_ptr<JobQueue> owner, JobRef job);
-	void			Distribute(uint64 now);
-	void			Clear();
+	shared_ptr<JobCancelToken>			Reserve(uint64 tickAfter, weak_ptr<JobQueue> owner, JobRef job);
+	void								Distribute(uint64 now);
+	void								Clear();
 
 private:
 	USE_LOCK;
@@ -39,3 +55,4 @@ private:
 	atomic<bool>				_distributing = false;
 };
 
+extern JobTimer& GJobTimer;

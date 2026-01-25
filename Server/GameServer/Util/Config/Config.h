@@ -1,12 +1,12 @@
-#pragma once
-
-#include "../Singleton.h"
+﻿#pragma once
 
 struct ServerConfig
 {
-	std::wstring ip;
-	uint16 port;
-	uint32 maxSession;
+	std::wstring Ip;
+	uint16 Port;
+
+	int32 NumOfIOCPThread;
+	int32 NumOfWorkerThread;
 };
 
 class ConfigLoader : public Singleton<ConfigLoader>
@@ -14,7 +14,7 @@ class ConfigLoader : public Singleton<ConfigLoader>
 	friend class Singleton<ConfigLoader>;
 
 public:
-	bool Load(const std::string& path);
+	bool Load(const std::wstring& path);
 	const ServerConfig& GetServerConfig() const { return _serverConfig; }
 
 private:

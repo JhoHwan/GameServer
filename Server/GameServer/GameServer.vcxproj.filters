@@ -13,18 +13,52 @@
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="GameSession.cpp" />
     <ClCompile Include="Util\Config\Config.cpp" />
-    <ClCompile Include="Util\Log\Logger.cpp" />
+    <ClCompile Include="Detour\Source\DetourAlloc.cpp" />
+    <ClCompile Include="Detour\Source\DetourAssert.cpp" />
+    <ClCompile Include="Detour\Source\DetourCommon.cpp" />
+    <ClCompile Include="Detour\Source\DetourNavMesh.cpp" />
+    <ClCompile Include="Detour\Source\DetourNavMeshBuilder.cpp" />
+    <ClCompile Include="Detour\Source\DetourNavMeshQuery.cpp" />
+    <ClCompile Include="Detour\Source\DetourNode.cpp" />
+    <ClCompile Include="Util\NavMeshLoader.cpp" />
+    <ClCompile Include="Packet\ServerPacketHandler.cpp" />
+    <ClCompile Include="Proto\Protocol.pb.cc" />
+    <ClCompile Include="Contents\GameObject.cpp" />
+    <ClCompile Include="Contents\Component.cpp" />
+    <ClCompile Include="Proto\Struct.pb.cc" />
+    <ClCompile Include="Contents\Field.cpp" />
+    <ClCompile Include="Contents\Player.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\vcpkg.json" />
+    <None Include="config.ini" />
     <None Include="Config.json" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="Util\Singleton.h" />
     <ClInclude Include="GameSession.h" />
     <ClInclude Include="Util\Config\Config.h" />
-    <ClInclude Include="Util\Log\Logger.h" />
-    <ClInclude Include="Util\Log\LogMacro.h" />
+    <ClInclude Include="Detour\Include\DetourAlloc.h" />
+    <ClInclude Include="Detour\Include\DetourAssert.h" />
+    <ClInclude Include="Detour\Include\DetourCommon.h" />
+    <ClInclude Include="Detour\Include\DetourMath.h" />
+    <ClInclude Include="Detour\Include\DetourNavMesh.h" />
+    <ClInclude Include="Detour\Include\DetourNavMeshBuilder.h" />
+    <ClInclude Include="Detour\Include\DetourNavMeshQuery.h" />
+    <ClInclude Include="Detour\Include\DetourNode.h" />
+    <ClInclude Include="Detour\Include\DetourStatus.h" />
+    <ClInclude Include="Util\MemoryPool.h" />
+    <ClInclude Include="Util\NavMeshLoader.h" />
+    <ClInclude Include="Packet\ServerPacketHandler.h" />
+    <ClInclude Include="Proto\Protocol.pb.h" />
+    <ClInclude Include="Contents\Component.h" />
+    <ClInclude Include="Contents\GameObject.h" />
+    <ClInclude Include="Proto\Struct.pb.h" />
+    <ClInclude Include="Contents\Field.h" />
+    <ClInclude Include="Util\Vector3.h" />
+    <ClInclude Include="Contents\Player.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Proto\Protocol.proto" />
+    <CustomBuild Include="Proto\Struct.proto" />
   </ItemGroup>
 </Project>

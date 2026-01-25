@@ -105,7 +105,7 @@ class PacketSession : public Session
 {
 public:
 	PacketSession();
-	virtual ~PacketSession();
+	virtual ~PacketSession() override;
 
 	PacketSessionRef	GetPacketSessionRef() { return static_pointer_cast<PacketSession>(shared_from_this()); }
 
