@@ -158,7 +158,7 @@
 
 #pragma endregion
 
-void WorkerMain(INetCoreRef iocpCore)
+void WorkerMain(NetCoreRef iocpCore)
 {
     while (true)
     {

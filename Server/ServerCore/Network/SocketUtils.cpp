@@ -4,38 +4,56 @@
 /*----------------
 	SocketUtils
 -----------------*/
-
-LPFN_CONNECTEX		SocketUtils::ConnectEx = nullptr;
-LPFN_DISCONNECTEX	SocketUtils::DisconnectEx = nullptr;
-LPFN_ACCEPTEX		SocketUtils::AcceptEx = nullptr;
+#ifdef _WIN32
+	LPFN_CONNECTEX		SocketUtils::ConnectEx = nullptr;
+	LPFN_DISCONNECTEX	SocketUtils::DisconnectEx = nullptr;
+	LPFN_ACCEPTEX		SocketUtils::AcceptEx = nullptr;
+#endif
 
 void SocketUtils::Init()
 {
+#ifdef _WIN32
 	WSADATA wsaData;
 	ASSERT_CRASH(::WSAStartup(MAKEWORD(2, 2), OUT &wsaData) == 0);
 	
 	/* 런타임에 주소 얻어오는 API */
 	SOCKET dummySocket = CreateSocket();
-	ASSERT_CRASH(BindWindowsFunction(dummySocket, WSAID_CONNECTEX, reinterpret_cast<LPVOID*>(&ConnectEx)));
-	ASSERT_CRASH(BindWindowsFunction(dummySocket, WSAID_DISCONNECTEX, reinterpret_cast<LPVOID*>(&DisconnectEx)));
-	ASSERT_CRASH(BindWindowsFunction(dummySocket, WSAID_ACCEPTEX, reinterpret_cast<LPVOID*>(&AcceptEx)));
+	ASSERT_CRASH(BindWindowsFunction(dummySocket, WSAID_CONNECTEX, reinterpret_cast<void**>(&ConnectEx)));
+	ASSERT_CRASH(BindWindowsFunction(dummySocket, WSAID_DISCONNECTEX, reinterpret_cast<void**>(&DisconnectEx)));
+	ASSERT_CRASH(BindWindowsFunction(dummySocket, WSAID_ACCEPTEX, reinterpret_cast<void**>(&AcceptEx)));
 	Close(dummySocket);
+#endif
 }
 
 void SocketUtils::Clear()
 {
+#ifdef _WIN32
 	::WSACleanup();
-}
-
-bool SocketUtils::BindWindowsFunction(SOCKET socket, GUID guid, LPVOID* fn)
-{
-	DWORD bytes = 0;
-	return SOCKET_ERROR != ::WSAIoctl(socket, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), fn, sizeof(*fn), OUT & bytes, NULL, NULL);
+#endif
 }
 
 SOCKET SocketUtils::CreateSocket()
 {
-	return ::WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
+	SOCKET socket;
+#ifdef _WIN32
+	socket = ::WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
+#else
+	socket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+#endif
+
+	return socket;
+}
+
+void SocketUtils::Close(SOCKET& socket)
+{
+	if (socket != INVALID_SOCKET)
+#ifdef _WIN32
+		::closesocket(socket);
+#else
+		::close(socket);
+#endif
+
+	socket = INVALID_SOCKET;
 }
 
 bool SocketUtils::SetLinger(SOCKET socket, uint16 onoff, uint16 linger)
@@ -69,7 +87,11 @@ bool SocketUtils::SetTcpNoDelay(SOCKET socket, bool flag)
 // ListenSocket의 특성을 ClientSocket에 그대로 적용
 bool SocketUtils::SetUpdateAcceptSocket(SOCKET socket, SOCKET listenSocket)
 {
+#ifdef _WIN32
 	return SetSockOpt(socket, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, listenSocket);
+#else
+	return true;
+#endif
 }
 
 bool SocketUtils::Bind(SOCKET socket, NetAddress netAddr)
@@ -92,9 +114,10 @@ bool SocketUtils::Listen(SOCKET socket, int32 backlog)
 	return SOCKET_ERROR != ::listen(socket, backlog);
 }
 
-void SocketUtils::Close(SOCKET& socket)
+#ifdef _WIN32
+bool SocketUtils::BindWindowsFunction(SOCKET socket, GUID guid, void** fn)
 {
-	if (socket != INVALID_SOCKET)
-		::closesocket(socket);
-	socket = INVALID_SOCKET;
+	DWORD bytes = 0;
+	return SOCKET_ERROR != ::WSAIoctl(socket, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), fn, sizeof(*fn), OUT & bytes, NULL, NULL);
 }
+#endif

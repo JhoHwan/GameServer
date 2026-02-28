@@ -30,6 +30,7 @@ using namespace std;
 	const int SOCKET_ERROR = -1;
 	using HANDLE = int;
 	const int INFINITE = -1;
+	using LINGER = struct linger;
 
 	using SOCKADDR_IN = struct sockaddr_in;
 	using IN_ADDR = struct in_addr;
