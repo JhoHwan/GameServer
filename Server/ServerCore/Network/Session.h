@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "IocpCore.h"
 #include "NetEvent.h"
 #include "NetAddress.h"
+#include "NetObject.h"
 #include "RecvBuffer.h"
 
 class Service;

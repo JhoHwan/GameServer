@@ -1,6 +1,6 @@
 #pragma once
 #include "NetCore.h"
-#include "NetObject.h"
+
 /*--------------
 	IocpCore
 ---------------*/
