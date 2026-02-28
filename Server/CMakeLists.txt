@@ -11,3 +11,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # 하위 폴더(모듈) 추가
 add_subdirectory(ServerCore)
 add_subdirectory(GameServer)
+add_subdirectory(DummyClient)
+add_subdirectory(DummyServer)

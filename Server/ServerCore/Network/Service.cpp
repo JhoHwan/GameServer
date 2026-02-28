@@ -38,8 +38,9 @@ SessionRef Service::CreateSession()
 	session->SetService(shared_from_this());
 
 	if (_netCore->Register(session) == false)
+	{
 		return nullptr;
-
+	}
 	return session;
 }
 
@@ -68,6 +69,8 @@ ClientService::ClientService(NetAddress targetAddress, NetCoreRef core, SessionF
 
 bool ClientService::Start()
 {
+	SocketUtils::Init();
+
 	if (CanStart() == false)
 		return false;
 
@@ -107,7 +110,11 @@ bool ServerService::Start()
 
 void ServerService::CloseService()
 {
-	// TODO
+	if (_listener != nullptr)
+	{
+		_listener->CloseSocket();
+		_listener.reset();
+	}
 
 	Service::CloseService();
 }

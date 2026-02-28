@@ -203,7 +203,7 @@ void WorkerMain(NetCoreRef iocpCore)
             if (!GGlobalJobQueue.try_dequeue(jobQueue)) break;
             if (!jobQueue) break;
 
-            int32 remainTime = static_cast<int32>(10 - duration);
+            auto remainTime = static_cast<int32>(10 - duration);
             if (remainTime < 0) remainTime = 0;
 
             jobQueue->Execute(remainTime);
@@ -219,8 +219,7 @@ int main()
 
 
     NetAddress address(L"127.0.0.1", 7777);
-    NetAddress dbAddress(L"127.0.0.1", 12345);
-	INetCoreRef iocpCore = make_shared<IocpCore>();
+	NetCoreRef iocpCore = make_shared<IocpCore>();
 
 	ServerServiceRef service = make_shared<ServerService>(address, iocpCore, []() 
 		{
@@ -238,6 +237,16 @@ int main()
 	{
 		wstring command;
 		wcin >> command;
+	    if (command == L"quit")
+	    {
+		    service->CloseService();
+	    	break;
+	    }
+	}
+
+	for (int i = 0; i < 4; i++)
+	{
+		threads[i].join();
 	}
 
     //auto navMesh = NavMeshLoader::LoadNavMeshFromBin("Map.bin");

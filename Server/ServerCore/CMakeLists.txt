@@ -19,14 +19,6 @@ add_library(ServerCore STATIC
     ${BUFFER_SOURCES} 
     ${NETWORK_SOURCES} 
     ${PLATFORM_SOURCES}
-        Network/NetCore.h
-        Network/NetObject.h
-        Network/NetObject.cpp
-        Network/NetCore.cpp
-        Network/NetEvent.cpp
-        Network/NetEvent.h
-        Platform/Linux/EpollEvent.cpp
-        Platform/Linux/EpollEvent.h
 )
 
 target_include_directories(ServerCore PUBLIC 
