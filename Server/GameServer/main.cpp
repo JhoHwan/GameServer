@@ -181,7 +181,7 @@ void WorkerMain(IocpCoreRef iocpCore)
             {
                 while (!LJobQueue.empty())
                 {
-                    GGlobalJobQueue.push(LJobQueue.front());
+                    GGlobalJobQueue.enqueue(LJobQueue.front());
                     LJobQueue.pop();
                 }
                 break;
@@ -201,7 +201,7 @@ void WorkerMain(IocpCoreRef iocpCore)
             if (duration >= 10) break;
 
             JobQueueRef jobQueue;
-            if (!GGlobalJobQueue.try_pop(jobQueue)) break;
+            if (!GGlobalJobQueue.try_dequeue(jobQueue)) break;
             if (!jobQueue) break;
 
             int32 remainTime = static_cast<int32>(10 - duration);
@@ -235,19 +235,10 @@ int main()
         threads.emplace_back(WorkerMain, iocpCore);
     }
 
-    ClientServiceRef dbServer = make_shared<ClientService>(
-        dbAddress, iocpCore, []() {return make_shared<Session>(); }, 1
-    );
-    dbServer->Start();
-
 	while(true)
 	{
 		wstring command;
 		wcin >> command;
-        wstring packet = L"My Packet";
-        SendBufferRef sendBuffer = make_shared<SendBuffer>(packet.size());
-        sendBuffer->CopyData(packet.data(), packet.size());
-        dbServer->Broadcast(sendBuffer);
 	}
 
     //auto navMesh = NavMeshLoader::LoadNavMeshFromBin("Map.bin");
