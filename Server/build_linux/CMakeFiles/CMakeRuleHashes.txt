@@ -1,2 +1,0 @@
-# Hashes of file build rules.
-c4647777903a98197882da407860f7ee ../GameServer/Proto/Protocol.pb.cc
