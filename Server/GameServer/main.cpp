@@ -158,8 +158,7 @@
 
 #pragma endregion
 
-
-void WorkerMain(IocpCoreRef iocpCore)
+void WorkerMain(INetCoreRef iocpCore)
 {
     while (true)
     {
@@ -221,7 +220,7 @@ int main()
 
     NetAddress address(L"127.0.0.1", 7777);
     NetAddress dbAddress(L"127.0.0.1", 12345);
-	IocpCoreRef iocpCore = make_shared<IocpCore>();
+	INetCoreRef iocpCore = make_shared<IocpCore>();
 
 	ServerServiceRef service = make_shared<ServerService>(address, iocpCore, []() 
 		{
@@ -229,7 +228,7 @@ int main()
 		}, 
 		100);
 	service->Start();
-    vector<thread> threads;
+    vector<thread> threads(4);
     for (int i = 0; i < 4; i++)
     {
         threads.emplace_back(WorkerMain, iocpCore);

@@ -34,7 +34,7 @@ bool Listener::StartAccept(ServerServiceRef service)
 		return false;
 	}
 
-	if (_service->GetIocpCore()->Register(shared_from_this()) == false)
+	if (_service->GetNetCore()->Register(shared_from_this()) == false)
 		return false;
 
 	if (SocketUtils::SetReuseAddress(_socket, true) == false)

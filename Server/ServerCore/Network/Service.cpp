@@ -8,8 +8,8 @@
 	Service
 --------------*/
 
-Service::Service(ServiceType type, NetAddress address, IocpCoreRef core, SessionFactory factory, int32 maxSessionCount)
-	: _type(type), _netAddress(address), _iocpCore(core), _sessionFactory(factory), _maxSessionCount(maxSessionCount)
+Service::Service(ServiceType type, NetAddress address, NetCoreRef core, SessionFactory factory, int32 maxSessionCount)
+	: _type(type), _netAddress(address), _netCore(core), _sessionFactory(factory), _maxSessionCount(maxSessionCount)
 {
 
 }
@@ -37,7 +37,7 @@ SessionRef Service::CreateSession()
 	SessionRef session = _sessionFactory();
 	session->SetService(shared_from_this());
 
-	if (_iocpCore->Register(session) == false)
+	if (_netCore->Register(session) == false)
 		return nullptr;
 
 	return session;
@@ -61,7 +61,7 @@ void Service::ReleaseSession(SessionRef session)
 	ClientService
 ------------------*/
 
-ClientService::ClientService(NetAddress targetAddress, IocpCoreRef core, SessionFactory factory, int32 maxSessionCount)
+ClientService::ClientService(NetAddress targetAddress, NetCoreRef core, SessionFactory factory, int32 maxSessionCount)
 	: Service(ServiceType::Client, targetAddress, core, factory, maxSessionCount)
 {
 }
@@ -82,7 +82,7 @@ bool ClientService::Start()
 	return true;
 }
 
-ServerService::ServerService(NetAddress address, IocpCoreRef core, SessionFactory factory, int32 maxSessionCount)
+ServerService::ServerService(NetAddress address, NetCoreRef core, SessionFactory factory, int32 maxSessionCount)
 	: Service(ServiceType::Server, address, core, factory, maxSessionCount)
 {
 }

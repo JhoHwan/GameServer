@@ -9,7 +9,7 @@ class ServerService;
 	Listener
 ---------------*/
 
-class Listener : public IocpObject
+class Listener : public NetObject
 {
 public:
 	Listener() = default;

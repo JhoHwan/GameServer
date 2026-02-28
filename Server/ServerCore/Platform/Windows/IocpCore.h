@@ -1,30 +1,20 @@
 #pragma once
-
-/*----------------
-	IocpObject
------------------*/
-
-class IocpObject : public enable_shared_from_this<IocpObject>
-{
-public:
-	virtual HANDLE GetHandle() = 0;
-	virtual void Dispatch(class IocpEvent* iocpEvent, int32 numOfBytes = 0) = 0;
-};
-
+#include "NetCore.h"
+#include "NetObject.h"
 /*--------------
 	IocpCore
 ---------------*/
 
-class IocpCore
+class IocpCore : public NetCore
 {
 public:
 	IocpCore();
-	~IocpCore();
+	~IocpCore() override;
 
-	HANDLE		GetHandle() { return _iocpHandle; }
+	HANDLE GetHandle() override { return _iocpHandle; }
 
-	bool		Register(IocpObjectRef iocpObject);
-	bool		Dispatch(uint32 timeoutMs = INFINITE);
+	bool Register(NetObjectRef iocpObject) override;
+	bool Dispatch(uint32 timeoutMs) override;
 
 private:
 	HANDLE		_iocpHandle;

@@ -1,6 +1,6 @@
-﻿#include "pch.h"
-#include "IocpCore.h"
+﻿#include "IocpCore.h"
 #include "IocpEvent.h"
+#include "Types.h"
 
 /*--------------
 	IocpCore
@@ -17,14 +17,14 @@ IocpCore::~IocpCore()
 	::CloseHandle(_iocpHandle);
 }
 
-bool IocpCore::Register(IocpObjectRef iocpObject)
+bool IocpCore::Register(NetObjectRef netObjectRef)
 {
-	return ::CreateIoCompletionPort(iocpObject->GetHandle(), _iocpHandle, /*key*/0, 0);
+	return ::CreateIoCompletionPort(netObjectRef->GetHandle(), _iocpHandle, /*key*/0, 0);
 }
 
-bool IocpCore::Dispatch(uint32 timeoutMs)
+bool IocpCore::Dispatch(const uint32 timeoutMs)
 {
-	const int MAX_ENTRIES = 16;
+	constexpr int MAX_ENTRIES = 16;
 	OVERLAPPED_ENTRY entryList[MAX_ENTRIES];
 
 	ULONG numEntriesRemoved = 0;
@@ -46,7 +46,7 @@ bool IocpCore::Dispatch(uint32 timeoutMs)
 			ULONG_PTR key = entry.lpCompletionKey;
 
 			IocpEvent* iocpEvent = static_cast<IocpEvent*>(entry.lpOverlapped);
-			IocpObjectRef iocpObject = iocpEvent->owner;
+			NetObjectRef iocpObject = iocpEvent->owner;
 			iocpObject->Dispatch(iocpEvent, numOfBytes);
 		}
 	}
@@ -62,8 +62,7 @@ bool IocpCore::Dispatch(uint32 timeoutMs)
 			break;
 		}
 	}
-	
-
+	/*
 	//if (::GetQueuedCompletionStatus(_iocpHandle, OUT &numOfBytes, OUT &key, OUT reinterpret_cast<LPOVERLAPPED*>(&iocpEvent), timeoutMs))
 	//{
 	//	IocpObjectRef iocpObject = iocpEvent->owner;
@@ -77,12 +76,12 @@ bool IocpCore::Dispatch(uint32 timeoutMs)
 	//	case WAIT_TIMEOUT:
 	//		return false;
 	//	default:
-	//		// TODO : 로그 찍기
 	//		IocpObjectRef iocpObject = iocpEvent->owner;
 	//		iocpObject->Dispatch(iocpEvent, numOfBytes);
 	//		break;
 	//	}
 	//}
+	*/
 
 	return true;
 }

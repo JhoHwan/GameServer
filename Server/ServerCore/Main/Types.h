@@ -24,8 +24,8 @@ using uint64 = uint64_t;
 
 #define USING_SHARED_PTR(name)	using name##Ref = std::shared_ptr<class name>;
 
-USING_SHARED_PTR(IocpCore);
-USING_SHARED_PTR(IocpObject);
+USING_SHARED_PTR(NetCore);
+USING_SHARED_PTR(NetObject);
 USING_SHARED_PTR(Session);
 USING_SHARED_PTR(PacketSession);
 USING_SHARED_PTR(Listener);

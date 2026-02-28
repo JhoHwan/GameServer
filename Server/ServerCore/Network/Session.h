@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "IocpCore.h"
-#include "IocpEvent.h"
+#include "NetEvent.h"
 #include "NetAddress.h"
 #include "RecvBuffer.h"
 
@@ -10,7 +10,7 @@ class Service;
 	Session
 ---------------*/
 
-class Session : public IocpObject
+class Session : public NetObject
 {
 	friend class Listener;
 	friend class IocpCore;
