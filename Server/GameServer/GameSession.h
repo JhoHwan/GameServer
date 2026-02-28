@@ -14,14 +14,7 @@ protected:
 
 public:
     void SetTimeOut(uint64 time, wstring log);
-    void CancelTimeOut()
-    {
-        if (_timeOutToken)
-        {
-            _timeOutToken->CancelJob();
-            _timeOutToken = nullptr;
-        }
-    }
+    void CancelTimeOut();
 
     void SetPlayer(weak_ptr<PlayerCharacter> player) { _playerRef = player; }
     shared_ptr<PlayerCharacter> GetPlayer() const { return _playerRef.lock(); }

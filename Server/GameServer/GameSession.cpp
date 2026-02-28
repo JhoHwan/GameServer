@@ -20,10 +20,22 @@ void GameSession::OnConnected()
 
 void GameSession::SetTimeOut(uint64 time, wstring log)
 {
-	JobRef job = make_shared<Job>([self = GetSessionRef(), log]
+	weak_ptr<Session> self = GetSessionRef();
+	JobRef job = make_shared<Job>([self, log]
 		{
+			SessionRef session = self.lock();
+			if (!session) return;
 			wcout << L"[Timeout] "<< log << " Timeout!" << endl;
-			self->Disconnect(L"Time Out");
+			session->Disconnect(L"Time Out");
 		});
 	_timeOutToken = GJobTimer.Reserve(time, GetJobQueue(), job);
+}
+
+void GameSession::CancelTimeOut()
+{
+	if (_timeOutToken)
+	{
+		_timeOutToken->CancelJob();
+		_timeOutToken = nullptr;
+	}
 }

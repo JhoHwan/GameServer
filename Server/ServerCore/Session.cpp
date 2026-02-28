@@ -15,6 +15,7 @@ Session::Session() : _recvBuffer(BUFFER_SIZE)
 Session::~Session()
 {
 	SocketUtils::Close(_socket);
+	cout << "Session Free" << endl;
 }
 
 void Session::Send(SendBufferRef sendBuffer)

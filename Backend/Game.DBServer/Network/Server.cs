@@ -26,6 +26,7 @@ class Server
     private void HandleSessionAccepted(TcpClient client)
     {
         Session session = new Session(client);
+        Console.WriteLine("Server Connected");
         session.OnRecv += HandleRecvPacket;
         session.OnSend += bytesSent => Console.WriteLine("Sent Bytes: " + bytesSent);
         session.OnDisconnect += () =>

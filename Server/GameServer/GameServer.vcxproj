@@ -73,15 +73,15 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)build\intermediate\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(ProjectDir)Detour\Include;$(SolutionDir)ThirdParty\Protobuf\Include;$(ProjectDir)Proto;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)ThirdParty\Protobuf\Lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)Detour\Include;$(SolutionDir)ThirdParty\Protobuf\Include;$(ProjectDir)Proto;$(SolutionDir)ThirdParty\hiredis\Include;$(SolutionDir)ThirdParty\redis++\$(Configuration)\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)ThirdParty\Protobuf\Lib;$(SolutionDir)ThirdParty\hiredis\Lib\$(Configuration);$(SolutionDir)ThirdParty\redis++\$(Configuration)\Lib;$(LibraryPath)</LibraryPath>
     <CustomBuildAfterTargets />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)build\intermediate\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(ProjectDir)Detour\Include;$(SolutionDir)ThirdParty\Protobuf\Include;$(ProjectDir)Proto;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)ThirdParty\Protobuf\Lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)Detour\Include;$(SolutionDir)ThirdParty\Protobuf\Include;$(ProjectDir)Proto;$(SolutionDir)ThirdParty\hiredis\Include;$(SolutionDir)ThirdParty\redis++\$(Configuration)\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)ThirdParty\Protobuf\Lib;$(SolutionDir)ThirdParty\hiredis\Lib\$(Configuration);$(SolutionDir)ThirdParty\redis++\$(Configuration)\Lib;$(LibraryPath)</LibraryPath>
     <CustomBuildAfterTargets />
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg">

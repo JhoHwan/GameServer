@@ -17,6 +17,7 @@
 
 #include <algorithm>
 
+#pragma region MyRegion
 /*
 //#include <random>
 //std::atomic<int64_t> g_TotalExecuted = 0;
@@ -38,10 +39,10 @@
 //    for (int i = 0; i < WORKER_THREAD; i++)
 //    {
 //        workers.push_back(thread([iocpCore]()
-//            			{ 
+//            			{
 //                            static thread_local std::mt19937 gen(std::hash<std::thread::id>{}(std::this_thread::get_id()));
 //                            std::uniform_int_distribution<> dist(0, g_Players.size() - 1);
-//            				while (true) 
+//            				while (true)
 //            				{
 //                                if (g_TotalPush.load() < TOTAL_JOBS)
 //                                {
@@ -62,7 +63,7 @@
 //                                        // 티켓 번호가 정원 초과면? -> Job 생성 포기
 //                                        if (myTicket >= TOTAL_JOBS)
 //                                        {
-//                                            // 주의: 여기서 fetch_add를 취소할 필요는 없음. 
+//                                            // 주의: 여기서 fetch_add를 취소할 필요는 없음.
 //                                            // 그냥 Job 생성만 안 하면 Executed 개수는 정확히 맞음.
 //                                            break;
 //                                        }
@@ -94,30 +95,30 @@
 //            							}
 //            							break;
 //            						}
-//            
+//
 //            						auto jobQueue = LJobQueue.front();
 //            						LJobQueue.pop();
-//            						
-//            
+//
+//
 //            						jobQueue->Execute(static_cast<int32>(10 - duration));
 //            					}
-//            
+//
 //            					while(true)
 //            					{
 //            						auto now = chrono::steady_clock::now();
 //            						auto duration = chrono::duration_cast<chrono::milliseconds>(now - start).count();
 //            						if (duration >= 10) break;
-//            
+//
 //                                    JobQueueRef jobQueue;
 //                                    if (!GGlobalJobQueue.try_pop(jobQueue)) break;
 //            						if (!jobQueue) break;
-//            
+//
 //            						int32 remainTime = static_cast<int32>(10 - duration);
 //            						if (remainTime < 0) remainTime = 0;
-//            
+//
 //            						jobQueue->Execute(remainTime);
 //            					}
-//            				} 
+//            				}
 //            			}));
 //    }
 //
@@ -154,6 +155,9 @@
 //    return 0;
 //}
 */
+
+#pragma endregion
+
 
 void WorkerMain(IocpCoreRef iocpCore)
 {
@@ -214,25 +218,36 @@ int main()
 
 	ServerPacketHandler::Init();
 
-	NetAddress address(L"127.0.0.1", 7777);
+
+    NetAddress address(L"127.0.0.1", 7777);
+    NetAddress dbAddress(L"127.0.0.1", 12345);
 	IocpCoreRef iocpCore = make_shared<IocpCore>();
+
 	ServerServiceRef service = make_shared<ServerService>(address, iocpCore, []() 
 		{
 			return make_shared<GameSession>(); 
 		}, 
 		100);
 	service->Start();
-
-	vector<thread> threads;
+    vector<thread> threads;
     for (int i = 0; i < 4; i++)
     {
-        threads.emplace_back(WorkerMain, iocpCore);   
-	} 
-    
+        threads.emplace_back(WorkerMain, iocpCore);
+    }
+
+    ClientServiceRef dbServer = make_shared<ClientService>(
+        dbAddress, iocpCore, []() {return make_shared<Session>(); }, 1
+    );
+    dbServer->Start();
+
 	while(true)
 	{
 		wstring command;
 		wcin >> command;
+        wstring packet = L"My Packet";
+        SendBufferRef sendBuffer = make_shared<SendBuffer>(packet.size());
+        sendBuffer->CopyData(packet.data(), packet.size());
+        dbServer->Broadcast(sendBuffer);
 	}
 
     //auto navMesh = NavMeshLoader::LoadNavMeshFromBin("Map.bin");
