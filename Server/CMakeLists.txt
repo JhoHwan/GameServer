@@ -1,5 +1,5 @@
 # CMake 최소 버전 요구사항
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.16)
 
 # 프로젝트 이름과 언어(C++) 설정
 project(MMOGameServer LANGUAGES CXX)

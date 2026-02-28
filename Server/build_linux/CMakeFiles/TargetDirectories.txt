@@ -1,0 +1,8 @@
+/mnt/c/users/tang0/source/repos/gameserver/server/build_linux/CMakeFiles/rebuild_cache.dir
+/mnt/c/users/tang0/source/repos/gameserver/server/build_linux/CMakeFiles/edit_cache.dir
+/mnt/c/users/tang0/source/repos/gameserver/server/build_linux/ServerCore/CMakeFiles/rebuild_cache.dir
+/mnt/c/users/tang0/source/repos/gameserver/server/build_linux/ServerCore/CMakeFiles/edit_cache.dir
+/mnt/c/users/tang0/source/repos/gameserver/server/build_linux/ServerCore/CMakeFiles/ServerCore.dir
+/mnt/c/users/tang0/source/repos/gameserver/server/build_linux/GameServer/CMakeFiles/rebuild_cache.dir
+/mnt/c/users/tang0/source/repos/gameserver/server/build_linux/GameServer/CMakeFiles/edit_cache.dir
+/mnt/c/users/tang0/source/repos/gameserver/server/build_linux/GameServer/CMakeFiles/GameServer.dir

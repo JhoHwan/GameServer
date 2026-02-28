@@ -3,10 +3,10 @@
 #include "LockQueue.h"
 #include "JobTimer.h"
 
-#include <concurrent_queue.h>
+#include "concurrentqueue.h"
 
 
-extern Concurrency::concurrent_queue<JobQueueRef> GGlobalJobQueue;
+extern moodycamel::ConcurrentQueue<JobQueueRef> GGlobalJobQueue;
 
 /*--------------
 	JobQueue
@@ -27,8 +27,6 @@ public:
 		Push(make_shared<Job>(owner, memFunc, std::forward<Args>(args)...));
 	}
 
-	void ClearJobs() { _jobs.clear(); }
-
 public:
 	void	Push(JobRef job);
 	void	Execute(int32 excuteTime);
@@ -36,7 +34,7 @@ public:
 protected:
 	//LockQueue<JobRef> _jobs;
 
-	Concurrency::concurrent_queue<JobRef> _jobs;
+	moodycamel::ConcurrentQueue<JobRef> _jobs;
 	atomic<bool> _isExecute;
 	atomic<int32> _jobCount;
 };

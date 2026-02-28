@@ -2,7 +2,7 @@
 #include "JobQueue.h"
 
 
-Concurrency::concurrent_queue<JobQueueRef> GGlobalJobQueue;
+moodycamel::ConcurrentQueue<JobQueueRef> GGlobalJobQueue;
 
 /*--------------
 	JobQueue
@@ -11,7 +11,7 @@ Concurrency::concurrent_queue<JobQueueRef> GGlobalJobQueue;
 void JobQueue::Push(JobRef job)
 {
 	_jobCount.fetch_add(1);
-	_jobs.push(job);
+	_jobs.enqueue(job);
 
 	bool expected = false;
 	if (_isExecute.compare_exchange_strong(expected, true))
@@ -29,7 +29,7 @@ void JobQueue::Execute(int32 excuteTime)
 		vector<JobRef> jobs;
 		JobRef job;
 		int32 cnt = 0;
-		while (_jobs.try_pop(job))
+		while (_jobs.try_dequeue(job))
 		{
 			if (job) jobs.push_back(job);
 			cnt += 1;
@@ -64,7 +64,7 @@ void JobQueue::Execute(int32 excuteTime)
 		auto duration = chrono::duration_cast<std::chrono::milliseconds>(now - startTime);
 		if (duration.count() >= excuteTime)
 		{
-			GGlobalJobQueue.push(shared_from_this()); // 글로벌 잡큐 추가 후 해제
+			GGlobalJobQueue.enqueue(shared_from_this()); // 글로벌 잡큐 추가 후 해제
 			return;
 		}
 	}
