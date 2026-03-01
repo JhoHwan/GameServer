@@ -37,7 +37,7 @@ SOCKET SocketUtils::CreateSocket()
 #ifdef _WIN32
 	socket = ::WSASocketW(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
 #else
-	socket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	socket = ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP);
 #endif
 
 	return socket;

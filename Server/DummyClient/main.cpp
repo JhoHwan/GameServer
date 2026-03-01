@@ -39,7 +39,7 @@ int main()
 {
 	this_thread::sleep_for(1s); // 서버가 켜질 시간 대기
 
-	NetAddress address(L"127.0.0.1", 7777);
+	NetAddress address("127.0.0.1", 7777);
 #ifdef _WIN32
 	NetCoreRef core = make_shared<IocpCore>();
 #else

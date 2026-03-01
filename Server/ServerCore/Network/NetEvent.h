@@ -11,13 +11,8 @@ enum class EventType : uint8
 };
 
 #ifdef _WIN32
-    #include "IocpEvent.h"
-    using NetEvent = IocpEvent;
-#else
-    #include "EpollEvent.h"
-    using NetEvent = EpollEvent;
-#endif
-
+#include "IocpEvent.h"
+using NetEvent = IocpEvent;
 
 /*----------------
     ConnectEvent
@@ -73,3 +68,8 @@ public:
 
     vector<SendBufferRef> sendBuffers;
 };
+
+#else
+#include "EpollEvent.h"
+using NetEvent = EpollEvent;
+#endif

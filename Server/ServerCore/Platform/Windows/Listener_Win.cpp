@@ -31,6 +31,11 @@ void ListenerImpl_Win::Dispatch(NetEvent *netEvent, int32 numOfBytes)
     ProcessAccept(acceptEvent);
 }
 
+void ListenerImpl_Win::Close()
+{
+    SocketUtils::Close(_owner->_socket);
+}
+
 void ListenerImpl_Win::RegisterAccept(AcceptEvent* acceptEvent)
 {
     if (_owner->_socket == INVALID_SOCKET)

@@ -44,7 +44,7 @@ int main()
 {
 	cout << "=== Dummy Server Starting ===" << endl;
 
-	NetAddress address(L"127.0.0.1", 7777);
+	NetAddress address("127.0.0.1", 7777);
 #ifdef _WIN32
 	NetCoreRef core = make_shared<IocpCore>();
 #else

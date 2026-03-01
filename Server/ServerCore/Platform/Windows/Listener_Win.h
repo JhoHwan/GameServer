@@ -14,6 +14,7 @@ public:
 public:
     bool StartAccept(const ServerServiceRef& service);
     void Dispatch(NetEvent* netEvent, int32 numOfBytes = 0);
+    void Close();
 
 private:
     void RegisterAccept(AcceptEvent* acceptEvent);

@@ -20,8 +20,13 @@ bool EpollCore::Register(NetObjectRef netObject)
     epoll_event event{};
     event.events = EPOLLIN | EPOLLET;
     event.data.ptr = netObject.get();
+    if (epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, socket, &event) == -1)
+    {
+        return false;
+    }
 
-    return epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, socket, &event) != -1;
+    netObject->_epollRef = netObject;
+    return true;
 }
 
 bool EpollCore::Dispatch(uint32 timeoutMs)
@@ -43,9 +48,12 @@ bool EpollCore::Dispatch(uint32 timeoutMs)
 
     for (int i = 0; i < numEvents; ++i)
     {
-        NetObject* netObject = static_cast<NetObject*>(events[i].data.ptr);
-        uint32 epollFlags = events[i].events;
+        auto* netObject = static_cast<NetObject*>(events[i].data.ptr);
+        NetEvent netEvent{};
+        netEvent.eventFlags = events[i].events;
 
+        netObject->Dispatch(&netEvent, 0);
     }
+    return true;
 }
 

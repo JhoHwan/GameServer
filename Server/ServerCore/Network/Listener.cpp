@@ -78,8 +78,7 @@ bool Listener::StartAccept(ServerServiceRef service)
 
 void Listener::CloseSocket()
 {
-
-	SocketUtils::Close(_socket);
+	_impl->Close();
 }
 
 HANDLE Listener::GetHandle()

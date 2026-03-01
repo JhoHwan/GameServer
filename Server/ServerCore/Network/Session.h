@@ -1,4 +1,5 @@
 #pragma once
+#include "concurrentqueue.h"
 #include "NetEvent.h"
 #include "NetAddress.h"
 #include "NetObject.h"
@@ -13,6 +14,8 @@ class Service;
 class Session : public NetObject
 {
 	friend class ListenerImpl_Win;
+	friend class SessionImpl_Win;
+	friend class ListenerImpl_Linux;
 	friend class IocpCore;
 	friend class Service;
 
@@ -38,28 +41,16 @@ public:
 						/* 정보 관련 */
 	void				SetNetAddress(NetAddress address) { _netAddress = address; }
 	NetAddress			GetAddress() { return _netAddress; }
-	SOCKET				GetSocket() { return _socket; }
+	SOCKET				GetSocket() { return reinterpret_cast<SOCKET>(GetHandle()); }
 	bool				IsConnected() { return _connected; }
 	SessionRef			GetSessionRef() { return static_pointer_cast<Session>(shared_from_this()); }
 
-private:
-						/* 인터페이스 구현 */
 	HANDLE				GetHandle() override;
+
 	void				Dispatch(NetEvent* netEvent, int32 numOfBytes = 0) override;
 
 private:
-						/* 전송 관련 */
-	bool				RegisterConnect();
-	bool				RegisterDisconnect();
-	void				RegisterRecv();
-	void				RegisterSend();
-
 	void				ProcessConnect();
-	void				ProcessDisconnect();
-	void				ProcessRecv(int32 numOfBytes);
-	void				ProcessSend(int32 numOfBytes);
-
-	void				HandleError(int32 errorCode);
 
 protected:
 						/* 컨텐츠 코드에서 재정의 */
@@ -70,25 +61,20 @@ protected:
 
 private:
 	weak_ptr<Service>	_service;
-	SOCKET				_socket = INVALID_SOCKET;
 	NetAddress			_netAddress = {};
 	atomic<bool>		_connected = false;
 
 private:
-	USE_LOCK;
 							/* 수신 관련 */
 	RecvBuffer				_recvBuffer;
 
 							/* 송신 관련 */
-	queue<SendBufferRef>	_sendQueue;
+	moodycamel::ConcurrentQueue<SendBufferRef>	_sendQueue;
 	atomic<bool>			_sendRegistered = false;
 
+
 private:
-						/* IocpEvent 재사용 */
-	ConnectEvent		_connectEvent;
-	DisconnectEvent		_disconnectEvent;
-	RecvEvent			_recvEvent;
-	SendEvent			_sendEvent;
+	unique_ptr<SessionImpl_Win> _impl;
 };
 
 /*-----------------

@@ -39,6 +39,7 @@ SessionRef Service::CreateSession()
 
 	if (_netCore->Register(session) == false)
 	{
+		int err = GetLastError();
 		return nullptr;
 	}
 	return session;
