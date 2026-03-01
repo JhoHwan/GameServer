@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "Types.h"
 #include "CoreMacro.h"
@@ -25,18 +25,6 @@ using namespace std;
 	#include <ws2tcpip.h>
 	#pragma comment(lib, "ws2_32.lib")
 #else
-	using SOCKET = int;
-	const int INVALID_SOCKET = -1;
-	const int SOCKET_ERROR = -1;
-	using HANDLE = int;
-	const int INFINITE = -1;
-	using LINGER = struct linger;
-
-	using SOCKADDR_IN = struct sockaddr_in;
-	using IN_ADDR = struct in_addr;
-	using WCHAR = wchar_t;
-	using BYTE = uint8_t;
-
 	#include <unistd.h>
 	#include <fcntl.h>
 	#include <sys/socket.h>
@@ -45,6 +33,7 @@ using namespace std;
 	#include <arpa/inet.h>
 	#include <cstring>
 	#include <cerrno>
+	#include <netinet/tcp.h>
 #endif
 
 #include "CoreTLS.h"

@@ -1,7 +1,5 @@
 #pragma once
 #include "NetAddress.h"
-#include "IocpCore.h"
-#include "Listener.h"
 #include <functional>
 
 enum class ServiceType : uint8
@@ -22,7 +20,7 @@ public:
 	Service(ServiceType type, NetAddress address, NetCoreRef core, SessionFactory factory, int32 maxSessionCount = 1);
 	virtual ~Service();
 
-	virtual bool		Start() abstract;
+	virtual bool		Start() = 0;
 	bool				CanStart() { return _sessionFactory != nullptr; }
 
 	virtual void		CloseService();
@@ -32,12 +30,12 @@ public:
 	SessionRef			CreateSession();
 	void				AddSession(SessionRef session);
 	void				ReleaseSession(SessionRef session);
-	int32				GetCurrentSessionCount() { return _sessionCount; }
-	int32				GetMaxSessionCount() { return _maxSessionCount; }
+	int32				GetCurrentSessionCount() const { return _sessionCount; }
+	int32				GetMaxSessionCount() const { return _maxSessionCount; }
 
 public:
-	ServiceType			GetServiceType() { return _type; }
-	NetAddress			GetNetAddress() { return _netAddress; }
+	ServiceType			GetServiceType() const { return _type; }
+	NetAddress			GetNetAddress() const { return _netAddress; }
 	NetCoreRef&		GetNetCore() { return _netCore; }
 
 protected:
@@ -60,9 +58,9 @@ class ClientService : public Service
 {
 public:
 	ClientService(NetAddress targetAddress, NetCoreRef core, SessionFactory factory, int32 maxSessionCount = 1);
-	virtual ~ClientService() {}
+	~ClientService() override = default;
 
-	virtual bool	Start() override;
+	bool Start() override;
 };
 
 
@@ -74,10 +72,10 @@ class ServerService : public Service
 {
 public:
 	ServerService(NetAddress targetAddress, NetCoreRef core, SessionFactory factory, int32 maxSessionCount = 1);
-	virtual ~ServerService() {}
+	~ServerService() override = default;
 
-	virtual bool	Start() override;
-	virtual void	CloseService() override;
+	bool Start() override;
+	void CloseService() override;
 
 private:
 	ListenerRef		_listener = nullptr;

@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "NetAddress.h"
 
 /*--------------
@@ -9,7 +8,7 @@ NetAddress::NetAddress(SOCKADDR_IN sockAddr) : _sockAddr(sockAddr)
 {
 }
 
-NetAddress::NetAddress(wstring ip, uint16 port)
+NetAddress::NetAddress(const string& ip, uint16 port)
 {
 	::memset(&_sockAddr, 0, sizeof(_sockAddr));
 	_sockAddr.sin_family = AF_INET;
@@ -17,16 +16,17 @@ NetAddress::NetAddress(wstring ip, uint16 port)
 	_sockAddr.sin_port = ::htons(port);
 }
 
-wstring NetAddress::GetIpAddress()
+string NetAddress::GetIpAddress() const
 {
-	WCHAR buffer[100];
-	::InetNtopW(AF_INET, &_sockAddr.sin_addr, buffer, len32(buffer));
-	return wstring(buffer);
+	char buffer[100];
+	::inet_ntop(AF_INET, &_sockAddr.sin_addr, buffer, len32(buffer));
+
+	return string(buffer);
 }
 
-IN_ADDR NetAddress::Ip2Address(const WCHAR* ip)
+IN_ADDR NetAddress::Ip2Address(const char* ip)
 {
 	IN_ADDR address;
-	::InetPtonW(AF_INET, ip, &address);
+	::inet_pton(AF_INET, ip, &address);
 	return address;
 }

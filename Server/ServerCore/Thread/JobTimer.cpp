@@ -1,5 +1,4 @@
-﻿#include "pch.h"
-#include "JobTimer.h"
+﻿#include "JobTimer.h"
 #include "JobQueue.h"
 
 /*--------------

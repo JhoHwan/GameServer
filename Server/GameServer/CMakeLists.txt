@@ -38,7 +38,7 @@ add_custom_command(
 add_executable(GameServer ${GAME_SOURCES})
 
 # GameServer 전용 pch.h 설정
-target_precompile_headers(GameServer PRIVATE pch.h)
+#target_precompile_headers(GameServer PRIVATE pch.h)
 
 # ServerCore 조립하기! 
 target_link_libraries(GameServer PRIVATE ServerCore)

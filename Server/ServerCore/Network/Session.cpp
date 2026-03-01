@@ -1,5 +1,4 @@
-﻿#include "pch.h"
-#include "Session.h"
+﻿#include "Session.h"
 #include "SocketUtils.h"
 #include "Service.h"
 
@@ -44,7 +43,7 @@ bool Session::Connect()
 	return RegisterConnect();
 }
 
-void Session::Disconnect(const WCHAR* cause)
+void Session::Disconnect(const char* cause)
 {
 	if (_connected.exchange(false) == false)
 		return;
@@ -60,9 +59,9 @@ HANDLE Session::GetHandle()
 	return reinterpret_cast<HANDLE>(_socket);
 }
 
-void Session::Dispatch(IocpEvent* iocpEvent, int32 numOfBytes)
+void Session::Dispatch(NetEvent* netEvent, int32 numOfBytes)
 {
-	switch (iocpEvent->eventType)
+	switch (netEvent->eventType)
 	{
 	case EventType::Connect:
 		ProcessConnect();
@@ -234,13 +233,13 @@ void Session::ProcessRecv(int32 numOfBytes)
 
 	if (numOfBytes == 0)
 	{
-		Disconnect(L"Recv 0");
+		Disconnect("Recv 0");
 		return;
 	}
 
 	if (_recvBuffer.OnWrite(numOfBytes) == false)
 	{
-		Disconnect(L"OnWrite Overflow");
+		Disconnect("OnWrite Overflow");
 		return;
 	}
 
@@ -248,7 +247,7 @@ void Session::ProcessRecv(int32 numOfBytes)
 	int32 processLen = OnRecv(_recvBuffer.ReadPos(), dataSize); // 컨텐츠 코드에서 재정의
 	if (processLen < 0 || dataSize < processLen || _recvBuffer.OnRead(processLen) == false)
 	{
-		Disconnect(L"OnRead Overflow");
+		Disconnect("OnRead Overflow");
 		return;
 	}
 	
@@ -266,7 +265,7 @@ void Session::ProcessSend(int32 numOfBytes)
 
 	if (numOfBytes == 0)
 	{
-		Disconnect(L"Send 0");
+		Disconnect("Send 0");
 		return;
 	}
 
@@ -286,7 +285,7 @@ void Session::HandleError(int32 errorCode)
 	{
 	case WSAECONNRESET:
 	case WSAECONNABORTED:
-		Disconnect(L"HandleError");
+		Disconnect("HandleError");
 		break;
 	default:
 		// TODO : Log

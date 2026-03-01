@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "Job.h"
 #include "JobTimer.h"
 

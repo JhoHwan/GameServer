@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "NetEvent.h"
 #include "NetAddress.h"
 #include "NetObject.h"
@@ -23,13 +23,13 @@ class Session : public NetObject
 
 public:
 	Session();
-	virtual ~Session();
+	~Session() override;
 
 public:
 						/* 외부에서 사용 */
 	void				Send(SendBufferRef sendBuffer);
 	bool				Connect();
-	void				Disconnect(const WCHAR* cause);
+	void				Disconnect(const char* cause);
 
 	shared_ptr<Service>	GetService() { return _service.lock(); }
 	void				SetService(shared_ptr<Service> service) { _service = service; }
@@ -44,8 +44,8 @@ public:
 
 private:
 						/* 인터페이스 구현 */
-	virtual HANDLE		GetHandle() override;
-	virtual void		Dispatch(class IocpEvent* iocpEvent, int32 numOfBytes = 0) override;
+	HANDLE				GetHandle() override;
+	void				Dispatch(NetEvent* netEvent, int32 numOfBytes = 0) override;
 
 private:
 						/* 전송 관련 */
@@ -105,11 +105,11 @@ class PacketSession : public Session
 {
 public:
 	PacketSession();
-	virtual ~PacketSession() override;
+	~PacketSession() override;
 
 	PacketSessionRef	GetPacketSessionRef() { return static_pointer_cast<PacketSession>(shared_from_this()); }
 
 protected:
-	virtual int32		OnRecv(BYTE* buffer, int32 len) final;
+	int32		OnRecv(BYTE* buffer, int32 len) final;
 	virtual void		OnRecvPacket(BYTE* buffer, int32 len) = 0;
 };

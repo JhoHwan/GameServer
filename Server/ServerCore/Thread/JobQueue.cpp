@@ -1,5 +1,4 @@
-﻿#include "pch.h"
-#include "JobQueue.h"
+﻿#include "JobQueue.h"
 
 
 moodycamel::ConcurrentQueue<JobQueueRef> GGlobalJobQueue;

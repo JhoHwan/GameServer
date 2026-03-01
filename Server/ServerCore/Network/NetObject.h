@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 class NetObject : public std::enable_shared_from_this<NetObject>
 {

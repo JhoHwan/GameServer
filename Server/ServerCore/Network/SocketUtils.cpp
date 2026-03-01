@@ -1,5 +1,4 @@
-﻿#include "pch.h"
-#include "SocketUtils.h"
+﻿#include "SocketUtils.h"
 
 /*----------------
 	SocketUtils

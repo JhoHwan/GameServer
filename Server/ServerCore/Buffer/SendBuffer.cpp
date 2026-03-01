@@ -1,5 +1,4 @@
-﻿#include "pch.h"
-#include "SendBuffer.h"
+﻿#include "SendBuffer.h"
 
 /*----------------
 	SendBuffer

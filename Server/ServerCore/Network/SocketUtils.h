@@ -45,6 +45,6 @@ static inline bool SetSockOpt(SOCKET socket, int32 level, int32 optName, T optVa
 #ifdef _WIN32
 	return SOCKET_ERROR != ::setsockopt(socket, level, optName, reinterpret_cast<const char*>(&optVal), sizeof(T));
 #else
-	return SOCKET_ERROR != ::setsockopt(socket, level, optName, reinterpret_cast<cosnt void*>(&optVal), sizeof(T));
+	return SOCKET_ERROR != ::setsockopt(socket, level, optName, reinterpret_cast<const void*>(&optVal), sizeof(T));
 #endif
 }
