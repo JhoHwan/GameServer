@@ -4,17 +4,14 @@
 #include "SocketUtils.h"
 #include "Types.h"
 #include "NetEvent.h"
+#include "Listener.h"
 
-unique_ptr<ListenerImpl> ListenerImpl::CreateListenerImpl(Listener *owner)
+ListenerImpl_Win::ListenerImpl_Win(Listener *owner) : _owner(owner)
 {
-    return make_unique<ListenerImpl>(owner);
+
 }
 
-ListenerImpl::ListenerImpl(Listener *owner) : _owner(owner)
-{
-}
-
-bool ListenerImpl::StartAccept(const ServerServiceRef& service)
+bool ListenerImpl_Win::StartAccept(const ServerServiceRef& service)
 {
     const int32 acceptCount = service->GetMaxSessionCount();
     for (int32 i = 0; i < acceptCount; i++)
@@ -27,14 +24,14 @@ bool ListenerImpl::StartAccept(const ServerServiceRef& service)
     return true;
 }
 
-void ListenerImpl::Dispatch(NetEvent *netEvent, int32 numOfBytes)
+void ListenerImpl_Win::Dispatch(NetEvent *netEvent, int32 numOfBytes)
 {
     ASSERT_CRASH(netEvent->eventType == EventType::Accept);
     auto acceptEvent = reinterpret_cast<AcceptEvent*>(netEvent);
     ProcessAccept(acceptEvent);
 }
 
-void ListenerImpl::RegisterAccept(AcceptEvent* acceptEvent)
+void ListenerImpl_Win::RegisterAccept(AcceptEvent* acceptEvent)
 {
     if (_owner->_socket == INVALID_SOCKET)
     {
@@ -66,7 +63,7 @@ void ListenerImpl::RegisterAccept(AcceptEvent* acceptEvent)
     }
 }
 
-void ListenerImpl::ProcessAccept(AcceptEvent* acceptEvent)
+void ListenerImpl_Win::ProcessAccept(AcceptEvent* acceptEvent)
 {
     if (_owner->_socket == INVALID_SOCKET)
     {

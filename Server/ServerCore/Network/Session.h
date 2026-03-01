@@ -12,7 +12,7 @@ class Service;
 
 class Session : public NetObject
 {
-	friend class ListenerImpl;
+	friend class ListenerImpl_Win;
 	friend class IocpCore;
 	friend class Service;
 

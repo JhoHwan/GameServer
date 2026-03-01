@@ -1,12 +1,15 @@
 #pragma once
 
-class ListenerImpl
+class ListenerImpl_Win
 {
 public:
-    static unique_ptr<ListenerImpl> CreateListenerImpl(Listener* owner);
+    static unique_ptr<ListenerImpl_Win> CreateListenerImpl(Listener* owner)
+    {
+        return make_unique<ListenerImpl_Win>(owner);
+    }
 
-    ListenerImpl(Listener* owner);
-    ~ListenerImpl() = default;
+    ListenerImpl_Win(Listener* owner);
+    ~ListenerImpl_Win() = default;
 
 public:
     bool StartAccept(const ServerServiceRef& service);

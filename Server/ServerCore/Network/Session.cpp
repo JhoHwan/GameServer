@@ -14,7 +14,6 @@ Session::Session() : _recvBuffer(BUFFER_SIZE)
 Session::~Session()
 {
 	SocketUtils::Close(_socket);
-	//cout << "Session Free" << endl;
 }
 
 void Session::Send(SendBufferRef sendBuffer)
@@ -49,7 +48,7 @@ void Session::Disconnect(const char* cause)
 		return;
 
 	// TEMP
-	wcout << "Disconnect : " << cause << endl;
+	cout << "Disconnect : " << cause << endl;
 
 	RegisterDisconnect();
 }

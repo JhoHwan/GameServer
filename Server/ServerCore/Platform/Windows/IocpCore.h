@@ -11,7 +11,7 @@ public:
 	IocpCore();
 	~IocpCore() override;
 
-	HANDLE GetHandle() override { return _iocpHandle; }
+	HANDLE GetHandle() const override { return _iocpHandle; }
 
 	bool Register(NetObjectRef iocpObject) override;
 	bool Dispatch(uint32 timeoutMs) override;

@@ -1,6 +1,7 @@
 ﻿#include "Service.h"
 #include "Session.h"
 #include "Listener.h"
+#include "NetCore.h"
 #include "SocketUtils.h"
 
 /*-------------

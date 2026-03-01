@@ -15,7 +15,7 @@ using uint16 = uint16_t;
 using uint32 = uint32_t;
 using uint64 = uint64_t;
 
-#ifndef _Win32
+#ifndef _WIN32
     using SOCKET = int;
     constexpr int INVALID_SOCKET = -1;
     constexpr int SOCKET_ERROR = -1;

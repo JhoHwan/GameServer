@@ -4,13 +4,23 @@
 class AcceptEvent;
 class ServerService;
 
+class ListenerImpl_Win;
+class ListenerImpl_Linux;
+
 /*--------------
 	Listener
 ---------------*/
 
 class Listener : public NetObject
 {
-	friend class ListenerImpl;
+
+#ifdef _WIN32
+	using ListenerImpl = ListenerImpl_Win;
+#else
+	using ListenerImpl = ListenerImpl_Linux;
+#endif
+
+	friend ListenerImpl;
 
 public:
 	Listener();
@@ -27,9 +37,10 @@ public:
 	void Dispatch(NetEvent* netEvent, int32 numOfBytes) override;
 
 protected:
-	unique_ptr<class ListenerImpl> _impl;
+	unique_ptr<ListenerImpl> _impl;
 
 	SOCKET _socket = INVALID_SOCKET;
 	ServerServiceRef _service;
 };
+
 
