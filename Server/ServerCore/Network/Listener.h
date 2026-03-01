@@ -1,11 +1,9 @@
-#pragma once
+﻿#pragma once
+#include "IocpCore.h"
 #include "NetAddress.h"
 
 class AcceptEvent;
 class ServerService;
-
-class ListenerImpl_Win;
-class ListenerImpl_Linux;
 
 /*--------------
 	Listener
@@ -13,18 +11,9 @@ class ListenerImpl_Linux;
 
 class Listener : public NetObject
 {
-
-#ifdef _WIN32
-	using ListenerImpl = ListenerImpl_Win;
-#else
-	using ListenerImpl = ListenerImpl_Linux;
-#endif
-
-	friend ListenerImpl;
-
 public:
-	Listener();
-	~Listener() override;
+	Listener() = default;
+	~Listener();
 
 public:
 	/* 외부에서 사용 */
@@ -33,14 +22,17 @@ public:
 
 public:
 	/* 인터페이스 구현 */
-	HANDLE GetHandle() override;
-	void Dispatch(NetEvent* netEvent, int32 numOfBytes) override;
+	virtual HANDLE GetHandle() override;
+	virtual void Dispatch(class IocpEvent* iocpEvent, int32 numOfBytes = 0) override;
+
+private:
+	/* 수신 관련 */
+	void RegisterAccept(AcceptEvent* acceptEvent);
+	void ProcessAccept(AcceptEvent* acceptEvent);
 
 protected:
-	unique_ptr<ListenerImpl> _impl;
-
 	SOCKET _socket = INVALID_SOCKET;
+	vector<AcceptEvent*> _acceptEvents;
 	ServerServiceRef _service;
 };
-
 
