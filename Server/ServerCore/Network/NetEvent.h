@@ -12,7 +12,11 @@ enum class EventType : uint8
 
 #ifdef _WIN32
 #include "IocpEvent.h"
-using NetEvent = IocpEvent;
+class NetEvent : public IocpEvent
+{
+public:
+    NetEvent(EventType type) : IocpEvent(type) { };
+};
 
 /*----------------
     ConnectEvent
@@ -71,5 +75,11 @@ public:
 
 #else
 #include "EpollEvent.h"
-using NetEvent = EpollEvent;
+
+class NetEvent : public EpollEvent
+{
+public:
+    NetEvent() = default;
+};
+
 #endif

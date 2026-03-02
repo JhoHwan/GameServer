@@ -46,12 +46,13 @@ SOCKET SocketUtils::CreateSocket()
 void SocketUtils::Close(SOCKET& socket)
 {
 	if (socket != INVALID_SOCKET)
+	{
 #ifdef _WIN32
 		::closesocket(socket);
 #else
-		::close(socket);
+		close(socket);
 #endif
-
+	}
 	socket = INVALID_SOCKET;
 }
 
@@ -65,7 +66,8 @@ bool SocketUtils::SetLinger(SOCKET socket, uint16 onoff, uint16 linger)
 
 bool SocketUtils::SetReuseAddress(SOCKET socket, bool flag)
 {
-	return SetSockOpt(socket, SOL_SOCKET, SO_REUSEADDR, flag);
+	int32 opt = flag ? 1 : 0;
+	return SetSockOpt(socket, SOL_SOCKET, SO_REUSEADDR, opt);
 }
 
 bool SocketUtils::SetRecvBufferSize(SOCKET socket, int32 size)
@@ -80,7 +82,8 @@ bool SocketUtils::SetSendBufferSize(SOCKET socket, int32 size)
 
 bool SocketUtils::SetTcpNoDelay(SOCKET socket, bool flag)
 {
-	return SetSockOpt(socket, SOL_SOCKET, TCP_NODELAY, flag);
+	int32 opt = flag ? 1 : 0;
+	return SetSockOpt(socket, SOL_SOCKET, TCP_NODELAY, opt);
 }
 
 // ListenSocket의 특성을 ClientSocket에 그대로 적용
@@ -111,6 +114,15 @@ bool SocketUtils::BindAnyAddress(SOCKET socket, uint16 port)
 bool SocketUtils::Listen(SOCKET socket, int32 backlog)
 {
 	return SOCKET_ERROR != ::listen(socket, backlog);
+}
+
+int32 SocketUtils::GetLastError()
+{
+#ifdef _WIN32
+	return ::WSAGetLastError();
+#else
+	return errno;
+#endif
 }
 
 #ifdef _WIN32

@@ -1,12 +1,10 @@
 #include "pch.h"
 #include <iostream>
 #include <atomic>
+
+#include "NetCore.h"
 #include "Service.h"
 #include "Session.h"
-
-#ifdef _WIN32
-#include "IocpCore.h"
-#endif
 
 using namespace std;
 
@@ -40,11 +38,7 @@ int main()
 	this_thread::sleep_for(1s); // 서버가 켜질 시간 대기
 
 	NetAddress address("127.0.0.1", 7777);
-#ifdef _WIN32
-	NetCoreRef core = make_shared<IocpCore>();
-#else
-	NetCoreRef core = nullptr; // TODO: Epoll
-#endif
+	NetCoreRef core = make_shared<NetCore>();
 
     // ClientService 생성: 100명의 더미 클라이언트가 동시에 접속을 시도하게 함
 	ClientServiceRef service = make_shared<ClientService>(

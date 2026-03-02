@@ -7,29 +7,27 @@
 
 ## ServerCore General Architecture
 * **Core Philosophy:** High-performance, multi-platform asynchronous network engine using a Lock-Free JobQueue model.
-* **Platform Abstraction:** Uses interfaces (`NetCore`, `NetObject`) and type aliasing (`NetEvent`) to separate business logic from OS-specific I/O (IOCP for Windows, Epoll for Linux).
-* **Buffer Management:** Optimizes memory with `RecvBuffer` (ring buffer) and `SendBuffer` (chunk-based pooling) to minimize allocations and handle TCP fragmentation.
+* **Platform Abstraction:** Uses interfaces (`NetCore`, `NetObject`) and platform-specific implementations. The project prioritizes runtime performance (CPU cache efficiency) by avoiding Pimpl patterns in hot paths to minimize pointer chasing and cache misses.
+* **Conditional Compilation:** Platform-specific data members and logic are handled via `#ifdef _WIN32` blocks and CMake-based source file separation (`Platform/Windows` vs `Platform/Linux`).
 
-## Listener Pimpl Pattern & IOCP Lifecycle
-The project uses a Pimpl (Pointer to Implementation) pattern for the `Listener` class to separate platform-independent socket logic from platform-specific asynchronous networking logic (e.g., Windows IOCP).
+## Windows IOCP Lifecycle and Safety
+* **Pending I/O and Memory Management:** Never forcefully delete Overlapped event objects (like `AcceptEvent`) while I/O operations are pending. The kernel must return the event to the worker thread before safe deletion.
+* **Safe Cleanup:** Close the socket first to abort pending operations. Only delete the event object in the worker thread after verifying the socket is `INVALID_SOCKET`.
+* **Maintaining Accept Pool:** If `AcceptEx` fails with an error other than `WSA_IO_PENDING`, the event must be recycled immediately to prevent the accept pool from exhausting.
 
-### Important Considerations for IOCP (Windows)
-* **Pending I/O and Memory Management:** Never forcefully `delete` Overlapped event objects (like `AcceptEvent`) in the destructor if there are pending I/O operations. Doing so while the kernel is still processing causes memory corruption and server crashes.
-* **Breaking Circular References:** Do not store `AcceptEvent` pointers in a container (like `vector`) within the `ListenerImpl` if the event also holds a `shared_ptr` to the `Listener`. This causes memory leaks. The lifecycle of `AcceptEvent` must be managed by the IOCP kernel queue.
-* **Safe Cleanup (Graceful Shutdown):** 
-  1. Call `CloseSocket()` to close the listen socket.
-  2. The kernel aborts pending `AcceptEx` operations and returns them to the worker thread.
-  3. The worker thread checks if the socket is `INVALID_SOCKET` and only then performs `delete acceptEvent`.
-  4. This drops the reference count to 0, allowing the `Listener` to be safely destroyed.
-* **Maintaining the Accept Pool:** If `AcceptEx` fails with an error other than `WSA_IO_PENDING`, but the listener is still active, the event must be recycled (`RegisterAccept`) to prevent the server from stalling due to an empty accept pool.
+## Linux Epoll Implementation Notes
+* **Reactor Model:** Unlike IOCP's Proactor model, Epoll notifies when a socket is ready for I/O. Implementation must handle `EAGAIN` or `EWOULDBLOCK` by looping `recv`, `send`, or `accept` until the buffer is exhausted (Edge Triggered mode).
+* **Lifecycle Management (_epollRef):** To prevent dangling pointers during multi-threaded dispatch, `NetObject` maintains a `shared_ptr` to itself (`_epollRef`) while registered in Epoll. This reference is acquired during `Register` and released upon `Disconnect` or `Close`.
+* **Event Structure:** `EpollEvent` is a lightweight wrapper for kernel flags. Specialized events like `SendEvent` act as local buffers to hold `SendBufferRef` objects for data that couldn't be fully sent in a single system call.
 
-### Cross-Platform Build Requirements
-* **Incomplete Types:** When using `unique_ptr` with a forward-declared implementation class, ensure that the full definition of the implementation class is available where the `unique_ptr` is destroyed (e.g., in the `Listener` destructor). Ensure `#ifdef _WIN32` blocks have corresponding `#else` blocks that include dummy classes or headers for other platforms (like Linux/Epoll) to prevent "incomplete type" compilation errors on non-Windows systems.
+## Build Environment and Encoding
+* **Encoding (UTF-8 without BOM):** All source and header files must be saved in UTF-8 without BOM to ensure compatibility with GCC/WSL. BOM markers can cause GCC to ignore `#pragma once`, leading to massive redefinition errors.
+* **MSVC Configuration:** To support BOM-less UTF-8 and clean build output in CLion, the project uses `/utf-8` and `/wd4819` compiler flags, along with `VSLANG=1033` for English error messages.
+* **PCH Management:** Manual inclusion of `pch.h` in `.cpp` files should be avoided in `ServerCore` to prevent conflicts with CMake's automatic PCH injection (`target_precompile_headers`).
 
-### Resource Management & Initialization
-* **Socket Leaks:** In initialization functions like `StartAccept`, if any step fails after a socket has been created (e.g., binding, registering with the network core), ensure that `SocketUtils::Close()` is called to prevent resource leaks before returning false.
-* **WinSock Initialization:** Always ensure `SocketUtils::Init()` (which calls `WSAStartup` and binds extension functions) is called before creating sockets, otherwise socket creation will fail (e.g., resulting in error 87 `ERROR_INVALID_PARAMETER` when registering with IOCP). This was fixed in `ClientService::Start()`.
+## Resource Management
+* **Socket Leaks:** Sockets must be closed using `SocketUtils::Close()` immediately if any subsequent initialization step (binding, registering) fails.
+* **WinSock Initialization:** `SocketUtils::Init()` must be called before any socket operations to ensure extension functions (ConnectEx, AcceptEx) are bound.
 
-## Testing the Network Engine
-* **Dummy Projects:** The repository includes `DummyServer` and `DummyClient` projects under the `Server` directory. These are standalone CMake executables designed purely to stress-test the `ServerCore` networking logic (Accept pools, IOCP threading, graceful shutdown) without the overhead of game logic.
-* **Test Strategy:** Use `ClientService` with a high `maxSessionCount` to simulate hundreds of concurrent connections to the `ServerService` to verify thread safety and memory leak prevention during rapid connect/disconnect cycles.
+## Testing
+* **Dummy Projects:** Use `DummyServer` and `DummyClient` for stress-testing basic networking stability, thread safety, and memory leak prevention under high concurrency.

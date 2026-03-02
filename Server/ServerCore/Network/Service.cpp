@@ -32,14 +32,16 @@ void Service::Broadcast(SendBufferRef sendBuffer)
 	}
 }
 
-SessionRef Service::CreateSession()
+SessionRef Service::CreateSession(SOCKET socket)
 {
 	SessionRef session = _sessionFactory();
+	session->SetSocket(socket);
+
 	session->SetService(shared_from_this());
 
 	if (_netCore->Register(session) == false)
 	{
-		int err = GetLastError();
+		int err = SocketUtils::GetLastError();
 		return nullptr;
 	}
 	return session;
@@ -78,7 +80,7 @@ bool ClientService::Start()
 	const int32 sessionCount = GetMaxSessionCount();
 	for (int32 i = 0; i < sessionCount; i++)
 	{
-		SessionRef session = CreateSession();
+		SessionRef session = CreateSession(SocketUtils::CreateSocket());
 		if (session->Connect() == false)
 			return false;
 	}

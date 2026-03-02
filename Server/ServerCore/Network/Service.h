@@ -27,7 +27,7 @@ public:
 	void				SetSessionFactory(SessionFactory func) { _sessionFactory = func; }
 
 	void				Broadcast(SendBufferRef sendBuffer);
-	SessionRef			CreateSession();
+	SessionRef			CreateSession(SOCKET socket);
 	void				AddSession(SessionRef session);
 	void				ReleaseSession(SessionRef session);
 	int32				GetCurrentSessionCount() const { return _sessionCount; }

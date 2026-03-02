@@ -1,9 +1,10 @@
 ﻿#pragma once
-#include "IocpCore.h"
-#include "NetAddress.h"
+
+#include "NetObject.h"
 
 class AcceptEvent;
 class ServerService;
+class NetEvent;
 
 /*--------------
 	Listener
@@ -12,8 +13,8 @@ class ServerService;
 class Listener : public NetObject
 {
 public:
-	Listener() = default;
-	~Listener();
+	Listener();
+	~Listener() override;
 
 public:
 	/* 외부에서 사용 */
@@ -22,13 +23,13 @@ public:
 
 public:
 	/* 인터페이스 구현 */
-	virtual HANDLE GetHandle() override;
-	virtual void Dispatch(class IocpEvent* iocpEvent, int32 numOfBytes = 0) override;
+	HANDLE GetHandle() override;
+	void Dispatch(NetEvent* netEvent, int32 numOfBytes) override;
 
 private:
 	/* 수신 관련 */
 	void RegisterAccept(AcceptEvent* acceptEvent);
-	void ProcessAccept(AcceptEvent* acceptEvent);
+	void ProcessAccept(NetEvent* netEvent);
 
 protected:
 	SOCKET _socket = INVALID_SOCKET;

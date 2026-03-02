@@ -1,12 +1,11 @@
 #include "pch.h"
 #include <iostream>
 #include <atomic>
+
+#include "NetCore.h"
 #include "Service.h"
 #include "Session.h"
 
-#ifdef _WIN32
-#include "IocpCore.h"
-#endif
 
 using namespace std;
 
@@ -45,11 +44,9 @@ int main()
 	cout << "=== Dummy Server Starting ===" << endl;
 
 	NetAddress address("127.0.0.1", 7777);
-#ifdef _WIN32
-	NetCoreRef core = make_shared<IocpCore>();
-#else
-	NetCoreRef core = nullptr; // TODO: Epoll
-#endif
+
+	NetCoreRef core = make_shared<NetCore>();
+
 
     // ServerService 생성: 최대 1000명의 세션을 받을 수 있도록 설정
 	ServerServiceRef service = make_shared<ServerService>(

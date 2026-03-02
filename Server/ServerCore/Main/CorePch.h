@@ -34,11 +34,11 @@ using namespace std;
 	#include <cstring>
 	#include <cerrno>
 	#include <netinet/tcp.h>
+	#include <sys/uio.h>
 #endif
 
 #include "CoreTLS.h"
 #include "Singleton.h"
 #include "SendBuffer.h"
-#include "Session.h"
 #include "JobQueue.h"
 

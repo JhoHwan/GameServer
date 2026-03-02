@@ -3,9 +3,15 @@
 class NetCore
 {
 public:
-    virtual ~NetCore() = default;
+	NetCore();
+	~NetCore();
 
-    virtual HANDLE GetHandle() const = 0;
-    virtual bool Register(NetObjectRef netObject) = 0;
-    virtual bool Dispatch(uint32 timeoutMs) = 0;
+	HANDLE GetHandle() const { return _handle; }
+	bool Register(const NetObjectRef& netObject);
+	void UnRegister(const NetObjectRef& netObject);
+	bool Dispatch(int32 timeoutMs = INFINITE);
+	bool Update(const NetObjectRef& netObject, uint32 eventFlags);
+
+private:
+	HANDLE _handle = INVALID_HANDLE_VALUE;
 };

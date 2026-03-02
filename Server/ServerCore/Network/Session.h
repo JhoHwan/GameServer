@@ -23,35 +23,41 @@ class Session : public NetObject
 
 public:
 	Session();
-	virtual ~Session();
+	~Session() override;
 
 public:
 						/* 외부에서 사용 */
 	void				Send(SendBufferRef sendBuffer);
 	bool				Connect();
-	void				Disconnect(const WCHAR* cause);
+	void				Disconnect(const char* cause);
 
-	shared_ptr<Service>	GetService() { return _service.lock(); }
-	void				SetService(shared_ptr<Service> service) { _service = service; }
+	shared_ptr<Service>	GetService() const { return _service.lock(); }
+	void				SetService(const shared_ptr<Service>& service) { _service = service; }
 
 public:
 						/* 정보 관련 */
 	void				SetNetAddress(NetAddress address) { _netAddress = address; }
-	NetAddress			GetAddress() { return _netAddress; }
-	SOCKET				GetSocket() { return _socket; }
+	NetAddress			GetAddress() const { return _netAddress; }
+	void				SetSocket(const SOCKET& socket) { _socket = socket; }
+	SOCKET				GetSocket() const { return _socket; }
 	bool				IsConnected() { return _connected; }
 	SessionRef			GetSessionRef() { return static_pointer_cast<Session>(shared_from_this()); }
 
 private:
 						/* 인터페이스 구현 */
-	virtual HANDLE		GetHandle() override;
-	virtual void		Dispatch(class IocpEvent* iocpEvent, int32 numOfBytes = 0) override;
+	HANDLE		GetHandle() override;
+	void		Dispatch(NetEvent* netEvent, int32 numOfBytes) override;
 
 private:
 						/* 전송 관련 */
 	bool				RegisterConnect();
 	bool				RegisterDisconnect();
 	void				RegisterRecv();
+
+#ifndef _WIN32
+	void FlushSend();
+#endif
+
 	void				RegisterSend();
 
 	void				ProcessConnect();
@@ -83,12 +89,15 @@ private:
 	queue<SendBufferRef>	_sendQueue;
 	atomic<bool>			_sendRegistered = false;
 
-private:
+#ifdef _WIN32
 						/* IocpEvent 재사용 */
-	ConnectEvent		_connectEvent;
-	DisconnectEvent		_disconnectEvent;
-	RecvEvent			_recvEvent;
-	SendEvent			_sendEvent;
+	ConnectEvent		_connectEvent{};
+	DisconnectEvent		_disconnectEvent{};
+	RecvEvent			_recvEvent{};
+	SendEvent			_sendEvent{};
+#else
+	int32 _sendOffset = 0;
+#endif
 };
 
 /*-----------------
@@ -104,12 +113,12 @@ struct PacketHeader
 class PacketSession : public Session
 {
 public:
-	PacketSession();
-	virtual ~PacketSession() override;
+	PacketSession() = default;
+	~PacketSession() override = default;
 
-	PacketSessionRef	GetPacketSessionRef() { return static_pointer_cast<PacketSession>(shared_from_this()); }
+	PacketSessionRef GetPacketSessionRef() { return static_pointer_cast<PacketSession>(shared_from_this()); }
 
 protected:
-	virtual int32		OnRecv(BYTE* buffer, int32 len) final;
-	virtual void		OnRecvPacket(BYTE* buffer, int32 len) = 0;
+	int32 OnRecv(BYTE* buffer, int32 len) final;
+	virtual void OnRecvPacket(BYTE* buffer, int32 len) = 0;
 };

@@ -8,7 +8,8 @@ JobTimer& GJobTimer = JobTimer::Instance();
 
 shared_ptr<JobCancelToken> JobTimer::Reserve(uint64 tickAfter, weak_ptr<JobQueue> owner, JobRef job)
 {
-	const uint64 executeTick = ::GetTickCount64() + tickAfter;
+	const uint64 currentTick = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+	const uint64 executeTick = currentTick + tickAfter;
 	JobData* jobData = new JobData(owner, job);
 	TimerItem item(executeTick, jobData);
 	{

@@ -1,5 +1,7 @@
 ﻿#include "pch.h"
 #include "Session.h"
+
+#include "NetCore.h"
 #include "SocketUtils.h"
 #include "Service.h"
 
@@ -9,13 +11,15 @@
 
 Session::Session() : _recvBuffer(BUFFER_SIZE)
 {
-	_socket = SocketUtils::CreateSocket();
+	//_socket = SocketUtils::CreateSocket();
+#ifndef _WIN32
+	_nativeFlags = EPOLLIN | EPOLLET | EPOLLONESHOT;
+#endif
 }
 
 Session::~Session()
 {
-	SocketUtils::Close(_socket);
-	//cout << "Session Free" << endl;
+	cout << "Session Free" << endl;
 }
 
 void Session::Send(SendBufferRef sendBuffer)
@@ -29,7 +33,7 @@ void Session::Send(SendBufferRef sendBuffer)
 	{
 		WRITE_LOCK;
 
-		_sendQueue.emplace(sendBuffer);
+		_sendQueue.push(std::move(sendBuffer));
 
 		if (_sendRegistered.exchange(true) == false)
 			registerSend = true;
@@ -44,13 +48,13 @@ bool Session::Connect()
 	return RegisterConnect();
 }
 
-void Session::Disconnect(const WCHAR* cause)
+void Session::Disconnect(const char* cause)
 {
 	if (_connected.exchange(false) == false)
 		return;
 
 	// TEMP
-	wcout << "Disconnect : " << cause << endl;
+	cout << "Disconnect : " << cause << endl;
 
 	RegisterDisconnect();
 }
@@ -60,9 +64,10 @@ HANDLE Session::GetHandle()
 	return reinterpret_cast<HANDLE>(_socket);
 }
 
-void Session::Dispatch(IocpEvent* iocpEvent, int32 numOfBytes)
+void Session::Dispatch(NetEvent* netEvent, const int32 numOfBytes)
 {
-	switch (iocpEvent->eventType)
+#ifdef _WIN32
+	switch (netEvent->eventType)
 	{
 	case EventType::Connect:
 		ProcessConnect();
@@ -79,6 +84,42 @@ void Session::Dispatch(IocpEvent* iocpEvent, int32 numOfBytes)
 	default:
 		break;
 	}
+#else
+	const auto flags = netEvent->eventFlags;
+
+	if(flags & (EPOLLERR | EPOLLHUP))
+	{
+		auto err = SocketUtils::GetLastError();
+		Disconnect("Error");
+		return;
+	}
+
+	if(flags & (EPOLLIN))
+	{
+		ProcessRecv(numOfBytes);
+	}
+
+	if(flags & (EPOLLOUT))
+	{
+		if(IsConnected()) FlushSend();
+		else ProcessConnect();
+	}
+
+	if(flags & EPOLLRDHUP)
+	{
+		Disconnect("EOF");
+		return;
+	}
+
+	if(IsConnected())
+	{
+		uint32 nextEvents = EPOLLIN;
+
+		if(_sendRegistered.load() == true) nextEvents |= EPOLLOUT;
+		GetService()->GetNetCore()->Update(shared_from_this(), nextEvents);
+	}
+
+#endif
 }
 
 bool Session::RegisterConnect()
@@ -95,11 +136,13 @@ bool Session::RegisterConnect()
 	if (SocketUtils::BindAnyAddress(_socket, 0/*남는거*/) == false)
 		return false;
 
+	SOCKADDR_IN sockAddr = GetService()->GetNetAddress().GetSockAddr();
+
+#ifdef _WIN32
 	_connectEvent.Init();
 	_connectEvent.owner = shared_from_this(); // ADD_REF
 
 	DWORD numOfBytes = 0;
-	SOCKADDR_IN sockAddr = GetService()->GetNetAddress().GetSockAddr();
 	if (false == SocketUtils::ConnectEx(_socket, reinterpret_cast<SOCKADDR*>(&sockAddr), sizeof(sockAddr), nullptr, 0, &numOfBytes, &_connectEvent))
 	{
 		int32 errorCode = ::WSAGetLastError();
@@ -109,12 +152,23 @@ bool Session::RegisterConnect()
 			return false;
 		}
 	}
-
+#else
+	GetService()->GetNetCore()->Update(shared_from_this(), EPOLLIN | EPOLLOUT);
+	int res = ::connect(_socket, reinterpret_cast<SOCKADDR*>(&sockAddr), sizeof(sockAddr));
+	if(res == SOCKET_ERROR)
+	{
+		if(SocketUtils::GetLastError() != EINPROGRESS)
+		{
+			return false;
+		}
+	}
+#endif
 	return true;
 }
 
 bool Session::RegisterDisconnect()
 {
+#ifdef _WIN32
 	_disconnectEvent.Init();
 	_disconnectEvent.owner = shared_from_this(); // ADD_REF
 
@@ -127,6 +181,9 @@ bool Session::RegisterDisconnect()
 			return false;
 		}
 	}
+#else
+	ProcessDisconnect();
+#endif
 
 	return true;
 }
@@ -136,6 +193,7 @@ void Session::RegisterRecv()
 	if (IsConnected() == false)
 		return;
 
+#ifdef _WIN32
 	_recvEvent.Init();
 	_recvEvent.owner = shared_from_this(); // ADD_REF
 
@@ -154,13 +212,92 @@ void Session::RegisterRecv()
 			_recvEvent.owner = nullptr; // RELEASE_REF
 		}
 	}
+#endif
 }
+
+#ifndef _WIN32
+void Session::FlushSend()
+{
+	int32 totalSentBytes = 0;
+	while(true)
+	{
+		constexpr int MAX_IOV = 64;
+		iovec iovs[MAX_IOV];
+		int32 iovCount = 0;
+		size_t totalBytes = 0;
+
+		vector<SendBufferRef> pendingBuffers;
+		{
+			WRITE_LOCK;
+			if(_sendQueue.empty())
+			{
+				_sendRegistered.store(false);
+				break;
+			}
+
+			while(_sendQueue.empty() == false && pendingBuffers.size() < MAX_IOV)
+			{
+				auto& buffer = _sendQueue.front();
+				int32 offset = (iovCount == 0) ? _sendOffset : 0;
+
+				iovs[iovCount].iov_base = buffer->Buffer() + offset;
+				iovs[iovCount].iov_len = buffer->WriteSize() - offset;
+
+				totalBytes += iovs[iovCount].iov_len;
+				pendingBuffers.push_back(buffer);
+				++iovCount;
+			}
+		}
+
+		ssize_t sentBytes = ::writev(_socket, iovs, iovCount);
+		totalSentBytes += static_cast<int32>(sentBytes);
+		if(sentBytes == -1)
+		{
+			if(errno == EAGAIN || errno == EWOULDBLOCK) break;
+			Disconnect("Writev Error");
+			return;
+		}
+
+		{
+			WRITE_LOCK;
+			auto bytesToRemove = static_cast<int32>(sentBytes);
+
+			while (bytesToRemove > 0 && _sendQueue.empty() == false)
+			{
+				const auto& buffer = _sendQueue.front();
+				int32 dataInBuf = buffer->WriteSize() - _sendOffset;
+				if(bytesToRemove >= dataInBuf)
+				{
+					bytesToRemove -= dataInBuf;
+					_sendQueue.pop();
+					_sendOffset = 0;
+				}
+				else
+				{
+					_sendOffset += bytesToRemove;
+					bytesToRemove = 0;
+				}
+			}
+
+			if(_sendQueue.empty())
+			{
+				_sendRegistered.store(false);
+				break;
+			}
+		}
+		if(sentBytes < totalBytes) break;
+	}
+	if(totalSentBytes > 0)
+		OnSend(totalSentBytes);
+}
+#endif
+
 
 void Session::RegisterSend()
 {
 	if (IsConnected() == false)
 		return;
-
+#ifdef _WIN32
 	_sendEvent.Init();
 	_sendEvent.owner = shared_from_this(); // ADD_REF
 
@@ -202,16 +339,23 @@ void Session::RegisterSend()
 			_sendRegistered.store(false);
 		}
 	}
+#else
+	FlushSend();
+	if(_sendRegistered.load())
+		GetService()->GetNetCore()->Update(shared_from_this(), EPOLLIN | EPOLLOUT);
+#endif
 }
 
 void Session::ProcessConnect()
 {
-	_connectEvent.owner = nullptr; // RELEASE_REF
-
-	_connected.store(true);
-
 	// 세션 등록
 	GetService()->AddSession(GetSessionRef());
+
+#ifdef _WIN32
+	_connectEvent.owner = nullptr; // RELEASE_REF
+#endif
+
+	_connected.store(true);
 
 	// 컨텐츠 코드에서 재정의
 	OnConnected();
@@ -222,33 +366,67 @@ void Session::ProcessConnect()
 
 void Session::ProcessDisconnect()
 {
+#ifdef _WIN32
 	_disconnectEvent.owner = nullptr; // RELEASE_REF
-
+#else
+	_epollRef.reset();
+#endif
 	OnDisconnected(); // 컨텐츠 코드에서 재정의
 	GetService()->ReleaseSession(GetSessionRef());
+
+	GetService()->GetNetCore()->UnRegister(shared_from_this());
+	SocketUtils::Close(_socket);
+
+
 }
 
 void Session::ProcessRecv(int32 numOfBytes)
 {
+#ifdef _WIN32
 	_recvEvent.owner = nullptr; // RELEASE_REF
 
 	if (numOfBytes == 0)
 	{
-		Disconnect(L"Recv 0");
+		Disconnect("Recv 0");
 		return;
 	}
 
 	if (_recvBuffer.OnWrite(numOfBytes) == false)
 	{
-		Disconnect(L"OnWrite Overflow");
+		Disconnect("OnWrite Overflow");
 		return;
 	}
+#else
+	while (true)
+	{
+		ssize_t recvBytes = recv(_socket, _recvBuffer.WritePos(), _recvBuffer.FreeSize(), 0);
+		if (recvBytes == -1)
+		{
+			if (errno == EAGAIN || errno == EWOULDBLOCK) break;
+			Disconnect("Error");
+			return;
+		}
+		else if (recvBytes == 0)
+		{
+			Disconnect("Recv 0");
+			return;
+		}
+		else
+		{
+			if(_recvBuffer.OnWrite(recvBytes) == false)
+			{
+				Disconnect("OnWrite Overflow");
+				return;
+			}
+		}
+	}
+#endif
 
 	int32 dataSize = _recvBuffer.DataSize();
 	int32 processLen = OnRecv(_recvBuffer.ReadPos(), dataSize); // 컨텐츠 코드에서 재정의
 	if (processLen < 0 || dataSize < processLen || _recvBuffer.OnRead(processLen) == false)
 	{
-		Disconnect(L"OnRead Overflow");
+		Disconnect("OnRead Overflow");
 		return;
 	}
 	
@@ -261,12 +439,13 @@ void Session::ProcessRecv(int32 numOfBytes)
 
 void Session::ProcessSend(int32 numOfBytes)
 {
+#ifdef _WIN32
 	_sendEvent.owner = nullptr; // RELEASE_REF
 	_sendEvent.sendBuffers.clear(); // RELEASE_REF
 
 	if (numOfBytes == 0)
 	{
-		Disconnect(L"Send 0");
+		Disconnect("Send 0");
 		return;
 	}
 
@@ -278,16 +457,20 @@ void Session::ProcessSend(int32 numOfBytes)
 		_sendRegistered.store(false);
 	else
 		RegisterSend();
+#endif
+
 }
 
 void Session::HandleError(int32 errorCode)
 {
 	switch (errorCode)
 	{
+#ifdef _WIN32
 	case WSAECONNRESET:
 	case WSAECONNABORTED:
-		Disconnect(L"HandleError");
+		Disconnect("HandleError");
 		break;
+#endif
 	default:
 		// TODO : Log
 		cout << "Handle Error : " << errorCode << endl;
@@ -298,14 +481,6 @@ void Session::HandleError(int32 errorCode)
 /*-----------------
 	PacketSession
 ------------------*/
-
-PacketSession::PacketSession()
-{
-}
-
-PacketSession::~PacketSession()
-{
-}
 
 // [size(2)][id(2)][data....][size(2)][id(2)][data....]
 int32 PacketSession::OnRecv(BYTE* buffer, int32 len)
