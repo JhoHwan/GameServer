@@ -86,7 +86,7 @@ private:
 	RecvBuffer				_recvBuffer;
 
 							/* 송신 관련 */
-	queue<SendBufferRef>	_sendQueue;
+	moodycamel::ConcurrentQueue<SendBufferRef>	_sendQueue;
 	atomic<bool>			_sendRegistered = false;
 
 #ifdef _WIN32
@@ -97,6 +97,7 @@ private:
 	SendEvent			_sendEvent{};
 #else
 	int32 _sendOffset = 0;
+	deque<SendBufferRef> _pendingSendQueue;
 #endif
 };
 

@@ -9,8 +9,8 @@ moodycamel::ConcurrentQueue<JobQueueRef> GGlobalJobQueue;
 
 void JobQueue::Push(JobRef job)
 {
-	_jobCount.fetch_add(1);
 	_jobs.enqueue(job);
+	_jobCount.fetch_add(1);
 
 	bool expected = false;
 	if (_isExecute.compare_exchange_strong(expected, true))
@@ -39,7 +39,7 @@ void JobQueue::Execute(int32 executeCount)
 		{
 			_isExecute.store(false);
 
-			/*
+
 			if (_jobCount.load() > 0)
 			{
 			 	bool expected = false;
@@ -48,7 +48,7 @@ void JobQueue::Execute(int32 executeCount)
 			 		continue;
 				}
 			}
-			*/
+			
 			return;
 		}
 
