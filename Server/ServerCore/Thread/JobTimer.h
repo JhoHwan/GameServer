@@ -11,22 +11,11 @@ struct JobData
 	JobRef				job;
 };
 
-struct JobCancelToken
-{
-public:
-	void CancelJob() { _isCanceld = true; }
-	bool IsCanceled() const { return _isCanceld; }
-
-private:
-	bool _isCanceld = false;
-};
-
 struct TimerItem
 {
-	TimerItem(uint64 executeTick, JobData* jobData) 
+	TimerItem(uint64 executeTick, JobData jobData)
 		: executeTick(executeTick),
-		jobData(jobData),
-		cancelToken(make_shared<JobCancelToken>()) {}
+		jobData(std::move(jobData)){}
 
 	bool operator<(const TimerItem& other) const
 	{
@@ -34,25 +23,22 @@ struct TimerItem
 	}
 
 	uint64 executeTick = 0;
-	JobData* jobData = nullptr;
-	shared_ptr<JobCancelToken> cancelToken;
+	JobData jobData;
 };
 
 /*--------------
 	JobTimer
 ---------------*/
 
-class JobTimer : public Singleton<JobTimer>
+class JobTimer
 {
 public:
-	shared_ptr<JobCancelToken>			Reserve(uint64 tickAfter, weak_ptr<JobQueue> owner, JobRef job);
+	void								Reserve(uint64 tickAfter, const JobQueueRef& owner, const JobRef& job);
 	void								Distribute(uint64 now);
 	void								Clear();
 
-private:
-	USE_LOCK;
-	priority_queue<TimerItem>	_items;
-	atomic<bool>				_distributing = false;
-};
 
-extern JobTimer& GJobTimer;
+private:
+	priority_queue<TimerItem>	_items;
+	//atomic<bool>				_distributing = false;
+};

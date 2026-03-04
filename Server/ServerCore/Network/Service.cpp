@@ -1,5 +1,4 @@
 ﻿#include "Service.h"
-#include "Session.h"
 #include "Listener.h"
 #include "NetCore.h"
 #include "SocketUtils.h"
@@ -20,7 +19,16 @@ Service::~Service()
 
 void Service::CloseService()
 {
-	// TODO
+	vector<SessionRef> sessionsToClose;
+	{
+		WRITE_LOCK;
+		sessionsToClose.insert(sessionsToClose.end(), _sessions.begin(), _sessions.end());
+	}
+
+	for (auto& session : sessionsToClose)
+	{
+		session->Disconnect("CloseService");
+	}
 }
 
 void Service::Broadcast(SendBufferRef sendBuffer)

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "NetObject.h"
 
@@ -28,12 +28,14 @@ public:
 
 private:
 	/* 수신 관련 */
-	void RegisterAccept(AcceptEvent* acceptEvent);
+	void RegisterAccept(AcceptEvent* acceptEvent = nullptr);
 	void ProcessAccept(NetEvent* netEvent);
 
 protected:
 	SOCKET _socket = INVALID_SOCKET;
-	vector<AcceptEvent*> _acceptEvents;
 	ServerServiceRef _service;
-};
 
+#ifdef _WIN32
+	vector<AcceptEvent*> _acceptEvents;
+#endif
+};

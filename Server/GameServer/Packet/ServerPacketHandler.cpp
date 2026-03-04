@@ -33,7 +33,7 @@ bool Handle_CS_REQ_ENTER_GAME(SessionRef& session, Protocol::CS_REQ_ENTER_GAME& 
                 packet.set_target_map_id(0);
                 packet.mutable_start_pos()->CopyFrom(Vector3::Zero().ToProto());
                 gSession->Send(ServerPacketHandler::MakeSendBuffer(packet));
-                gSession->SetTimeOut(60000, L"Map Loading");
+                gSession->SetTimeOut(60000, "Map Loading");
             }
         });
     return true;
@@ -48,7 +48,7 @@ bool Handle_CS_REQ_MOVE_FIELD(SessionRef& session, Protocol::CS_REQ_MOVE_FIELD& 
             packet.set_target_map_id(0);
             packet.mutable_start_pos()->CopyFrom(Vector3::Zero().ToProto());
             gSession->Send(ServerPacketHandler::MakeSendBuffer(packet));
-            gSession->SetTimeOut(60000, L"Map Loading");
+            gSession->SetTimeOut(60000, "Map Loading");
         });
     return true;
 }
@@ -60,7 +60,7 @@ bool Handle_CS_FIELD_LOADING_COMPLETE(SessionRef& session, Protocol::CS_FIELD_LO
     gSession->GetJobQueue()->DoAsync([gSession]()
         {
             shared_ptr<PlayerCharacter> player = gSession->GetPlayer();
-            if (!player) gSession->Disconnect(L"Invalid Error");
+            if (!player) gSession->Disconnect("Invalid Error");
 
             Protocol::SC_ENTER_FIELD packet;
             player->GetObjectInfo(packet.mutable_my_info()->mutable_object_info());

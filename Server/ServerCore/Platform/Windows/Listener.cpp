@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "Listener.h"
 
 #include <utility>
@@ -14,14 +14,11 @@
 
 Listener::Listener()
 {
-#ifndef _WIN32
-	_nativeFlags = EPOLLIN | EPOLLET | EPOLLEXCLUSIVE;
-#endif
 }
 
 Listener::~Listener()
 {
-	SocketUtils::Close(_socket);
+	cout << "Listener::~Listener()" << endl;
 }
 
 bool Listener::StartAccept(ServerServiceRef service)
@@ -33,7 +30,6 @@ bool Listener::StartAccept(ServerServiceRef service)
 	_socket = SocketUtils::CreateSocket();
 	if (_socket == INVALID_SOCKET)
 	{
-		int error_code = SocketUtils::GetLastError();
 		return false;
 	}
 
@@ -52,7 +48,6 @@ bool Listener::StartAccept(ServerServiceRef service)
 	if (SocketUtils::Listen(_socket) == false)
 		return false;
 
-#ifdef _WIN32
 	const int32 acceptCount = _service->GetMaxSessionCount();
 	for (int32 i = 0; i < acceptCount; i++)
 	{
@@ -61,9 +56,7 @@ bool Listener::StartAccept(ServerServiceRef service)
 		_acceptEvents.push_back(acceptEvent);
 		RegisterAccept(acceptEvent);
 	}
-#else
-	RegisterAccept(nullptr);
-#endif
+
 	return true;
 }
 
@@ -71,15 +64,7 @@ void Listener::CloseSocket()
 {
 	_service->GetNetCore()->UnRegister(shared_from_this());
 	SocketUtils::Close(_socket);
-
-#ifdef _WIN32
-	for (AcceptEvent* acceptEvent : _acceptEvents)
-	{
-		delete(acceptEvent);
-	}
-#else
-	_epollRef.reset();
-#endif
+	_socket = INVALID_SOCKET;
 }
 
 HANDLE Listener::GetHandle()
@@ -89,15 +74,18 @@ HANDLE Listener::GetHandle()
 
 void Listener::Dispatch(NetEvent* netEvent, int32 numOfBytes)
 {
-#ifdef _WIN32
 	ASSERT_CRASH(netEvent->eventType == EventType::Accept);
-#endif
 	ProcessAccept(netEvent);
 }
 
 void Listener::RegisterAccept(AcceptEvent* acceptEvent)
 {
-#ifdef _WIN32
+	if(_socket == INVALID_SOCKET)
+	{
+		delete acceptEvent;
+		return;
+	}
+
 	SessionRef session = _service->CreateSession(SocketUtils::CreateSocket()); // Register IOCP
 
 	acceptEvent->Init();
@@ -113,13 +101,18 @@ void Listener::RegisterAccept(AcceptEvent* acceptEvent)
 			RegisterAccept(acceptEvent);
 		}
 	}
-#endif
 }
 
 void Listener::ProcessAccept(NetEvent* netEvent)
 {
-#ifdef _WIN32
 	auto* acceptEvent = static_cast<AcceptEvent*>(netEvent);
+
+	if(_socket == INVALID_SOCKET)
+	{
+		delete acceptEvent;
+		return;
+	}
+
 	const SessionRef session = acceptEvent->session;
 
 	if (false == SocketUtils::SetUpdateAcceptSocket(session->GetSocket(), _socket))
@@ -139,22 +132,4 @@ void Listener::ProcessAccept(NetEvent* netEvent)
 	session->SetNetAddress(NetAddress(sockAddress));
 	session->ProcessConnect();
 	RegisterAccept(acceptEvent);
-
-#else
-	while(true)
-	{
-		SOCKADDR_IN clientAddress;
-		socklen_t clientAddressLength = sizeof(clientAddress);
-		int clientSocket = accept4(_socket, reinterpret_cast<SOCKADDR*>(&clientAddress), &clientAddressLength, SOCK_NONBLOCK);
-		if(clientSocket == INVALID_SOCKET)
-		{
-			if(SocketUtils::GetLastError() == EAGAIN || SocketUtils::GetLastError() == EWOULDBLOCK) break;
-			perror("accept error");
-			break;
-		}
-
-		SessionRef session = _service->CreateSession(clientSocket); //Epoll Register
-		session->ProcessConnect();
-	}
-#endif
 }

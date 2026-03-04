@@ -13,15 +13,15 @@ protected:
     void OnConnected() override;
 
 public:
-    void SetTimeOut(uint64 time, wstring log);
+    void SetTimeOut(uint64 time, const string& log);
     void CancelTimeOut();
 
-    void SetPlayer(weak_ptr<PlayerCharacter> player) { _playerRef = player; }
+    void SetPlayer(const weak_ptr<PlayerCharacter>& player) { _playerRef = player; }
     shared_ptr<PlayerCharacter> GetPlayer() const { return _playerRef.lock(); }
     shared_ptr<JobQueue> GetJobQueue() { return _jobQueue; }
 private:
     weak_ptr<PlayerCharacter> _playerRef;
     shared_ptr<JobQueue> _jobQueue;
-    shared_ptr<JobCancelToken> _timeOutToken;
+    atomic<uint32> _timeOutToken;
 };
 

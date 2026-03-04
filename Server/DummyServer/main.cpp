@@ -86,8 +86,9 @@ int main()
 	    if (command == L"quit")
 	    {
 			cout << "Shutting down ServerService..." << endl;
-			GIsRunning = false;
 		    service->CloseService();
+	    	this_thread::sleep_for(100ms);
+			GIsRunning = false;
 	    	break;
 	    }
 	}

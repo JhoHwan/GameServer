@@ -1,7 +1,4 @@
-﻿#include "pch.h"
-#include "Session.h"
-
-#include "NetCore.h"
+﻿#include "NetCore.h"
 #include "SocketUtils.h"
 #include "Service.h"
 
@@ -85,6 +82,7 @@ void Session::Dispatch(NetEvent* netEvent, const int32 numOfBytes)
 		break;
 	}
 #else
+	SessionRef sessionRef = GetSessionRef();
 	const auto flags = netEvent->eventFlags;
 
 	if(flags & (EPOLLERR | EPOLLHUP))
@@ -366,18 +364,17 @@ void Session::ProcessConnect()
 
 void Session::ProcessDisconnect()
 {
+	OnDisconnected(); // 컨텐츠 코드에서 재정의
+
+	GetService()->GetNetCore()->UnRegister(shared_from_this());
+	SocketUtils::Close(_socket);
+
+	GetService()->ReleaseSession(GetSessionRef());
 #ifdef _WIN32
 	_disconnectEvent.owner = nullptr; // RELEASE_REF
 #else
 	_epollRef.reset();
 #endif
-	OnDisconnected(); // 컨텐츠 코드에서 재정의
-	GetService()->ReleaseSession(GetSessionRef());
-
-	GetService()->GetNetCore()->UnRegister(shared_from_this());
-	SocketUtils::Close(_socket);
-
-
 }
 
 void Session::ProcessRecv(int32 numOfBytes)

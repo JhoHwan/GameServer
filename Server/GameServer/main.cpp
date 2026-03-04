@@ -17,6 +17,8 @@
 
 #include <algorithm>
 
+#include "NetCore.h"
+
 #pragma region MyRegion
 /*
 //#include <random>
@@ -167,7 +169,7 @@ void WorkerMain(NetCoreRef iocpCore)
 
         {
             auto now = GetTickCount64();
-            GJobTimer.Distribute(now);
+            LJobTimer.Distribute(now);
         }
 
         // Job처리
@@ -218,8 +220,8 @@ int main()
 	ServerPacketHandler::Init();
 
 
-    NetAddress address(L"127.0.0.1", 7777);
-	NetCoreRef iocpCore = make_shared<IocpCore>();
+    NetAddress address("127.0.0.1", 7777);
+	NetCoreRef iocpCore = make_shared<NetCore>();
 
 	ServerServiceRef service = make_shared<ServerService>(address, iocpCore, []() 
 		{

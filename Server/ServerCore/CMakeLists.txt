@@ -36,4 +36,13 @@ if(WIN32)
     target_compile_definitions(ServerCore PUBLIC WIN32_LEAN_AND_MEAN NOMINMAX)
 else()
     target_link_libraries(ServerCore PUBLIC pthread)
+    # CONFIG가 Debug일 때만 뒤의 옵션들을 전개함
+    target_compile_options(ServerCore PUBLIC
+            $<$<CONFIG:Debug>:-fsanitize=address>
+            $<$<CONFIG:Debug>:-g>
+            $<$<CONFIG:Debug>:-fno-omit-frame-pointer>
+    )
+    target_link_options(ServerCore PUBLIC
+            $<$<CONFIG:Debug>:-fsanitize=address>
+    )
 endif()

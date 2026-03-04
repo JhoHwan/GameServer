@@ -15,27 +15,23 @@ void GameSession::OnRecvPacket(BYTE* buffer, int32 len)
 void GameSession::OnConnected()
 {
 	//cout << "Connect" << endl;
-	SetTimeOut(5000, L"Login Request");
+	SetTimeOut(5000, "Login Request");
 }
 
-void GameSession::SetTimeOut(uint64 time, wstring log)
+void GameSession::SetTimeOut(uint64 time, const string& log)
 {
 	weak_ptr<Session> self = GetSessionRef();
-	JobRef job = make_shared<Job>([self, log]
+	JobRef job = make_shared<Job>([this, self, log, token = _timeOutToken.load()]
 		{
 			SessionRef session = self.lock();
-			if (!session) return;
-			wcout << L"[Timeout] "<< log << " Timeout!" << endl;
-			session->Disconnect(L"Time Out");
+			if (!session || _timeOutToken.load() != token) return;
+			cout << "[Timeout] " << log << " Timeout!" << endl;
+			session->Disconnect("Time Out");
 		});
-	_timeOutToken = GJobTimer.Reserve(time, GetJobQueue(), job);
+	LJobTimer.Reserve(time, GetJobQueue(), job);
 }
 
 void GameSession::CancelTimeOut()
 {
-	if (_timeOutToken)
-	{
-		_timeOutToken->CancelJob();
-		_timeOutToken = nullptr;
-	}
+	_timeOutToken.fetch_add(1);
 }

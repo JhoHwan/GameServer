@@ -73,12 +73,13 @@ int main()
 	{
 		wstring command;
 		wcin >> command;
-	    if (command == L"quit")
-	    {
+		if (command == L"quit")
+		{
+			service->CloseService();
+			this_thread::sleep_for(100ms);
 			GIsRunning = false;
-		    service->CloseService();
-	    	break;
-	    }
+			break;
+		}
 	}
 
 	for (auto& t : threads)

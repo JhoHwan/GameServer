@@ -14,6 +14,8 @@ extern moodycamel::ConcurrentQueue<JobQueueRef> GGlobalJobQueue;
 class JobQueue : public enable_shared_from_this<JobQueue>
 {
 public:
+	virtual ~JobQueue() = default;
+
 	void DoAsync(CallbackType&& callback)
 	{
 		Push(make_shared<Job>(std::move(callback)));
@@ -28,7 +30,7 @@ public:
 
 public:
 	void	Push(JobRef job);
-	void	Execute(int32 excuteTime);
+	void	Execute(int32 executeCount);
 
 protected:
 	//LockQueue<JobRef> _jobs;

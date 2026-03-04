@@ -4,66 +4,31 @@
 /*--------------
 	JobTimer
 ---------------*/
-JobTimer& GJobTimer = JobTimer::Instance();
-
-shared_ptr<JobCancelToken> JobTimer::Reserve(uint64 tickAfter, weak_ptr<JobQueue> owner, JobRef job)
+void JobTimer::Reserve(uint64 tickAfter, const JobQueueRef& owner, const JobRef& job)
 {
-	const uint64 currentTick = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+	const uint64 currentTick = GetTickCount64();
 	const uint64 executeTick = currentTick + tickAfter;
-	JobData* jobData = new JobData(owner, job);
-	TimerItem item(executeTick, jobData);
-	{
-		WRITE_LOCK;
-		_items.push(item);
-	}
-	
-	return item.cancelToken;
+	_items.emplace(executeTick, JobData{owner, job});
 }
 
 void JobTimer::Distribute(uint64 now)
 {
-	// 한 번에 1 쓰레드만 통과
-	if (_distributing.exchange(true) == true)
-		return;
-
-	vector<TimerItem> items;
-
+	while (_items.empty() == false)
 	{
-		WRITE_LOCK;
+		const TimerItem& timerItem = _items.top();
+		if (now < timerItem.executeTick) break;
 
-		while (_items.empty() == false)
-		{
-			const TimerItem& timerItem = _items.top();
-			if (now < timerItem.executeTick)
-				break;
+		if (const JobQueueRef owner = timerItem.jobData.owner.lock())
+			owner->Push(timerItem.jobData.job);
 
-			items.push_back(timerItem);
-			_items.pop();
-		}
+		_items.pop();
 	}
-
-	for (TimerItem& item : items)
-	{
-		if (item.cancelToken->IsCanceled() == false)
-		{
-			if (JobQueueRef owner = item.jobData->owner.lock())
-				owner->Push(item.jobData->job);
-		}
-		delete item.jobData;		
-	}
-
-	// 끝났으면 풀어준다
-	_distributing.store(false);
 }
 
 void JobTimer::Clear()
 {
-	WRITE_LOCK;
-
-	while (_items.empty() == false)
+	while (!_items.empty())
 	{
-		const TimerItem& timerItem = _items.top();
-		delete timerItem.jobData;
 		_items.pop();
 	}
 }

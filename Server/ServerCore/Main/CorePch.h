@@ -35,10 +35,19 @@ using namespace std;
 	#include <cerrno>
 	#include <netinet/tcp.h>
 	#include <sys/uio.h>
+
+	inline uint64 GetTickCount64()
+	{
+		return std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::steady_clock::now().time_since_epoch()
+		).count();
+	}
+
 #endif
 
 #include "CoreTLS.h"
 #include "Singleton.h"
 #include "SendBuffer.h"
 #include "JobQueue.h"
+#include "Session.h"
 
