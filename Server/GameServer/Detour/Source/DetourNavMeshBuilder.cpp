@@ -23,6 +23,7 @@
 #include "DetourNavMesh.h"
 #include "DetourCommon.h"
 #include <limits>
+#include <cfloat>
 
 #define DT_REAL_MAX DBL_MAX
 

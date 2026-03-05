@@ -14,7 +14,7 @@ Session::Session() : _recvBuffer(BUFFER_SIZE)
 
 Session::~Session()
 {
-	cout << "Session Free" << endl;
+	//cout << "Session Free" << endl;
 }
 
 void Session::Send(SendBufferRef sendBuffer)
@@ -24,12 +24,9 @@ void Session::Send(SendBufferRef sendBuffer)
 
 	bool registerSend = false;
 
-	{
-		WRITE_LOCK;
-		_sendQueue.push(std::move(sendBuffer));
-		if (_sendRegistered.exchange(true) == false)
-			registerSend = true;
-	}
+	_sendQueue.enqueue(std::move(sendBuffer));
+	if (_sendRegistered.exchange(true) == false)
+		registerSend = true;
 	
 	if (registerSend)
 		RegisterSend();
@@ -159,22 +156,32 @@ void Session::RegisterSend()
 	_sendEvent.Init();
 	_sendEvent.owner = shared_from_this(); // ADD_REF
 
+	int32 writeSize = 0;
+	size_t dequeueSize = _sendQueue.try_dequeue_bulk(back_inserter(_sendEvent.sendBuffers), 32);
+
+	if(dequeueSize == 0)
 	{
-		int32 writeSize = 0;
-		while (_sendQueue.empty() == false)
+		_sendEvent.owner = nullptr;
+		_sendRegistered.store(false);
+
+		if(_sendQueue.size_approx() > 0)
 		{
-			SendBufferRef sendBuffer = _sendQueue.front();
-
-			writeSize += sendBuffer->WriteSize();
-
-			_sendQueue.pop();
-			_sendEvent.sendBuffers.push_back(sendBuffer);
+			if(_sendRegistered.exchange(true) == false)
+			{
+				RegisterSend();
+			}
 		}
+		return;
+	}
+
+	for (int32 i = 0; i < dequeueSize; i++)
+	{
+		writeSize += _sendEvent.sendBuffers[i]->WriteSize();
 	}
 
 	vector<WSABUF> wsaBufs;
 	wsaBufs.reserve(_sendEvent.sendBuffers.size());
-	for (SendBufferRef sendBuffer : _sendEvent.sendBuffers)
+	for (const SendBufferRef& sendBuffer : _sendEvent.sendBuffers)
 	{
 		WSABUF wsaBuf;
 		wsaBuf.buf = reinterpret_cast<char*>(sendBuffer->Buffer());
@@ -263,11 +270,15 @@ void Session::ProcessSend(int32 numOfBytes)
 
 	OnSend(numOfBytes);
 
-	WRITE_LOCK;
-	if (_sendQueue.empty())
-		_sendRegistered.store(false);
-	else
-		RegisterSend();
+	_sendRegistered.store(false);
+
+	if(_sendQueue.size_approx() > 0)
+	{
+		if(_sendRegistered.exchange(true) == false)
+		{
+			RegisterSend();
+		}
+	}
 }
 
 void Session::HandleError(int32 errorCode)

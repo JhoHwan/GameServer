@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "Session.h"
 
 class PlayerCharacter;
 
@@ -7,7 +6,7 @@ class GameSession : public PacketSession
 {
 public:
     GameSession();
-    virtual ~GameSession() override {}
+    ~GameSession() override = default;
 protected:
     void OnRecvPacket(BYTE* buffer, int32 len) override;
     void OnConnected() override;

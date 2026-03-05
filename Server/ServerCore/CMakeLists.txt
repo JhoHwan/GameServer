@@ -2,6 +2,7 @@ file(GLOB_RECURSE MAIN_SOURCES "Main/*.cpp" "Main/*.h")
 file(GLOB_RECURSE THREAD_SOURCES "Thread/*.cpp" "Thread/*.h")
 file(GLOB_RECURSE BUFFER_SOURCES "Buffer/*.cpp" "Buffer/*.h")
 file(GLOB_RECURSE NETWORK_SOURCES "Network/*.cpp" "Network/*.h")
+file(GLOB_RECURSE UTIL_SOURCES "Util/*.cpp" "Util/*.h")
 
 if(WIN32)
     # 윈도우 빌드 시 Windows 폴더만 포함
@@ -18,6 +19,7 @@ add_library(ServerCore STATIC
     ${THREAD_SOURCES} 
     ${BUFFER_SOURCES} 
     ${NETWORK_SOURCES} 
+    ${UTIL_SOURCES}
     ${PLATFORM_SOURCES}
 )
 
@@ -26,6 +28,7 @@ target_include_directories(ServerCore PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/Thread
     ${CMAKE_CURRENT_SOURCE_DIR}/Buffer
     ${CMAKE_CURRENT_SOURCE_DIR}/Network
+    ${CMAKE_CURRENT_SOURCE_DIR}/Util
     ${CMAKE_CURRENT_SOURCE_DIR}/${PLATFORM_INCLUDE_DIR}
 )
 

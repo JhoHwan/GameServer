@@ -1,5 +1,3 @@
-#include "pch.h"
-#include "Session.h"
 #include "NetCore.h"
 #include "SocketUtils.h"
 #include "Service.h"
@@ -15,7 +13,7 @@ Session::Session() : _recvBuffer(BUFFER_SIZE)
 
 Session::~Session()
 {
-	cout << "Session Free" << endl;
+	//cout << "Session Free" << endl;
 }
 
 void Session::Send(SendBufferRef sendBuffer)

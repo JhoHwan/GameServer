@@ -81,7 +81,6 @@ private:
 	atomic<bool>		_connected = false;
 
 private:
-	USE_LOCK;
 							/* 수신 관련 */
 	RecvBuffer				_recvBuffer;
 

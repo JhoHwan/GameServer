@@ -1,8 +1,8 @@
 ﻿#include "pch.h"
 #include "GameSession.h"
-#include "Packet\ServerPacketHandler.h"
+#include "Packet/ServerPacketHandler.h"
 
-GameSession::GameSession() : _jobQueue(make_shared<JobQueue>())
+GameSession::GameSession() : _jobQueue(make_shared<JobQueue>()), _timeOutToken(0)
 {
 }
 
