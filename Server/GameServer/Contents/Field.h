@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "Protocol.pb.h"
 #include "Util/NavMeshLoader.h"
 
 class FieldInstance;
@@ -22,16 +23,23 @@ private:
 	unordered_map<uint16, dtNavMesh*> _navMesh;
 };
 
-class FieldInstance : public JobQueue
+class FieldInstance : public AsyncActor, public std::enable_shared_from_this<FieldInstance>
 {
 public:
 	FieldInstance(uint16 id, dtNavMesh* navMesh);
 
 	void EnterPlayer(shared_ptr<PlayerCharacter> );
 	void BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerCharacter>& except = nullptr);
-	shared_ptr<FieldInstance> GetFieldRef() {return static_pointer_cast<FieldInstance>(shared_from_this());}
+
+	void PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Protocol::Vector3& pos);
+
+	void LeavePlayer(std::shared_ptr<PlayerCharacter> player, shared_ptr<FieldInstance> nextField = nullptr);
+
 private:
-	std::vector<shared_ptr<PlayerCharacter>> _players;
+	void FindPath(const dtReal* pos, const dtReal* endPos, OUT dtQueryResult& result);
+
+private:
+	std::unordered_set<shared_ptr<PlayerCharacter>> _players;
 
 	uint16 _id;
 	dtNavMesh* _navMesh;

@@ -1,5 +1,7 @@
 ﻿#include "pch.h"
 #include "Field.h"
+
+#include <utility>
 #include "Contents/Player.h"
 #include "GameSession.h"
 #include "LogManager.h"
@@ -61,9 +63,17 @@ void FieldInstance::EnterPlayer(shared_ptr<PlayerCharacter> player)
 {
 	DoAsync([this, player = std::move(player)]()
 	{
-		_players.push_back(player);
+		_players.insert(player);
+		player->Transform()->SetPos({0, 0, 308.4});
+		player->SetField(shared_from_this());
 
-		player->SetField(GetFieldRef());
+		{
+			Protocol::SC_ENTER_FIELD packet;
+		   player->GetObjectInfo(packet.mutable_my_info()->mutable_object_info());
+		   SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(packet);
+		   auto session = player->GetSession();
+		   if (session) session->Send(sendBuffer);
+		}
 
 		// 주변 유저에게 새로 들어온 플레이어 스폰
 		{
@@ -117,4 +127,108 @@ void FieldInstance::BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerC
 			session->Send(sendBuffer);
 		}
 	});
+}
+
+void FieldInstance::PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Protocol::Vector3& dest)
+{
+	DoAsync([this, player = std::move(player), dest]()
+	{
+		auto playerRef = player.lock();
+		if(playerRef == nullptr) return;
+		if(_players.find(playerRef) == _players.end())
+		{
+			LOG_ERROR("PlayerRequestMove Error");
+			return;
+		}
+
+		dtReal startPos[3] {playerRef->Transform()->GetPos().x, playerRef->Transform()->GetPos().z, playerRef->Transform()->GetPos().y};
+		dtReal endPos[3] {dest.x(), dest.z(), dest.y()};
+
+		dtQueryResult result;
+		FindPath(startPos, endPos, result);
+
+		std::vector<Vector3> serverWaypoints;
+		Protocol::SC_MOVE_PATH pkt;
+		pkt.set_object_id(playerRef->GetId());
+
+		for (int i = 0; i < result.size(); i++)
+		{
+			auto* pos = result.getPos(i);
+			LOG_DEBUG("[{}] : [{}, {}, {}]", i, pos[0], pos[2], pos[1]);
+
+			auto* waypoint = pkt.add_waypoints();
+			waypoint->set_x(pos[0]);
+			waypoint->set_y(pos[2]);
+			waypoint->set_z(pos[1]);
+
+			serverWaypoints.emplace_back(*waypoint);
+		}
+		playerRef->SetMoveInfo(serverWaypoints, GetTickCount64(), 500.0f);
+
+		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
+		BroadCast(sendBuffer);
+	});
+}
+
+void FieldInstance::LeavePlayer(shared_ptr<PlayerCharacter> player, shared_ptr<FieldInstance> nextField)
+{
+	DoAsync([this, player = std::move(player), nextField = std::move(nextField)]() {
+		_players.erase(player);
+		player->SetField(nullptr);
+
+		// TODO : 디스폰 패킷 전송
+
+		if(!nextField) return;
+		nextField->EnterPlayer(player);
+	});
+}
+
+void FieldInstance::FindPath(const dtReal* startPos, const dtReal* endPos, OUT dtQueryResult& pathResult)
+{
+	auto start = std::chrono::high_resolution_clock::now();
+
+	dtQueryFilter Filter;
+
+	dtReal Extents[3] = { 10.0, 100.0, 10.0 };
+
+	dtPolyRef StartPolyRef = 0;
+	dtPolyRef EndPolyRef = 0;
+	dtReal StartNearestPt[3];
+	dtReal EndNearestPt[3];
+
+	// (A) 시작점 근처의 폴리곤 찾기
+	_navQuery->findNearestPoly(startPos, Extents, &Filter, &StartPolyRef, StartNearestPt);
+
+	// (B) 도착점 근처의 폴리곤 찾기
+	_navQuery->findNearestPoly(endPos, Extents, &Filter, &EndPolyRef, EndNearestPt);
+
+	if (!StartPolyRef || !EndPolyRef)
+	{
+		LOG_WARN("[Path] Failed to find start or end polygon on NavMesh!");
+	}
+
+	dtQueryResult result;
+	int PathCount = 0;
+	auto costLimit = DBL_MAX;
+	dtReal totalCost;
+
+	_navQuery->findPath(StartPolyRef, EndPolyRef, StartNearestPt, EndNearestPt, costLimit, &Filter, result, &totalCost);
+
+	// (D) 실제 이동 좌표 구하기 (String Pulling)
+	// 폴리곤 ID만으로는 이동을 못하니까, 실제 꺾이는 지점(Waypoints) 좌표를 뽑아야 함
+	static constexpr int MAX_SMOOTH = 256;
+	unsigned char StraightPathFlags[MAX_SMOOTH];
+	dtPolyRef StraightPathRefs[MAX_SMOOTH];
+	result.copyRefs(StraightPathRefs, result.size());
+
+
+	_navQuery->findStraightPath(StartNearestPt, EndNearestPt, StraightPathRefs, result.size(), pathResult);
+	if(pathResult.size() > 0)
+	{
+		LOG_DEBUG("[Path] Found Straight Path!");
+	}
+
+	auto end = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+	LOG_DEBUG("[Path] Execution Time : {}us", duration);
 }

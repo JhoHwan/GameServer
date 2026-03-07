@@ -5,6 +5,7 @@ file(GLOB_RECURSE GAME_SOURCES "*.cpp" "*.h" "*.cc")
 
 # 1. 입력 파일(Proto)과 출력 폴더 지정
 set(PROTO_FILE "${CMAKE_CURRENT_SOURCE_DIR}/Proto/Protocol.proto") # 자동화할 대상 파일
+set(STRUCT_FILE "${CMAKE_CURRENT_SOURCE_DIR}/Proto/Struct.proto") # Struct 파일도 함께 관리
 set(PROTO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Proto")
 set(PACKET_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Packet")
 
@@ -13,21 +14,21 @@ set(PACKET_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Packet")
 if (WIN32)
     set(PROTOC_EXE "${CMAKE_CURRENT_SOURCE_DIR}/../../ThirdParty/Protobuf/protoc.exe")
     set(PACKET_GEN_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/../PacketGenerator/PacketGenerator.py")
-    set(CLIENT_GEN_BAT "${CMAKE_CURRENT_SOURCE_DIR}/../PacketGenerator/ClientPacketGen.bat")
+    set(CLIENT_GEN_BAT "${CMAKE_CURRENT_SOURCE_DIR}/../PacketGenerator/PacketGen.bat")
 else()
     set(PROTOC_EXE "${CMAKE_CURRENT_SOURCE_DIR}/../../ThirdParty/Protobuf/protoc")
     set(PACKET_GEN_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/../PacketGenerator/PacketGenerator.py")
-    set(CLIENT_GEN_BAT "${CMAKE_CURRENT_SOURCE_DIR}/../PacketGenerator/ClientPacketGen.bat")
+    set(CLIENT_GEN_BAT "${CMAKE_CURRENT_SOURCE_DIR}/../PacketGenerator/PacketGen.bat")
 endif ()
 
 if(WIN32)
 # 3. 사용자 지정 빌드 명령 (VS Custom Build Tool과 완벽 동일)
 add_custom_command(
     # 이 명령어를 통해 만들어지는 결과물 (이게 있어야 CMake가 의존성을 파악해)
-    OUTPUT "${PROTO_DIR}/Protocol.pb.cc" "${PROTO_DIR}/Protocol.pb.h"
+    OUTPUT "${PROTO_DIR}/Protocol.pb.cc" "${PROTO_DIR}/Protocol.pb.h" "${PROTO_DIR}/Struct.pb.cc" "${PROTO_DIR}/Struct.pb.h"
     
     # (1) Protoc 컴파일러 실행
-    COMMAND ${PROTOC_EXE} -I="${PROTO_DIR}" --cpp_out="${PROTO_DIR}" "${PROTO_FILE}"
+    COMMAND ${PROTOC_EXE} -I="${PROTO_DIR}" --cpp_out="${PROTO_DIR}" "${PROTO_FILE}" "${STRUCT_FILE}"
     
     # (2) 파이썬 패킷 제너레이터 실행
     COMMAND python "${PACKET_GEN_SCRIPT}" --path "${PROTO_FILE}" --output ServerPacketHandler --out_path "${PACKET_DIR}" --process S
@@ -35,11 +36,11 @@ add_custom_command(
     # (3) 클라이언트 패킷 복사 배치파일 실행
     COMMAND "${CLIENT_GEN_BAT}"
     
-    # 이 파일(Protocol.proto)이 수정되었을 때만 위 명령어들을 다시 실행함!
-    DEPENDS "${PROTO_FILE}"
+    # 이 파일들이 수정되었을 때만 위 명령어들을 다시 실행함!
+    DEPENDS "${PROTO_FILE}" "${STRUCT_FILE}"
     
     # 빌드 창에 띄울 메시지
-    COMMENT "Generating Protocol & PacketHandler from Protocol.proto..."
+    COMMENT "Generating Protocol, Struct & PacketHandler..."
 )
 endif ()
 

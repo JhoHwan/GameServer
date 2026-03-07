@@ -24,6 +24,8 @@ void GameSession::OnDisconnected()
 {
 	PacketSession::OnDisconnected();
 
+	LOG_INFO("Client DisConnected : {}", GetAddress().GetIpAddress());
+
 	_playerRef.reset();
 }
 

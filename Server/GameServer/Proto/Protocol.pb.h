@@ -73,6 +73,9 @@ extern SC_ENTER_GAME_RESULTDefaultTypeInternal _SC_ENTER_GAME_RESULT_default_ins
 class SC_MOVE_FIELD_FAIL;
 struct SC_MOVE_FIELD_FAILDefaultTypeInternal;
 extern SC_MOVE_FIELD_FAILDefaultTypeInternal _SC_MOVE_FIELD_FAIL_default_instance_;
+class SC_MOVE_PATH;
+struct SC_MOVE_PATHDefaultTypeInternal;
+extern SC_MOVE_PATHDefaultTypeInternal _SC_MOVE_PATH_default_instance_;
 class SC_PONG;
 struct SC_PONGDefaultTypeInternal;
 extern SC_PONGDefaultTypeInternal _SC_PONG_default_instance_;
@@ -93,6 +96,7 @@ template<> ::Protocol::SC_DESPAWN_PLAYER* Arena::CreateMaybeMessage<::Protocol::
 template<> ::Protocol::SC_ENTER_FIELD* Arena::CreateMaybeMessage<::Protocol::SC_ENTER_FIELD>(Arena*);
 template<> ::Protocol::SC_ENTER_GAME_RESULT* Arena::CreateMaybeMessage<::Protocol::SC_ENTER_GAME_RESULT>(Arena*);
 template<> ::Protocol::SC_MOVE_FIELD_FAIL* Arena::CreateMaybeMessage<::Protocol::SC_MOVE_FIELD_FAIL>(Arena*);
+template<> ::Protocol::SC_MOVE_PATH* Arena::CreateMaybeMessage<::Protocol::SC_MOVE_PATH>(Arena*);
 template<> ::Protocol::SC_PONG* Arena::CreateMaybeMessage<::Protocol::SC_PONG>(Arena*);
 template<> ::Protocol::SC_SPAWN_PLAYER* Arena::CreateMaybeMessage<::Protocol::SC_SPAWN_PLAYER>(Arena*);
 template<> ::Protocol::SC_START_FIELD_LOADING* Arena::CreateMaybeMessage<::Protocol::SC_START_FIELD_LOADING>(Arena*);
@@ -1664,6 +1668,174 @@ class CS_REQUEST_MOVE final :
 };
 // -------------------------------------------------------------------
 
+class SC_MOVE_PATH final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.SC_MOVE_PATH) */ {
+ public:
+  inline SC_MOVE_PATH() : SC_MOVE_PATH(nullptr) {}
+  ~SC_MOVE_PATH() override;
+  explicit PROTOBUF_CONSTEXPR SC_MOVE_PATH(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  SC_MOVE_PATH(const SC_MOVE_PATH& from);
+  SC_MOVE_PATH(SC_MOVE_PATH&& from) noexcept
+    : SC_MOVE_PATH() {
+    *this = ::std::move(from);
+  }
+
+  inline SC_MOVE_PATH& operator=(const SC_MOVE_PATH& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline SC_MOVE_PATH& operator=(SC_MOVE_PATH&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const SC_MOVE_PATH& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const SC_MOVE_PATH* internal_default_instance() {
+    return reinterpret_cast<const SC_MOVE_PATH*>(
+               &_SC_MOVE_PATH_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    10;
+
+  friend void swap(SC_MOVE_PATH& a, SC_MOVE_PATH& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(SC_MOVE_PATH* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(SC_MOVE_PATH* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  SC_MOVE_PATH* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<SC_MOVE_PATH>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const SC_MOVE_PATH& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const SC_MOVE_PATH& from) {
+    SC_MOVE_PATH::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(SC_MOVE_PATH* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Protocol.SC_MOVE_PATH";
+  }
+  protected:
+  explicit SC_MOVE_PATH(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kWaypointsFieldNumber = 2,
+    kObjectIdFieldNumber = 1,
+  };
+  // repeated .Protocol.Vector3 waypoints = 2;
+  int waypoints_size() const;
+  private:
+  int _internal_waypoints_size() const;
+  public:
+  void clear_waypoints();
+  ::Protocol::Vector3* mutable_waypoints(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::Vector3 >*
+      mutable_waypoints();
+  private:
+  const ::Protocol::Vector3& _internal_waypoints(int index) const;
+  ::Protocol::Vector3* _internal_add_waypoints();
+  public:
+  const ::Protocol::Vector3& waypoints(int index) const;
+  ::Protocol::Vector3* add_waypoints();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::Vector3 >&
+      waypoints() const;
+
+  // uint64 object_id = 1;
+  void clear_object_id();
+  uint64_t object_id() const;
+  void set_object_id(uint64_t value);
+  private:
+  uint64_t _internal_object_id() const;
+  void _internal_set_object_id(uint64_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Protocol.SC_MOVE_PATH)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::Vector3 > waypoints_;
+    uint64_t object_id_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_Protocol_2eproto;
+};
+// -------------------------------------------------------------------
+
 class CS_PING final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.CS_PING) */ {
  public:
@@ -1712,7 +1884,7 @@ class CS_PING final :
                &_CS_PING_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    10;
+    11;
 
   friend void swap(CS_PING& a, CS_PING& b) {
     a.Swap(&b);
@@ -1860,7 +2032,7 @@ class SC_PONG final :
                &_SC_PONG_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    11;
+    12;
 
   friend void swap(SC_PONG& a, SC_PONG& b) {
     a.Swap(&b);
@@ -2506,6 +2678,67 @@ inline void CS_REQUEST_MOVE::set_allocated_pos(::Protocol::Vector3* pos) {
 
 // -------------------------------------------------------------------
 
+// SC_MOVE_PATH
+
+// uint64 object_id = 1;
+inline void SC_MOVE_PATH::clear_object_id() {
+  _impl_.object_id_ = uint64_t{0u};
+}
+inline uint64_t SC_MOVE_PATH::_internal_object_id() const {
+  return _impl_.object_id_;
+}
+inline uint64_t SC_MOVE_PATH::object_id() const {
+  // @@protoc_insertion_point(field_get:Protocol.SC_MOVE_PATH.object_id)
+  return _internal_object_id();
+}
+inline void SC_MOVE_PATH::_internal_set_object_id(uint64_t value) {
+  
+  _impl_.object_id_ = value;
+}
+inline void SC_MOVE_PATH::set_object_id(uint64_t value) {
+  _internal_set_object_id(value);
+  // @@protoc_insertion_point(field_set:Protocol.SC_MOVE_PATH.object_id)
+}
+
+// repeated .Protocol.Vector3 waypoints = 2;
+inline int SC_MOVE_PATH::_internal_waypoints_size() const {
+  return _impl_.waypoints_.size();
+}
+inline int SC_MOVE_PATH::waypoints_size() const {
+  return _internal_waypoints_size();
+}
+inline ::Protocol::Vector3* SC_MOVE_PATH::mutable_waypoints(int index) {
+  // @@protoc_insertion_point(field_mutable:Protocol.SC_MOVE_PATH.waypoints)
+  return _impl_.waypoints_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::Vector3 >*
+SC_MOVE_PATH::mutable_waypoints() {
+  // @@protoc_insertion_point(field_mutable_list:Protocol.SC_MOVE_PATH.waypoints)
+  return &_impl_.waypoints_;
+}
+inline const ::Protocol::Vector3& SC_MOVE_PATH::_internal_waypoints(int index) const {
+  return _impl_.waypoints_.Get(index);
+}
+inline const ::Protocol::Vector3& SC_MOVE_PATH::waypoints(int index) const {
+  // @@protoc_insertion_point(field_get:Protocol.SC_MOVE_PATH.waypoints)
+  return _internal_waypoints(index);
+}
+inline ::Protocol::Vector3* SC_MOVE_PATH::_internal_add_waypoints() {
+  return _impl_.waypoints_.Add();
+}
+inline ::Protocol::Vector3* SC_MOVE_PATH::add_waypoints() {
+  ::Protocol::Vector3* _add = _internal_add_waypoints();
+  // @@protoc_insertion_point(field_add:Protocol.SC_MOVE_PATH.waypoints)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::Vector3 >&
+SC_MOVE_PATH::waypoints() const {
+  // @@protoc_insertion_point(field_list:Protocol.SC_MOVE_PATH.waypoints)
+  return _impl_.waypoints_;
+}
+
+// -------------------------------------------------------------------
+
 // CS_PING
 
 // int32 id = 1;
@@ -2555,6 +2788,8 @@ inline void SC_PONG::set_id(int32_t value) {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

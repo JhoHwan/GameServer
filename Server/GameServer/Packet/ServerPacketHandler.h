@@ -25,8 +25,9 @@ enum : uint16
 	PKT_SC_SPAWN_PLAYER = 1007,
 	PKT_SC_DESPAWN_PLAYER = 1008,
 	PKT_CS_REQUEST_MOVE = 1009,
-	PKT_CS_PING = 1010,
-	PKT_SC_PONG = 1011,
+	PKT_SC_MOVE_PATH = 1010,
+	PKT_CS_PING = 1011,
+	PKT_SC_PONG = 1012,
 };
 
 // Custom Handlers
@@ -62,6 +63,7 @@ public:
 	static SendBufferRef MakeSendBuffer(Protocol::SC_ENTER_FIELD& pkt) { return MakeSendBuffer(pkt, PKT_SC_ENTER_FIELD); }
 	static SendBufferRef MakeSendBuffer(Protocol::SC_SPAWN_PLAYER& pkt) { return MakeSendBuffer(pkt, PKT_SC_SPAWN_PLAYER); }
 	static SendBufferRef MakeSendBuffer(Protocol::SC_DESPAWN_PLAYER& pkt) { return MakeSendBuffer(pkt, PKT_SC_DESPAWN_PLAYER); }
+	static SendBufferRef MakeSendBuffer(Protocol::SC_MOVE_PATH& pkt) { return MakeSendBuffer(pkt, PKT_SC_MOVE_PATH); }
 	static SendBufferRef MakeSendBuffer(Protocol::SC_PONG& pkt) { return MakeSendBuffer(pkt, PKT_SC_PONG); }
 
 private:

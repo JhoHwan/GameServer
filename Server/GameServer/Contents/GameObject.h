@@ -30,8 +30,12 @@ public:
 	template <GameObjectType T, typename... Args>
 	static std::shared_ptr<T> Create(Args&&... args)
 	{
+		static atomic<uint64> objectId{0};
 		std::shared_ptr<T> newObject{ std::make_shared<T>(std::forward<Args>(args)...) };
 		newObject->Init();
+		newObject->SetId(objectId);
+		objectId.fetch_add(1);
+
 		return newObject;
 	}
 
@@ -40,8 +44,8 @@ public:
 	virtual void Destroy() {}
 
 public:
-	inline ObjectId GetId() const { return _id; }
-	inline std::shared_ptr<TransformComponent> Transform() { return _transform; }
+	ObjectId GetId() const { return _id; }
+	std::shared_ptr<TransformComponent> Transform() { return _transform; }
 
 	template<ComponentType T>
 	std::shared_ptr<T> GetComponent();
@@ -53,6 +57,9 @@ public:
 	void SetField(shared_ptr<class FieldInstance> field) { _field = field; }
 
 	void GetObjectInfo(Protocol::ObjectInfo* info) const;
+
+private:
+	void SetId(ObjectId id) { _id = id; }
 
 private:
 	ObjectId _id;
