@@ -1,14 +1,16 @@
 ﻿#include "JobTimer.h"
 #include "JobQueue.h"
+#include "LogManager.h"
 
 /*--------------
 	JobTimer
 ---------------*/
-void JobTimer::Reserve(uint64 tickAfter, const JobQueueRef& owner, const JobRef& job)
+void JobTimer::Reserve(uint64 tickAfter, JobQueueRef owner, const JobRef& job)
 {
 	const uint64 currentTick = GetTickCount64();
 	const uint64 executeTick = currentTick + tickAfter;
-	_items.emplace(executeTick, JobData{owner, job});
+	_items.emplace(executeTick, JobData{std::move(owner), job});
+	//LOG_DEBUG("[JobTimer] Reserve Job after {}", tickAfter);
 }
 
 void JobTimer::Distribute(uint64 now)
@@ -22,6 +24,7 @@ void JobTimer::Distribute(uint64 now)
 			owner->Push(timerItem.jobData.job);
 
 		_items.pop();
+		//LOG_DEBUG("[JobTimer] Distribute Job {}", now);
 	}
 }
 

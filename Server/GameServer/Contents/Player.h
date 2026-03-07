@@ -16,22 +16,20 @@ public:
 
 public:
 	void Init() override;
-	void SetMoveInfo(const std::vector<Vector3>& waypoints, uint64 startTime, float speed)
-	{
-		_moveWaypoints = waypoints;
-		_moveStartTime = startTime;
-		_moveSpeed = speed;
-		_isMoving = true;
-	}
+	void SetMoveInfo(vector<Vector3> waypoints, uint64 startTime, float speed);
 
-	Vector3 GetCurrentPosition(uint64 now);
+	Vector3 GetCurrentPosition(uint64 now) const;
 public:
 	shared_ptr<GameSession> GetSession() const { return _sessionRef.lock(); }
+
+	bool IsMoving() const{return _isMoving;}
 
 private:
 	weak_ptr<GameSession> _sessionRef;
 
 	std::vector<Vector3> _moveWaypoints;
+	std::vector<uint64> _moveArrivalTimes;
+
 	uint64 _moveStartTime = 0;
 	float _moveSpeed = 500.0f; // 임시 속도
 	bool _isMoving = false;

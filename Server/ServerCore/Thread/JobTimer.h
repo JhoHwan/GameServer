@@ -33,7 +33,7 @@ struct TimerItem
 class JobTimer
 {
 public:
-	void								Reserve(uint64 tickAfter, const JobQueueRef& owner, const JobRef& job);
+	void								Reserve(uint64 tickAfter, JobQueueRef owner, const JobRef& job);
 	void								Distribute(uint64 now);
 	void								Clear();
 

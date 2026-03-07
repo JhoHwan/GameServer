@@ -46,6 +46,7 @@ public:
 public:
 	ObjectId GetId() const { return _id; }
 	std::shared_ptr<TransformComponent> Transform() { return _transform; }
+	const std::shared_ptr<TransformComponent>& Transform() const { return _transform; }
 
 	template<ComponentType T>
 	std::shared_ptr<T> GetComponent();

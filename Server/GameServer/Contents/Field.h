@@ -28,12 +28,16 @@ class FieldInstance : public AsyncActor, public std::enable_shared_from_this<Fie
 public:
 	FieldInstance(uint16 id, dtNavMesh* navMesh);
 
+	void Init();
+
 	void EnterPlayer(shared_ptr<PlayerCharacter> );
 	void BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerCharacter>& except = nullptr);
 
 	void PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Protocol::Vector3& pos);
 
 	void LeavePlayer(std::shared_ptr<PlayerCharacter> player, shared_ptr<FieldInstance> nextField = nullptr);
+
+	void UpdatePlayerPosition();
 
 private:
 	void FindPath(const dtReal* pos, const dtReal* endPos, OUT dtQueryResult& result);

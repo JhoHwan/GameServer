@@ -52,6 +52,8 @@ public:
 		_jobQueue->DoAsync(std::forward<T>(job));
 	}
 
+	JobQueueRef GetJobQueue() const {return _jobQueue;}
+
 protected:
 	JobQueueRef _jobQueue;
 };

@@ -11,7 +11,7 @@ FieldManager& GFieldManager = FieldManager::Instance();
 
 void FieldManager::Init()
 {
-	auto navMesh = NavMeshLoader::LoadNavMeshFromBin("Test.bin");
+	auto navMesh = NavMeshLoader::LoadNavMeshFromBin("Resources/Test.bin");
 	if(navMesh == nullptr) return;
 
 	_navMesh[0] = navMesh;
@@ -26,6 +26,7 @@ void FieldManager::Create(uint16 fieldId)
 		auto field = fieldIt->second;
 
 		_fields[fieldId] = make_shared<FieldInstance>(fieldId, field);
+		_fields[fieldId]->Init();
 	}
 
 	LOG_INFO("FieldManager : {} is Created", fieldId);
@@ -57,6 +58,18 @@ FieldInstance::FieldInstance(uint16 id, dtNavMesh* navMesh) : _id(id), _navMesh(
 	{
 		dtFreeNavMeshQuery(_navQuery);
 	}
+}
+
+void FieldInstance::Init()
+{
+	JobRef job = make_shared<Job>([weakSelf = weak_from_this()]() {
+		auto self = weakSelf.lock();
+		if(self == nullptr) return;
+
+		self->UpdatePlayerPosition();
+	});
+
+	LJobTimer.Reserve(500, GetJobQueue(), job);
 }
 
 void FieldInstance::EnterPlayer(shared_ptr<PlayerCharacter> player)
@@ -121,7 +134,6 @@ void FieldInstance::BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerC
 			if (session) sessions.push_back(session);
 		}
 
-
 		for (auto& session : sessions)
 		{
 			session->Send(sendBuffer);
@@ -163,7 +175,7 @@ void FieldInstance::PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Pr
 
 			serverWaypoints.emplace_back(*waypoint);
 		}
-		playerRef->SetMoveInfo(serverWaypoints, GetTickCount64(), 500.0f);
+		playerRef->SetMoveInfo(std::move(serverWaypoints), GetTickCount64(), 500.0f);
 
 		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
 		BroadCast(sendBuffer);
@@ -181,6 +193,29 @@ void FieldInstance::LeavePlayer(shared_ptr<PlayerCharacter> player, shared_ptr<F
 		if(!nextField) return;
 		nextField->EnterPlayer(player);
 	});
+}
+
+void FieldInstance::UpdatePlayerPosition()
+{
+	//LOG_DEBUG("[FieldInstance] UpdatePlayerPosition");
+
+	uint64 now = GetTickCount64();
+	for(auto& player : _players)
+	{
+		if(player->IsMoving())
+		{
+			player->Transform()->SetPos(player->GetCurrentPosition(now));
+		}
+	}
+
+	JobRef job = make_shared<Job>([weakSelf = weak_from_this()]() {
+		auto self = weakSelf.lock();
+		if(self == nullptr) return;
+
+		self->UpdatePlayerPosition();
+	});
+
+	LJobTimer.Reserve(500, GetJobQueue(), job);
 }
 
 void FieldInstance::FindPath(const dtReal* startPos, const dtReal* endPos, OUT dtQueryResult& pathResult)
