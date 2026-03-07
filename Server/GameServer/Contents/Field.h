@@ -2,7 +2,7 @@
 
 #include "Util/NavMeshLoader.h"
 
-class Field;
+class FieldInstance;
 class FieldManager;
 class PlayerCharacter;
 
@@ -10,37 +10,31 @@ extern FieldManager& GFieldManager;
 class FieldManager : public Singleton<FieldManager>
 {
 public:
-	void Create(uint32 id)
-	{
-		auto field = Find(id);
-		if (field != nullptr) return;
+	void Init();
 
-		_fields.emplace(id, make_shared<Field>(id));
-	}
-	
-	shared_ptr<Field> Find(uint32 id) 
-	{
-		if (_fields.find(id) == _fields.end()) return nullptr;
-		return _fields[id];
-	}
+	void Create(uint16 fieldId);
 
-private:
-	unordered_map<uint32, shared_ptr<Field>> _fields;
-};
-
-class Field : public enable_shared_from_this<Field>
-{
-public:
-	Field(uint32 id) : _id(id) {}
-
-	void EnterPlayer(shared_ptr<PlayerCharacter>);
-	void BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerCharacter>& except = nullptr);
+	shared_ptr<FieldInstance> GetField(uint16 fieldId);
 
 private:
 	USE_LOCK;
+	unordered_map<uint16, shared_ptr<FieldInstance>> _fields;
+	unordered_map<uint16, dtNavMesh*> _navMesh;
+};
+
+class FieldInstance : public JobQueue
+{
+public:
+	FieldInstance(uint16 id, dtNavMesh* navMesh);
+
+	void EnterPlayer(shared_ptr<PlayerCharacter> );
+	void BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerCharacter>& except = nullptr);
+	shared_ptr<FieldInstance> GetFieldRef() {return static_pointer_cast<FieldInstance>(shared_from_this());}
+private:
 	std::vector<shared_ptr<PlayerCharacter>> _players;
 
-	uint32 _id;
-	//dtNavMesh* _navMesh;
+	uint16 _id;
+	dtNavMesh* _navMesh;
+	dtNavMeshQuery* _navQuery;
 };
 

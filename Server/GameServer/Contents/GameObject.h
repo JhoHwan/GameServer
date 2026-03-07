@@ -49,8 +49,8 @@ public:
 	template<ComponentType T, typename... Args>
 	std::shared_ptr<T> AddComponent(Args&&... args);
 
-	shared_ptr<class Field> GetField() { return _field; }
-	void SetField(shared_ptr<class Field> field) { _field = field; }
+	shared_ptr<class FieldInstance> GetField() { return _field; }
+	void SetField(shared_ptr<class FieldInstance> field) { _field = field; }
 
 	void GetObjectInfo(Protocol::ObjectInfo* info) const;
 
@@ -59,7 +59,7 @@ private:
 	std::unordered_map<std::type_index, std::shared_ptr<Component>> _components;
 
 	std::shared_ptr<TransformComponent> _transform;
-	std::shared_ptr<class Field> _field;
+	std::shared_ptr<class FieldInstance> _field;
 
 };
 

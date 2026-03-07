@@ -6,6 +6,7 @@ project(MMOGameServer LANGUAGES CXX)
 
 if(MSVC)
     add_compile_options(/wd4819 /utf-8)
+    add_compile_options(/Zc:preprocessor)
 endif()
 
 # C++ 20 표준 사용

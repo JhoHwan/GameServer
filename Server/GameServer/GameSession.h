@@ -10,16 +10,17 @@ public:
 protected:
     void OnRecvPacket(BYTE* buffer, int32 len) override;
     void OnConnected() override;
+    void OnDisconnected() override;
 
 public:
     void SetTimeOut(uint64 time, const string& log);
     void CancelTimeOut();
 
-    void SetPlayer(const weak_ptr<PlayerCharacter>& player) { _playerRef = player; }
-    shared_ptr<PlayerCharacter> GetPlayer() const { return _playerRef.lock(); }
+    void SetPlayer(const shared_ptr<PlayerCharacter>& player) { _playerRef = player; }
+    shared_ptr<PlayerCharacter> GetPlayer() const { return _playerRef; }
     shared_ptr<JobQueue> GetJobQueue() { return _jobQueue; }
 private:
-    weak_ptr<PlayerCharacter> _playerRef;
+    shared_ptr<PlayerCharacter> _playerRef;
     shared_ptr<JobQueue> _jobQueue;
     atomic<uint32> _timeOutToken;
 };

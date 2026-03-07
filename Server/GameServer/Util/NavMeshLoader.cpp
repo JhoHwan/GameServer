@@ -5,7 +5,6 @@
 #include <iostream>
 
 dtNavMesh* NavMeshLoader::LoadNavMeshFromBin(const char* FilePath)
-
 {
     std::ifstream is(FilePath, std::ios::binary);
     if (!is.is_open())
@@ -15,8 +14,8 @@ dtNavMesh* NavMeshLoader::LoadNavMeshFromBin(const char* FilePath)
     }
 
     // 1. 헤더 읽기
-    FNavMeshFileHeader Header;
-    is.read((char*)&Header, sizeof(FNavMeshFileHeader));
+    FNavMeshFileHeader Header{};
+    is.read(reinterpret_cast<char*>(&Header), sizeof(FNavMeshFileHeader));
 
     if (Header.Magic != 0xDEADBEEF)
     {

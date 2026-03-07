@@ -24,7 +24,7 @@ enum : uint16
 	PKT_SC_ENTER_FIELD = 1006,
 	PKT_SC_SPAWN_PLAYER = 1007,
 	PKT_SC_DESPAWN_PLAYER = 1008,
-	PKT_CS_MOVE = 1009,
+	PKT_CS_REQUEST_MOVE = 1009,
 	PKT_CS_PING = 1010,
 	PKT_SC_PONG = 1011,
 };
@@ -34,7 +34,7 @@ bool Handle_INVALID(SessionRef& session, BYTE* buffer, int32 len);
 bool Handle_CS_REQ_ENTER_GAME(SessionRef& session, Protocol::CS_REQ_ENTER_GAME& pkt);
 bool Handle_CS_REQ_MOVE_FIELD(SessionRef& session, Protocol::CS_REQ_MOVE_FIELD& pkt);
 bool Handle_CS_FIELD_LOADING_COMPLETE(SessionRef& session, Protocol::CS_FIELD_LOADING_COMPLETE& pkt);
-bool Handle_CS_MOVE(SessionRef& session, Protocol::CS_MOVE& pkt);
+bool Handle_CS_REQUEST_MOVE(SessionRef& session, Protocol::CS_REQUEST_MOVE& pkt);
 bool Handle_CS_PING(SessionRef& session, Protocol::CS_PING& pkt);
 
 class ServerPacketHandler
@@ -47,7 +47,7 @@ public:
 		GPacketHandler[PKT_CS_REQ_ENTER_GAME] = [](SessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::CS_REQ_ENTER_GAME>(Handle_CS_REQ_ENTER_GAME, session, buffer, len); };
 		GPacketHandler[PKT_CS_REQ_MOVE_FIELD] = [](SessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::CS_REQ_MOVE_FIELD>(Handle_CS_REQ_MOVE_FIELD, session, buffer, len); };
 		GPacketHandler[PKT_CS_FIELD_LOADING_COMPLETE] = [](SessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::CS_FIELD_LOADING_COMPLETE>(Handle_CS_FIELD_LOADING_COMPLETE, session, buffer, len); };
-		GPacketHandler[PKT_CS_MOVE] = [](SessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::CS_MOVE>(Handle_CS_MOVE, session, buffer, len); };
+		GPacketHandler[PKT_CS_REQUEST_MOVE] = [](SessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::CS_REQUEST_MOVE>(Handle_CS_REQUEST_MOVE, session, buffer, len); };
 		GPacketHandler[PKT_CS_PING] = [](SessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::CS_PING>(Handle_CS_PING, session, buffer, len); };
 	}
 

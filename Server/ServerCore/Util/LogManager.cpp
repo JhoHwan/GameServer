@@ -5,7 +5,7 @@
 #include <utility>
 #include <format>
 
-void LogManager::Init()
+bool LogManager::Init(const ELogLevel logLevel)
 {
     std::filesystem::path baseDir = std::filesystem::current_path() / "Log";
     if (!std::filesystem::exists(baseDir))
@@ -18,14 +18,16 @@ void LogManager::Init()
     if(!_file.is_open())
     {
         cout << "LogManager::Init() Error" << endl;
+        return false;
     }
 
-    _logThread = std::jthread([this](std::stop_token st) {
-        this->ThreadMain(std::move(st));
+    _logThread = std::jthread([this](const std::stop_token& st) {
+        this->ThreadMain(st);
     });
 
-    _file << "LOG" << endl;
-    cout << "LogManager::Init() Success" << "\n";
+    ChangeLogLevel(logLevel);
+
+    return true;
 }
 
 void LogManager::Stop()
@@ -45,6 +47,8 @@ void LogManager::Stop()
 
 void LogManager::WriteLog(ELogLevel level, std::string message)
 {
+    if(level < _logLevel) return;
+
     LogData data;
     data.level = level;
     data.message = std::move(message);

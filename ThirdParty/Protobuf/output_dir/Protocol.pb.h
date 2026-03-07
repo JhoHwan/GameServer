@@ -33,7 +33,7 @@
 #include "Struct.pb.h"
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
-#define PROTOBUF_INTERNAL_EXPORT_Protocol_2eproto
+#define PROTOBUF_INTERNAL_EXPORT_Protocol_2eproto GAMENET_API
 PROTOBUF_NAMESPACE_OPEN
 namespace internal {
 class AnyMetadata;
@@ -41,67 +41,67 @@ class AnyMetadata;
 PROTOBUF_NAMESPACE_CLOSE
 
 // Internal implementation detail -- do not use these members.
-struct TableStruct_Protocol_2eproto {
+struct GAMENET_API TableStruct_Protocol_2eproto {
   static const uint32_t offsets[];
 };
-extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_Protocol_2eproto;
+GAMENET_API extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_Protocol_2eproto;
 namespace Protocol {
 class CS_FIELD_LOADING_COMPLETE;
 struct CS_FIELD_LOADING_COMPLETEDefaultTypeInternal;
-extern CS_FIELD_LOADING_COMPLETEDefaultTypeInternal _CS_FIELD_LOADING_COMPLETE_default_instance_;
+GAMENET_API extern CS_FIELD_LOADING_COMPLETEDefaultTypeInternal _CS_FIELD_LOADING_COMPLETE_default_instance_;
 class CS_PING;
 struct CS_PINGDefaultTypeInternal;
-extern CS_PINGDefaultTypeInternal _CS_PING_default_instance_;
+GAMENET_API extern CS_PINGDefaultTypeInternal _CS_PING_default_instance_;
 class CS_REQUEST_MOVE;
 struct CS_REQUEST_MOVEDefaultTypeInternal;
-extern CS_REQUEST_MOVEDefaultTypeInternal _CS_REQUEST_MOVE_default_instance_;
+GAMENET_API extern CS_REQUEST_MOVEDefaultTypeInternal _CS_REQUEST_MOVE_default_instance_;
 class CS_REQ_ENTER_GAME;
 struct CS_REQ_ENTER_GAMEDefaultTypeInternal;
-extern CS_REQ_ENTER_GAMEDefaultTypeInternal _CS_REQ_ENTER_GAME_default_instance_;
+GAMENET_API extern CS_REQ_ENTER_GAMEDefaultTypeInternal _CS_REQ_ENTER_GAME_default_instance_;
 class CS_REQ_MOVE_FIELD;
 struct CS_REQ_MOVE_FIELDDefaultTypeInternal;
-extern CS_REQ_MOVE_FIELDDefaultTypeInternal _CS_REQ_MOVE_FIELD_default_instance_;
+GAMENET_API extern CS_REQ_MOVE_FIELDDefaultTypeInternal _CS_REQ_MOVE_FIELD_default_instance_;
 class SC_DESPAWN_PLAYER;
 struct SC_DESPAWN_PLAYERDefaultTypeInternal;
-extern SC_DESPAWN_PLAYERDefaultTypeInternal _SC_DESPAWN_PLAYER_default_instance_;
+GAMENET_API extern SC_DESPAWN_PLAYERDefaultTypeInternal _SC_DESPAWN_PLAYER_default_instance_;
 class SC_ENTER_FIELD;
 struct SC_ENTER_FIELDDefaultTypeInternal;
-extern SC_ENTER_FIELDDefaultTypeInternal _SC_ENTER_FIELD_default_instance_;
+GAMENET_API extern SC_ENTER_FIELDDefaultTypeInternal _SC_ENTER_FIELD_default_instance_;
 class SC_ENTER_GAME_RESULT;
 struct SC_ENTER_GAME_RESULTDefaultTypeInternal;
-extern SC_ENTER_GAME_RESULTDefaultTypeInternal _SC_ENTER_GAME_RESULT_default_instance_;
+GAMENET_API extern SC_ENTER_GAME_RESULTDefaultTypeInternal _SC_ENTER_GAME_RESULT_default_instance_;
 class SC_MOVE_FIELD_FAIL;
 struct SC_MOVE_FIELD_FAILDefaultTypeInternal;
-extern SC_MOVE_FIELD_FAILDefaultTypeInternal _SC_MOVE_FIELD_FAIL_default_instance_;
+GAMENET_API extern SC_MOVE_FIELD_FAILDefaultTypeInternal _SC_MOVE_FIELD_FAIL_default_instance_;
 class SC_PONG;
 struct SC_PONGDefaultTypeInternal;
-extern SC_PONGDefaultTypeInternal _SC_PONG_default_instance_;
+GAMENET_API extern SC_PONGDefaultTypeInternal _SC_PONG_default_instance_;
 class SC_SPAWN_PLAYER;
 struct SC_SPAWN_PLAYERDefaultTypeInternal;
-extern SC_SPAWN_PLAYERDefaultTypeInternal _SC_SPAWN_PLAYER_default_instance_;
+GAMENET_API extern SC_SPAWN_PLAYERDefaultTypeInternal _SC_SPAWN_PLAYER_default_instance_;
 class SC_START_FIELD_LOADING;
 struct SC_START_FIELD_LOADINGDefaultTypeInternal;
-extern SC_START_FIELD_LOADINGDefaultTypeInternal _SC_START_FIELD_LOADING_default_instance_;
+GAMENET_API extern SC_START_FIELD_LOADINGDefaultTypeInternal _SC_START_FIELD_LOADING_default_instance_;
 }  // namespace Protocol
 PROTOBUF_NAMESPACE_OPEN
-template<> ::Protocol::CS_FIELD_LOADING_COMPLETE* Arena::CreateMaybeMessage<::Protocol::CS_FIELD_LOADING_COMPLETE>(Arena*);
-template<> ::Protocol::CS_PING* Arena::CreateMaybeMessage<::Protocol::CS_PING>(Arena*);
-template<> ::Protocol::CS_REQUEST_MOVE* Arena::CreateMaybeMessage<::Protocol::CS_REQUEST_MOVE>(Arena*);
-template<> ::Protocol::CS_REQ_ENTER_GAME* Arena::CreateMaybeMessage<::Protocol::CS_REQ_ENTER_GAME>(Arena*);
-template<> ::Protocol::CS_REQ_MOVE_FIELD* Arena::CreateMaybeMessage<::Protocol::CS_REQ_MOVE_FIELD>(Arena*);
-template<> ::Protocol::SC_DESPAWN_PLAYER* Arena::CreateMaybeMessage<::Protocol::SC_DESPAWN_PLAYER>(Arena*);
-template<> ::Protocol::SC_ENTER_FIELD* Arena::CreateMaybeMessage<::Protocol::SC_ENTER_FIELD>(Arena*);
-template<> ::Protocol::SC_ENTER_GAME_RESULT* Arena::CreateMaybeMessage<::Protocol::SC_ENTER_GAME_RESULT>(Arena*);
-template<> ::Protocol::SC_MOVE_FIELD_FAIL* Arena::CreateMaybeMessage<::Protocol::SC_MOVE_FIELD_FAIL>(Arena*);
-template<> ::Protocol::SC_PONG* Arena::CreateMaybeMessage<::Protocol::SC_PONG>(Arena*);
-template<> ::Protocol::SC_SPAWN_PLAYER* Arena::CreateMaybeMessage<::Protocol::SC_SPAWN_PLAYER>(Arena*);
-template<> ::Protocol::SC_START_FIELD_LOADING* Arena::CreateMaybeMessage<::Protocol::SC_START_FIELD_LOADING>(Arena*);
+template<> GAMENET_API ::Protocol::CS_FIELD_LOADING_COMPLETE* Arena::CreateMaybeMessage<::Protocol::CS_FIELD_LOADING_COMPLETE>(Arena*);
+template<> GAMENET_API ::Protocol::CS_PING* Arena::CreateMaybeMessage<::Protocol::CS_PING>(Arena*);
+template<> GAMENET_API ::Protocol::CS_REQUEST_MOVE* Arena::CreateMaybeMessage<::Protocol::CS_REQUEST_MOVE>(Arena*);
+template<> GAMENET_API ::Protocol::CS_REQ_ENTER_GAME* Arena::CreateMaybeMessage<::Protocol::CS_REQ_ENTER_GAME>(Arena*);
+template<> GAMENET_API ::Protocol::CS_REQ_MOVE_FIELD* Arena::CreateMaybeMessage<::Protocol::CS_REQ_MOVE_FIELD>(Arena*);
+template<> GAMENET_API ::Protocol::SC_DESPAWN_PLAYER* Arena::CreateMaybeMessage<::Protocol::SC_DESPAWN_PLAYER>(Arena*);
+template<> GAMENET_API ::Protocol::SC_ENTER_FIELD* Arena::CreateMaybeMessage<::Protocol::SC_ENTER_FIELD>(Arena*);
+template<> GAMENET_API ::Protocol::SC_ENTER_GAME_RESULT* Arena::CreateMaybeMessage<::Protocol::SC_ENTER_GAME_RESULT>(Arena*);
+template<> GAMENET_API ::Protocol::SC_MOVE_FIELD_FAIL* Arena::CreateMaybeMessage<::Protocol::SC_MOVE_FIELD_FAIL>(Arena*);
+template<> GAMENET_API ::Protocol::SC_PONG* Arena::CreateMaybeMessage<::Protocol::SC_PONG>(Arena*);
+template<> GAMENET_API ::Protocol::SC_SPAWN_PLAYER* Arena::CreateMaybeMessage<::Protocol::SC_SPAWN_PLAYER>(Arena*);
+template<> GAMENET_API ::Protocol::SC_START_FIELD_LOADING* Arena::CreateMaybeMessage<::Protocol::SC_START_FIELD_LOADING>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace Protocol {
 
 // ===================================================================
 
-class CS_REQ_ENTER_GAME final :
+class GAMENET_API CS_REQ_ENTER_GAME final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.CS_REQ_ENTER_GAME) */ {
  public:
   inline CS_REQ_ENTER_GAME() : CS_REQ_ENTER_GAME(nullptr) {}
@@ -260,7 +260,7 @@ class CS_REQ_ENTER_GAME final :
 };
 // -------------------------------------------------------------------
 
-class SC_ENTER_GAME_RESULT final :
+class GAMENET_API SC_ENTER_GAME_RESULT final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.SC_ENTER_GAME_RESULT) */ {
  public:
   inline SC_ENTER_GAME_RESULT() : SC_ENTER_GAME_RESULT(nullptr) {}
@@ -419,7 +419,7 @@ class SC_ENTER_GAME_RESULT final :
 };
 // -------------------------------------------------------------------
 
-class CS_REQ_MOVE_FIELD final :
+class GAMENET_API CS_REQ_MOVE_FIELD final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.CS_REQ_MOVE_FIELD) */ {
  public:
   inline CS_REQ_MOVE_FIELD() : CS_REQ_MOVE_FIELD(nullptr) {}
@@ -567,7 +567,7 @@ class CS_REQ_MOVE_FIELD final :
 };
 // -------------------------------------------------------------------
 
-class SC_MOVE_FIELD_FAIL final :
+class GAMENET_API SC_MOVE_FIELD_FAIL final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.SC_MOVE_FIELD_FAIL) */ {
  public:
   inline SC_MOVE_FIELD_FAIL() : SC_MOVE_FIELD_FAIL(nullptr) {}
@@ -715,7 +715,7 @@ class SC_MOVE_FIELD_FAIL final :
 };
 // -------------------------------------------------------------------
 
-class SC_START_FIELD_LOADING final :
+class GAMENET_API SC_START_FIELD_LOADING final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.SC_START_FIELD_LOADING) */ {
  public:
   inline SC_START_FIELD_LOADING() : SC_START_FIELD_LOADING(nullptr) {}
@@ -883,7 +883,7 @@ class SC_START_FIELD_LOADING final :
 };
 // -------------------------------------------------------------------
 
-class CS_FIELD_LOADING_COMPLETE final :
+class GAMENET_API CS_FIELD_LOADING_COMPLETE final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.CS_FIELD_LOADING_COMPLETE) */ {
  public:
   inline CS_FIELD_LOADING_COMPLETE() : CS_FIELD_LOADING_COMPLETE(nullptr) {}
@@ -1031,7 +1031,7 @@ class CS_FIELD_LOADING_COMPLETE final :
 };
 // -------------------------------------------------------------------
 
-class SC_ENTER_FIELD final :
+class GAMENET_API SC_ENTER_FIELD final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.SC_ENTER_FIELD) */ {
  public:
   inline SC_ENTER_FIELD() : SC_ENTER_FIELD(nullptr) {}
@@ -1188,7 +1188,7 @@ class SC_ENTER_FIELD final :
 };
 // -------------------------------------------------------------------
 
-class SC_SPAWN_PLAYER final :
+class GAMENET_API SC_SPAWN_PLAYER final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.SC_SPAWN_PLAYER) */ {
  public:
   inline SC_SPAWN_PLAYER() : SC_SPAWN_PLAYER(nullptr) {}
@@ -1345,7 +1345,7 @@ class SC_SPAWN_PLAYER final :
 };
 // -------------------------------------------------------------------
 
-class SC_DESPAWN_PLAYER final :
+class GAMENET_API SC_DESPAWN_PLAYER final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.SC_DESPAWN_PLAYER) */ {
  public:
   inline SC_DESPAWN_PLAYER() : SC_DESPAWN_PLAYER(nullptr) {}
@@ -1507,7 +1507,7 @@ class SC_DESPAWN_PLAYER final :
 };
 // -------------------------------------------------------------------
 
-class CS_REQUEST_MOVE final :
+class GAMENET_API CS_REQUEST_MOVE final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.CS_REQUEST_MOVE) */ {
  public:
   inline CS_REQUEST_MOVE() : CS_REQUEST_MOVE(nullptr) {}
@@ -1664,7 +1664,7 @@ class CS_REQUEST_MOVE final :
 };
 // -------------------------------------------------------------------
 
-class CS_PING final :
+class GAMENET_API CS_PING final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.CS_PING) */ {
  public:
   inline CS_PING() : CS_PING(nullptr) {}
@@ -1812,7 +1812,7 @@ class CS_PING final :
 };
 // -------------------------------------------------------------------
 
-class SC_PONG final :
+class GAMENET_API SC_PONG final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.SC_PONG) */ {
  public:
   inline SC_PONG() : SC_PONG(nullptr) {}

@@ -1,5 +1,7 @@
 ﻿#include "pch.h"
 #include "GameSession.h"
+
+#include "LogManager.h"
 #include "Packet/ServerPacketHandler.h"
 
 GameSession::GameSession() : _jobQueue(make_shared<JobQueue>()), _timeOutToken(0)
@@ -14,8 +16,15 @@ void GameSession::OnRecvPacket(BYTE* buffer, int32 len)
 
 void GameSession::OnConnected()
 {
-	//cout << "Connect" << endl;
+	LOG_INFO("Client Connected : {}", GetAddress().GetIpAddress());
 	SetTimeOut(5000, "Login Request");
+}
+
+void GameSession::OnDisconnected()
+{
+	PacketSession::OnDisconnected();
+
+	_playerRef.reset();
 }
 
 void GameSession::SetTimeOut(uint64 time, const string& log)

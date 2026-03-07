@@ -1,4 +1,6 @@
 #pragma once
+#ifndef GAME_SERVER_PCH_H_
+#define GAME_SERVER_PCH_H_
 
 #include "Types.h"
 #include "CoreMacro.h"
@@ -16,6 +18,7 @@
 
 #include <iostream>
 #include <assert.h>
+
 using namespace std;
 
 #ifdef _WIN32
@@ -51,3 +54,4 @@ using namespace std;
 #include "JobQueue.h"
 #include "Session.h"
 
+#endif // __GAME_SERVER_PCH_H__

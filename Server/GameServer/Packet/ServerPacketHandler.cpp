@@ -3,6 +3,7 @@
 #include "Contents/Player.h"
 #include "Contents/Field.h"
 #include "GameSession.h"
+#include "LogManager.h"
 
 PacketHandlerFunc GPacketHandler[UINT16_MAX];
 
@@ -27,7 +28,6 @@ bool Handle_CS_REQ_ENTER_GAME(SessionRef& session, Protocol::CS_REQ_ENTER_GAME& 
             }
             {
                 auto player = GameObject::Create<PlayerCharacter>(gSession);
-                gSession->SetPlayer(player);
 
                 Protocol::SC_START_FIELD_LOADING packet;
                 packet.set_target_map_id(0);
@@ -68,25 +68,28 @@ bool Handle_CS_FIELD_LOADING_COMPLETE(SessionRef& session, Protocol::CS_FIELD_LO
             auto session = player->GetSession();
             if (session) session->Send(sendBuffer);
 
-            GFieldManager.Find(0)->EnterPlayer(player);
+            GFieldManager.GetField(0)->EnterPlayer(player);
         });
     return true;
 }
 
-bool Handle_CS_MOVE(SessionRef& session, Protocol::CS_MOVE& pkt)
+bool Handle_CS_REQUEST_MOVE(SessionRef& session, Protocol::CS_REQUEST_MOVE& pkt)
 {
-    return false;
+
+
+    return true;
 }
+
 
 bool Handle_CS_PING(SessionRef& session, Protocol::CS_PING& pkt)
 {
-    cout << "Ping! : " << pkt.id() << endl;
-
     Protocol::SC_PONG packet;
     packet.set_id(pkt.id());
     auto buffer = ServerPacketHandler::MakeSendBuffer(packet);
     if (!buffer) return false;
     session->Send(buffer);
+
+    LOG_INFO("Client Ping {}", packet.id());
 
     return true;
 }

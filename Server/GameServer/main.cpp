@@ -4,6 +4,8 @@
 #include <memory>
 #include <string>
 #include <atomic>
+#include <format>
+
 #include "Service.h"
 #include "GameSession.h"
 
@@ -20,6 +22,9 @@ std::atomic<bool> GIsRunning{true};
 void WorkerMain(uint32 id, const NetCoreRef& netCore)
 {
 	LThreadId = id;
+
+	LOG_INFO("Start Worker {}", id);
+
     while (GIsRunning)
     {
         // IOCP(GQCSEx) 처리
@@ -70,25 +75,35 @@ void WorkerMain(uint32 id, const NetCoreRef& netCore)
 
 int main()
 {
-	GFieldManager.Create(0);
 
 	ServerPacketHandler::Init();
-	LogManager::Instance().Init();
+	if(!LogManager::Instance().Init(ELogLevel::Debug))
+	{
+		cerr << "LogManager init Failed" << endl;
+		return 0;
+	}
 
-
+	GFieldManager.Init();
     NetAddress address("127.0.0.1", 7777);
 	NetCoreRef iocpCore = make_shared<NetCore>();
 
-	ServerServiceRef service = make_shared<ServerService>(address, iocpCore, []() 
+	ServerServiceRef service = make_shared<ServerService>(address, iocpCore, []()
 		{
 			return make_shared<GameSession>(); 
 		}, 
 		100);
-	service->Start();
+
+	LOG_INFO("=======Server Start========");
+	if(!service->Start())
+	{
+		LogManager::Instance().WriteLog(ELogLevel::Info, "Service Start Failed");
+		return 0;
+	}
+
     vector<thread> threads;
     for (int i = 0; i < 4; i++)
     {
-        threads.emplace_back(WorkerMain, i, iocpCore);
+        threads.emplace_back(WorkerMain, i+1, iocpCore);
     }
 
 	while(true)
@@ -97,6 +112,8 @@ int main()
 		cin >> command;
 	    if (command == "quit")
 	    {
+			LOG_INFO("=======Server Stop========");
+
 		    service->CloseService();
 
             while(service->GetCurrentSessionCount() > 0)
@@ -110,7 +127,7 @@ int main()
 	    	break;
 	    }
 
-		LogManager::Instance().WriteLog(ELogLevel::Log, std::move(command));
+		LogManager::Instance().WriteLog(ELogLevel::Info, std::move(command));
 
 	}
 
@@ -121,20 +138,6 @@ int main()
 			t.join();
 		}
 	}
-
-    //auto navMesh = NavMeshLoader::LoadNavMeshFromBin("Map.bin");
-    //dtNavMeshQuery* navQuery = dtAllocNavMeshQuery();
-    //dtStatus Status = navQuery->init(navMesh, 2048);
-    //if (dtStatusFailed(Status))
-    //{
-    //    dtFreeNavMeshQuery(navQuery);
-    //    return -1;
-    //}
-
-    //dtReal StartPos[3]{ 0, 302, 0 };
-    //dtReal EndPos[3]{ 505, 92.15, 1265};
-
-    //NavMeshLoader::TestFindPath(navQuery, StartPos, EndPos);
 
     return 0;
     
