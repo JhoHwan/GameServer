@@ -40,3 +40,18 @@ protected:
 	atomic<int32> _jobCount;
 };
 
+class AsyncActor
+{
+public:
+	AsyncActor() : _jobQueue(make_shared<JobQueue>()) {}
+	~AsyncActor() = default;
+
+	template<typename T>
+	void DoAsync(T&& job)
+	{
+		_jobQueue->DoAsync(std::forward<T>(job));
+	}
+
+protected:
+	JobQueueRef _jobQueue;
+};

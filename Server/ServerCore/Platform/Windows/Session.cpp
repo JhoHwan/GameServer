@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "Session.h"
+
+#include "LogManager.h"
 #include "NetCore.h"
 #include "SocketUtils.h"
 #include "Service.h"
@@ -42,8 +44,7 @@ void Session::Disconnect(const char* cause)
 	if (_connected.exchange(false) == false)
 		return;
 
-	// TEMP
-	cout << "Disconnect : " << cause << endl;
+	LOG_DEBUG("Disconnect : {}", cause);
 
 	RegisterDisconnect();
 }

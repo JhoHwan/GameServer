@@ -7,6 +7,9 @@
 #include "concurrentqueue.h"
 
 #define LOG_INFO(Format, ...) LogManager::Instance().WriteLog(ELogLevel::Info, std::format(Format __VA_OPT__(,) __VA_ARGS__));
+#define LOG_DEBUG(Format, ...) LogManager::Instance().WriteLog(ELogLevel::Debug, std::format(Format __VA_OPT__(,) __VA_ARGS__));
+#define LOG_WARN(Format, ...) LogManager::Instance().WriteLog(ELogLevel::Warning, std::format(Format __VA_OPT__(,) __VA_ARGS__));
+#define LOG_ERROR(Format, ...) LogManager::Instance().WriteLog(ELogLevel::Error, std::format(Format __VA_OPT__(,) __VA_ARGS__));
 
 enum class ELogLevel : uint8
 {

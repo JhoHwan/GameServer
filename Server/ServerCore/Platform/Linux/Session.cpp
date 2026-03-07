@@ -1,3 +1,4 @@
+#include "LogManager.h"
 #include "NetCore.h"
 #include "SocketUtils.h"
 #include "Service.h"
@@ -42,7 +43,7 @@ void Session::Disconnect(const char* cause)
 		return;
 
 	// TEMP
-	cout << "Disconnect : " << cause << endl;
+	LOG_DEBUG("Disconnect : {}", cause);
 
 	RegisterDisconnect();
 }
