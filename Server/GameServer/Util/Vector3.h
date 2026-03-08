@@ -28,24 +28,24 @@ public:
 public:
 	Vector3 operator+(const Vector3& other) const { return Vector3(x + other.x, y + other.y, z + other.z); }
 	Vector3 operator-(const Vector3& other) const { return Vector3(x - other.x, y - other.y, z - other.z); }
-	Vector3 operator*(float scalar) const { return Vector3(x * scalar, y * scalar, z * scalar); }
-	Vector3 operator/(float scalar) const { return Vector3(x / scalar, y / scalar, z / scalar); }
+	Vector3 operator*(double scalar) const { return Vector3(x * scalar, y * scalar, z * scalar); }
+	Vector3 operator/(double scalar) const { return Vector3(x / scalar, y / scalar, z / scalar); }
 
 	bool operator==(const Vector3& other) const { return x == other.x && y == other.y && z == other.z; }
 	bool operator!=(const Vector3& other) const { return !(*this == other); }
 
 	Vector3& operator+=(const Vector3& other) { x += other.x; y += other.y; z += other.z; return *this; }
 	Vector3& operator-=(const Vector3& other) { x -= other.x; y -= other.y; z -= other.z; return *this; }
-	Vector3& operator*=(float scalar) { x *= scalar; y *= scalar; z *= scalar; return *this; }
+	Vector3& operator*=(double scalar) { x *= scalar; y *= scalar; z *= scalar; return *this; }
 
 public:
-	float LengthSquared() const { return x * x + y * y + z * z; }
-	float Length() const { return std::sqrt(LengthSquared()); }
+	double LengthSquared() const { return x * x + y * y + z * z; }
+	double Length() const { return std::sqrt(LengthSquared()); }
 
 	void Normalize()
 	{
-		float len = Length();
-		if (len < 0.0001f) return; 
+		double len = Length();
+		if (len < 0.000001) return;
 		x /= len; y /= len; z /= len;
 	}
 
@@ -56,7 +56,7 @@ public:
 		return v;
 	}
 
-	float Dot(const Vector3& other) const { return x * other.x + y * other.y + z * other.z; }
+	double Dot(const Vector3& other) const { return x * other.x + y * other.y + z * other.z; }
 	Vector3 Cross(const Vector3& other) const
 	{
 		return Vector3(
@@ -66,6 +66,10 @@ public:
 		);
 	}
 
-	static float Dist(const Vector3& v1, const Vector3& v2) { return (v1 - v2).Length(); }
-	static float DistSquared(const Vector3& v1, const Vector3& v2) { return (v1 - v2).LengthSquared(); }
+	static double Dist(const Vector3& v1, const Vector3& v2) { return (v1 - v2).Length(); }
+	static double Dist2D(const Vector3& v1, const Vector3& v2)
+	{
+		return std::sqrt((v1.x - v2.x) * (v1.x - v2.x) + (v1.y - v2.y) * (v1.y - v2.y));
+	}
+	static double DistSquared(const Vector3& v1, const Vector3& v2) { return (v1 - v2).LengthSquared(); }
 };

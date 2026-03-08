@@ -9,7 +9,7 @@ void JobTimer::Reserve(uint64 tickAfter, JobQueueRef owner, const JobRef& job)
 {
 	const uint64 currentTick = GetTickCount64();
 	const uint64 executeTick = currentTick + tickAfter;
-	_items.emplace(executeTick, JobData{std::move(owner), job});
+	_items.emplace(executeTick, JobData{owner, job});
 	//LOG_DEBUG("[JobTimer] Reserve Job after {}", tickAfter);
 }
 

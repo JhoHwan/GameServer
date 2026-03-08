@@ -33,6 +33,7 @@ bool Handle_CS_FIELD_LOADING_COMPLETE(SessionRef& session, Protocol::CS_FIELD_LO
 {
     shared_ptr<GameSession> gSession = static_pointer_cast<GameSession>(session);
     gSession->CancelTimeOut();
+    gSession->SetTimeOut(20000, "HeartBeat");
 
     shared_ptr<PlayerCharacter> player = gSession->GetPlayer();
     if (!player)
@@ -57,16 +58,19 @@ bool Handle_CS_REQUEST_MOVE(SessionRef& session, Protocol::CS_REQUEST_MOVE& pkt)
     return true;
 }
 
-
-bool Handle_CS_PING(SessionRef& session, Protocol::CS_PING& pkt)
+bool Handle_CS_TIME_SYNC(SessionRef& session, Protocol::CS_TIME_SYNC& pkt)
 {
-    Protocol::SC_PONG packet;
-    packet.set_id(pkt.id());
-    auto buffer = ServerPacketHandler::MakeSendBuffer(packet);
-    if (!buffer) return false;
-    session->Send(buffer);
+    LOG_DEBUG("Client Request Time Sync");
+    shared_ptr<GameSession> gameSession = static_pointer_cast<GameSession>(session);
+    gameSession->CancelTimeOut();
+    gameSession->SetTimeOut(20000, "HeartBeat");
 
-    LOG_INFO("Client Ping {}", packet.id());
+    Protocol::SC_TIME_SYNC res;
+    res.set_client_tick(pkt.client_tick());
+    res.set_server_tick(GetTickCount64());
+
+    SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(res);
+    session->Send(sendBuffer);
 
     return true;
 }

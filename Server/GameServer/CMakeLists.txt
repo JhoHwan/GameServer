@@ -33,7 +33,7 @@ add_custom_command(
     # (2) 파이썬 패킷 제너레이터 실행
     COMMAND python "${PACKET_GEN_SCRIPT}" --path "${PROTO_FILE}" --output ServerPacketHandler --out_path "${PACKET_DIR}" --process S
     
-    # (3) 클라이언트 패킷 복사 배치파일 실행
+    # (3) 클라이언트 패킷 생성 및 이동 배치파일 실행 (MP2/Network 폴더 대상)
     COMMAND "${CLIENT_GEN_BAT}"
     
     # 이 파일들이 수정되었을 때만 위 명령어들을 다시 실행함!

@@ -26,7 +26,7 @@ void GameManager::ProcessEnterGame(std::weak_ptr<GameSession> session)
             Protocol::SC_START_FIELD_LOADING loadPacket;
             loadPacket.set_target_map_id(0);
             loadPacket.mutable_start_pos()->CopyFrom(Vector3::Zero().ToProto());
-            session->Send(ServerPacketHandler::MakeSendBuffer(packet));
+            session->Send(ServerPacketHandler::MakeSendBuffer(loadPacket));
             session->SetTimeOut(60000, "Map Loading");
         });
 }

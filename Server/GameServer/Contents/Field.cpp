@@ -32,6 +32,12 @@ void FieldManager::Create(uint16 fieldId)
 	LOG_INFO("FieldManager : {} is Created", fieldId);
 }
 
+void FieldManager::Destroy(uint16 fieldId)
+{
+	WRITE_LOCK;
+	_fields.erase(fieldId);
+}
+
 shared_ptr<FieldInstance> FieldManager::GetField(uint16 fieldId)
 {
 	shared_ptr<FieldInstance> field = nullptr;
@@ -58,6 +64,11 @@ FieldInstance::FieldInstance(uint16 id, dtNavMesh* navMesh) : _id(id), _navMesh(
 	{
 		dtFreeNavMeshQuery(_navQuery);
 	}
+}
+
+FieldInstance::~FieldInstance()
+{
+	LOG_DEBUG("FieldInstance : {} is Destroyed", _id);
 }
 
 void FieldInstance::Init()
@@ -161,6 +172,7 @@ void FieldInstance::PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Pr
 
 		std::vector<Vector3> serverWaypoints;
 		Protocol::SC_MOVE_PATH pkt;
+		pkt.set_start_server_tick(GetTickCount64());
 		pkt.set_object_id(playerRef->GetId());
 
 		for (int i = 0; i < result.size(); i++)
@@ -185,10 +197,18 @@ void FieldInstance::PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Pr
 void FieldInstance::LeavePlayer(shared_ptr<PlayerCharacter> player, shared_ptr<FieldInstance> nextField)
 {
 	DoAsync([this, player = std::move(player), nextField = std::move(nextField)]() {
-		_players.erase(player);
 		player->SetField(nullptr);
+		_players.erase(player);
 
 		// TODO : 디스폰 패킷 전송
+
+		if(_players.empty())
+		{
+			JobRef job = make_shared<Job>([fieldId = _id]() {
+				GFieldManager.Destroy(fieldId);
+			});
+			LJobTimer.Reserve(10000, GetJobQueue(), job);
+		}
 
 		if(!nextField) return;
 		nextField->EnterPlayer(player);
@@ -240,6 +260,7 @@ void FieldInstance::FindPath(const dtReal* startPos, const dtReal* endPos, OUT d
 	if (!StartPolyRef || !EndPolyRef)
 	{
 		LOG_WARN("[Path] Failed to find start or end polygon on NavMesh!");
+		return;
 	}
 
 	dtQueryResult result;

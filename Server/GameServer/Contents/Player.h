@@ -13,6 +13,7 @@ public:
 	{
 
 	}
+	~PlayerCharacter() override;
 
 public:
 	void Init() override;

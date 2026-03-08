@@ -56,13 +56,3 @@ message CS_REQUEST_MOVE
 {
     Vector3 pos = 1;
 }
-
-message CS_PING
-{
-    int32 id = 1;
-}
-
-message SC_PONG
-{
-    int32 id = 1;
-}

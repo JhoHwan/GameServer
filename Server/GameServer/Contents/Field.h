@@ -14,6 +14,7 @@ public:
 	void Init();
 
 	void Create(uint16 fieldId);
+	void Destroy(uint16 fieldId);
 
 	shared_ptr<FieldInstance> GetField(uint16 fieldId);
 
@@ -27,6 +28,7 @@ class FieldInstance : public AsyncActor, public std::enable_shared_from_this<Fie
 {
 public:
 	FieldInstance(uint16 id, dtNavMesh* navMesh);
+	~FieldInstance();
 
 	void Init();
 

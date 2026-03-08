@@ -2,6 +2,8 @@
 #include "GameSession.h"
 
 #include "LogManager.h"
+#include "Contents/Field.h"
+#include "Contents/Player.h"
 #include "Packet/ServerPacketHandler.h"
 
 GameSession::GameSession() : _jobQueue(make_shared<JobQueue>()), _timeOutToken(0)
@@ -26,6 +28,7 @@ void GameSession::OnDisconnected()
 
 	LOG_INFO("Client DisConnected : {}", GetAddress().GetIpAddress());
 
+	_playerRef->GetField()->LeavePlayer(_playerRef);
 	_playerRef.reset();
 }
 

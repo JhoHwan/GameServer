@@ -3,6 +3,11 @@
 #include "GameSession.h"
 #include "LogManager.h"
 
+PlayerCharacter::~PlayerCharacter()
+{
+	LOG_DEBUG("PlayerCharacter::~PlayerCharacter()");
+}
+
 void PlayerCharacter::Init()
 {
 	GameObject::Init();
@@ -30,7 +35,7 @@ void PlayerCharacter::SetMoveInfo(std::vector<Vector3> waypoints, uint64 startTi
 	double totalDist = 0;
 	for(int i = 1; i < _moveWaypoints.size(); i++)
 	{
-		double dist = Vector3::Dist(_moveWaypoints[i-1], _moveWaypoints[i]);
+		double dist = Vector3::Dist2D(_moveWaypoints[i-1], _moveWaypoints[i]);
 		totalDist += dist;
 
 		double seconds = dist / speed;
