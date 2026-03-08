@@ -1,6 +1,3 @@
-﻿// Copyright Epic Games, Inc. All Rights Reserved.
-// Modified version of Recast/Detour's source file
-
 //
 // Copyright (c) 2009-2010 Mikko Mononen memon@inside.org
 //
@@ -22,25 +19,25 @@
 #ifndef DETOURCOMMON_H
 #define DETOURCOMMON_H
 
-
-typedef double dtReal;
-#include <cmath>
-
-// DT_STATS is set from the UE Stats settings
-#define DT_STATS STATS
+#include "DetourMath.h"
+#include <stddef.h>
 
 /**
 @defgroup detour Detour
 
-Members in this module are used to create, manipulate, and query navigation
+Members in this module are used to create, manipulate, and query navigation 
 meshes.
 
-@note This is a summary list of members.  Use the index or search
+@note This is a summary list of members.  Use the index or search 
 feature to find minor members.
 */
 
 /// @name General helper functions
 /// @{
+
+/// Used to ignore a function parameter.  VS complains about unused parameters
+/// and this silences the warning.
+template<class T> void dtIgnoreUnused(const T&) { }
 
 /// Swaps the values of the two parameters.
 ///  @param[in,out]	a	Value A
@@ -52,18 +49,12 @@ template<class T> inline void dtSwap(T& a, T& b) { T t = a; a = b; b = t; }
 ///  @param[in]		b	Value B
 ///  @return The minimum of the two values.
 template<class T> inline T dtMin(T a, T b) { return a < b ? a : b; }
-//@UE BEGIN Adding support for LWCoords. Overloading allows this to be called where one of the parameters is a double and the other a float.
-inline dtReal dtMin(dtReal a, dtReal b) { return dtMin<dtReal>(a, b); }
-//@UE END Adding support for LWCoords.
 
 /// Returns the maximum of two values.
 ///  @param[in]		a	Value A
 ///  @param[in]		b	Value B
 ///  @return The maximum of the two values.
 template<class T> inline T dtMax(T a, T b) { return a > b ? a : b; }
-//@UE BEGIN Adding support for LWCoords. Overloading allows this to be called where one of the parameters is a double and the other a float.
-inline dtReal dtMax(dtReal a, dtReal b) { return dtMax<dtReal>(a, b); }
-//@UE END Adding support for LWCoords.
 
 /// Returns the absolute value.
 ///  @param[in]		a	The value.
@@ -73,7 +64,7 @@ template<class T> inline T dtAbs(T a) { return a < 0 ? -a : a; }
 /// Returns the square of the value.
 ///  @param[in]		a	The value.
 ///  @return The square of the value.
-template<class T> inline T dtSqr(T a) { return a * a; }
+template<class T> inline T dtSqr(T a) { return a*a; }
 
 /// Clamps the value to the specified range.
 ///  @param[in]		v	The value to clamp.
@@ -81,79 +72,6 @@ template<class T> inline T dtSqr(T a) { return a * a; }
 ///  @param[in]		mx	The maximum permitted return value.
 ///  @return The value, clamped to the specified range.
 template<class T> inline T dtClamp(T v, T mn, T mx) { return v < mn ? mn : (v > mx ? mx : v); }
-//@UE BEGIN Adding support for LWCoords. Overloading allows this to be called where one of the parameters is a double and the other a float.
-inline dtReal dtClamp(dtReal v, dtReal mn, dtReal mx) { return dtClamp<dtReal>(v, mn, mx); }
-//@UE END Adding support for LWCoords.
-
-inline float dtFloor(float x)
-{
-	return floorf(x);
-}
-
-inline double dtFloor(double x)
-{
-	return floor(x);
-}
-
-inline float dtCeil(float x)
-{
-	return ceilf(x);
-}
-
-inline double dtCeil(double x)
-{
-	return ceil(x);
-}
-
-inline float dtSin(float x)
-{
-	return sinf(x);
-}
-
-inline double dtSin(double x)
-{
-	return sin(x);
-}
-
-inline float dtCos(float x)
-{
-	return cosf(x);
-}
-
-inline double dtCos(double x)
-{
-	return cos(x);
-}
-
-inline float dtAtan2(float x, float y)
-{
-	return atan2f(x, y);
-}
-
-inline double dtAtan2(double x, double y)
-{
-	return atan2(x, y);
-}
-
-inline float dtSqrt(float x)
-{
-	return sqrtf(x);
-}
-
-inline double dtSqrt(double x)
-{
-	return sqrt(x);
-}
-
-inline float dtfMod(float x, float y)
-{
-	return fmodf(x, y);
-}
-
-inline double dtfMod(double x, double y)
-{
-	return fmod(x, y);
-}
 
 /// @}
 /// @name Vector helper functions.
@@ -163,20 +81,20 @@ inline double dtfMod(double x, double y)
 ///  @param[out]	dest	The cross product. [(x, y, z)]
 ///  @param[in]		v1		A Vector [(x, y, z)]
 ///  @param[in]		v2		A vector [(x, y, z)]
-inline void dtVcross(dtReal* dest, const dtReal* v1, const dtReal* v2)
+inline void dtVcross(float* dest, const float* v1, const float* v2)
 {
-	dest[0] = v1[1] * v2[2] - v1[2] * v2[1];
-	dest[1] = v1[2] * v2[0] - v1[0] * v2[2];
-	dest[2] = v1[0] * v2[1] - v1[1] * v2[0];
+	dest[0] = v1[1]*v2[2] - v1[2]*v2[1];
+	dest[1] = v1[2]*v2[0] - v1[0]*v2[2];
+	dest[2] = v1[0]*v2[1] - v1[1]*v2[0]; 
 }
 
 /// Derives the dot product of two vectors. (@p v1 . @p v2)
 ///  @param[in]		v1	A Vector [(x, y, z)]
 ///  @param[in]		v2	A vector [(x, y, z)]
 /// @return The dot product.
-inline dtReal dtVdot(const dtReal* v1, const dtReal* v2)
+inline float dtVdot(const float* v1, const float* v2)
 {
-	return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
+	return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
 }
 
 /// Performs a scaled vector addition. (@p v1 + (@p v2 * @p s))
@@ -184,11 +102,11 @@ inline dtReal dtVdot(const dtReal* v1, const dtReal* v2)
 ///  @param[in]		v1		The base vector. [(x, y, z)]
 ///  @param[in]		v2		The vector to scale and add to @p v1. [(x, y, z)]
 ///  @param[in]		s		The amount to scale @p v2 by before adding to @p v1.
-inline void dtVmad(dtReal* dest, const dtReal* v1, const dtReal* v2, const dtReal s)
+inline void dtVmad(float* dest, const float* v1, const float* v2, const float s)
 {
-	dest[0] = v1[0] + v2[0] * s;
-	dest[1] = v1[1] + v2[1] * s;
-	dest[2] = v1[2] + v2[2] * s;
+	dest[0] = v1[0]+v2[0]*s;
+	dest[1] = v1[1]+v2[1]*s;
+	dest[2] = v1[2]+v2[2]*s;
 }
 
 /// Performs a linear interpolation between two vectors. (@p v1 toward @p v2)
@@ -196,50 +114,50 @@ inline void dtVmad(dtReal* dest, const dtReal* v1, const dtReal* v2, const dtRea
 ///  @param[in]		v1		The starting vector.
 ///  @param[in]		v2		The destination vector.
 ///	 @param[in]		t		The interpolation factor. [Limits: 0 <= value <= 1.0]
-inline void dtVlerp(dtReal* dest, const dtReal* v1, const dtReal* v2, const dtReal t)
+inline void dtVlerp(float* dest, const float* v1, const float* v2, const float t)
 {
-	dest[0] = v1[0] + (v2[0] - v1[0]) * t;
-	dest[1] = v1[1] + (v2[1] - v1[1]) * t;
-	dest[2] = v1[2] + (v2[2] - v1[2]) * t;
+	dest[0] = v1[0]+(v2[0]-v1[0])*t;
+	dest[1] = v1[1]+(v2[1]-v1[1])*t;
+	dest[2] = v1[2]+(v2[2]-v1[2])*t;
 }
 
 /// Performs a vector addition. (@p v1 + @p v2)
 ///  @param[out]	dest	The result vector. [(x, y, z)]
 ///  @param[in]		v1		The base vector. [(x, y, z)]
 ///  @param[in]		v2		The vector to add to @p v1. [(x, y, z)]
-inline void dtVadd(dtReal* dest, const dtReal* v1, const dtReal* v2)
+inline void dtVadd(float* dest, const float* v1, const float* v2)
 {
-	dest[0] = v1[0] + v2[0];
-	dest[1] = v1[1] + v2[1];
-	dest[2] = v1[2] + v2[2];
+	dest[0] = v1[0]+v2[0];
+	dest[1] = v1[1]+v2[1];
+	dest[2] = v1[2]+v2[2];
 }
 
 /// Performs a vector subtraction. (@p v1 - @p v2)
 ///  @param[out]	dest	The result vector. [(x, y, z)]
 ///  @param[in]		v1		The base vector. [(x, y, z)]
 ///  @param[in]		v2		The vector to subtract from @p v1. [(x, y, z)]
-inline void dtVsub(dtReal* dest, const dtReal* v1, const dtReal* v2)
+inline void dtVsub(float* dest, const float* v1, const float* v2)
 {
-	dest[0] = v1[0] - v2[0];
-	dest[1] = v1[1] - v2[1];
-	dest[2] = v1[2] - v2[2];
+	dest[0] = v1[0]-v2[0];
+	dest[1] = v1[1]-v2[1];
+	dest[2] = v1[2]-v2[2];
 }
 
 /// Scales the vector by the specified value. (@p v * @p t)
 ///  @param[out]	dest	The result vector. [(x, y, z)]
 ///  @param[in]		v		The vector to scale. [(x, y, z)]
 ///  @param[in]		t		The scaling factor.
-inline void dtVscale(dtReal* dest, const dtReal* v, const dtReal t)
+inline void dtVscale(float* dest, const float* v, const float t)
 {
-	dest[0] = v[0] * t;
-	dest[1] = v[1] * t;
-	dest[2] = v[2] * t;
+	dest[0] = v[0]*t;
+	dest[1] = v[1]*t;
+	dest[2] = v[2]*t;
 }
 
 /// Selects the minimum value of each element from the specified vectors.
 ///  @param[in,out]	mn	A vector.  (Will be updated with the result.) [(x, y, z)]
 ///  @param[in]	v	A vector. [(x, y, z)]
-inline void dtVmin(dtReal* mn, const dtReal* v)
+inline void dtVmin(float* mn, const float* v)
 {
 	mn[0] = dtMin(mn[0], v[0]);
 	mn[1] = dtMin(mn[1], v[1]);
@@ -249,7 +167,7 @@ inline void dtVmin(dtReal* mn, const dtReal* v)
 /// Selects the maximum value of each element from the specified vectors.
 ///  @param[in,out]	mx	A vector.  (Will be updated with the result.) [(x, y, z)]
 ///  @param[in]		v	A vector. [(x, y, z)]
-inline void dtVmax(dtReal* mx, const dtReal* v)
+inline void dtVmax(float* mx, const float* v)
 {
 	mx[0] = dtMax(mx[0], v[0]);
 	mx[1] = dtMax(mx[1], v[1]);
@@ -261,7 +179,7 @@ inline void dtVmax(dtReal* mx, const dtReal* v)
 ///  @param[in]		x		The x-value of the vector.
 ///  @param[in]		y		The y-value of the vector.
 ///  @param[in]		z		The z-value of the vector.
-inline void dtVset(dtReal* dest, const dtReal x, const dtReal y, const dtReal z)
+inline void dtVset(float* dest, const float x, const float y, const float z)
 {
 	dest[0] = x; dest[1] = y; dest[2] = z;
 }
@@ -269,7 +187,7 @@ inline void dtVset(dtReal* dest, const dtReal x, const dtReal y, const dtReal z)
 /// Performs a vector copy.
 ///  @param[out]	dest	The result. [(x, y, z)]
 ///  @param[in]		a		The vector to copy. [(x, y, z)]
-inline void dtVcopy(dtReal* dest, const dtReal* a)
+inline void dtVcopy(float* dest, const float* a)
 {
 	dest[0] = a[0];
 	dest[1] = a[1];
@@ -279,41 +197,41 @@ inline void dtVcopy(dtReal* dest, const dtReal* a)
 /// Derives the scalar length of the vector.
 ///  @param[in]		v The vector. [(x, y, z)]
 /// @return The scalar length of the vector.
-inline dtReal dtVlen(const dtReal* v)
+inline float dtVlen(const float* v)
 {
-	return dtSqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+	return dtMathSqrtf(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
 }
 
 /// Derives the square of the scalar length of the vector. (len * len)
 ///  @param[in]		v The vector. [(x, y, z)]
 /// @return The square of the scalar length of the vector.
-inline dtReal dtVlenSqr(const dtReal* v)
+inline float dtVlenSqr(const float* v)
 {
-	return v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+	return v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
 }
 
 /// Returns the distance between two points.
 ///  @param[in]		v1	A point. [(x, y, z)]
 ///  @param[in]		v2	A point. [(x, y, z)]
 /// @return The distance between the two points.
-inline dtReal dtVdist(const dtReal* v1, const dtReal* v2)
+inline float dtVdist(const float* v1, const float* v2)
 {
-	const dtReal dx = v2[0] - v1[0];
-	const dtReal dy = v2[1] - v1[1];
-	const dtReal dz = v2[2] - v1[2];
-	return dtSqrt(dx * dx + dy * dy + dz * dz);
+	const float dx = v2[0] - v1[0];
+	const float dy = v2[1] - v1[1];
+	const float dz = v2[2] - v1[2];
+	return dtMathSqrtf(dx*dx + dy*dy + dz*dz);
 }
 
 /// Returns the square of the distance between two points.
 ///  @param[in]		v1	A point. [(x, y, z)]
 ///  @param[in]		v2	A point. [(x, y, z)]
 /// @return The square of the distance between the two points.
-inline dtReal dtVdistSqr(const dtReal* v1, const dtReal* v2)
+inline float dtVdistSqr(const float* v1, const float* v2)
 {
-	const dtReal dx = v2[0] - v1[0];
-	const dtReal dy = v2[1] - v1[1];
-	const dtReal dz = v2[2] - v1[2];
-	return dx * dx + dy * dy + dz * dz;
+	const float dx = v2[0] - v1[0];
+	const float dy = v2[1] - v1[1];
+	const float dz = v2[2] - v1[2];
+	return dx*dx + dy*dy + dz*dz;
 }
 
 /// Derives the distance between the specified points on the xz-plane.
@@ -322,29 +240,29 @@ inline dtReal dtVdistSqr(const dtReal* v1, const dtReal* v2)
 /// @return The distance between the point on the xz-plane.
 ///
 /// The vectors are projected onto the xz-plane, so the y-values are ignored.
-inline dtReal dtVdist2D(const dtReal* v1, const dtReal* v2)
+inline float dtVdist2D(const float* v1, const float* v2)
 {
-	const dtReal dx = v2[0] - v1[0];
-	const dtReal dz = v2[2] - v1[2];
-	return dtSqrt(dx * dx + dz * dz);
+	const float dx = v2[0] - v1[0];
+	const float dz = v2[2] - v1[2];
+	return dtMathSqrtf(dx*dx + dz*dz);
 }
 
 /// Derives the square of the distance between the specified points on the xz-plane.
 ///  @param[in]		v1	A point. [(x, y, z)]
 ///  @param[in]		v2	A point. [(x, y, z)]
 /// @return The square of the distance between the point on the xz-plane.
-inline dtReal dtVdist2DSqr(const dtReal* v1, const dtReal* v2)
+inline float dtVdist2DSqr(const float* v1, const float* v2)
 {
-	const dtReal dx = v2[0] - v1[0];
-	const dtReal dz = v2[2] - v1[2];
-	return dx * dx + dz * dz;
+	const float dx = v2[0] - v1[0];
+	const float dz = v2[2] - v1[2];
+	return dx*dx + dz*dz;
 }
 
 /// Normalizes the vector.
 ///  @param[in,out]	v	The vector to normalize. [(x, y, z)]
-inline void dtVnormalize(dtReal* v)
+inline void dtVnormalize(float* v)
 {
-	dtReal d = 1.0f / dtSqrt(dtSqr(v[0]) + dtSqr(v[1]) + dtSqr(v[2]));
+	float d = 1.0f / dtMathSqrtf(dtSqr(v[0]) + dtSqr(v[1]) + dtSqr(v[2]));
 	v[0] *= d;
 	v[1] *= d;
 	v[2] *= d;
@@ -357,11 +275,33 @@ inline void dtVnormalize(dtReal* v)
 ///
 /// Basically, this function will return true if the specified points are 
 /// close enough to eachother to be considered colocated.
-inline bool dtVequal(const dtReal* p0, const dtReal* p1)
+inline bool dtVequal(const float* p0, const float* p1)
 {
-	static const dtReal thr = dtSqr(dtReal(1.) / 16384.0f);
-	const dtReal d = dtVdistSqr(p0, p1);
+	static const float thr = dtSqr(1.0f/16384.0f);
+	const float d = dtVdistSqr(p0, p1);
 	return d < thr;
+}
+
+/// Checks that the specified vector's components are all finite.
+///  @param[in]		v	A point. [(x, y, z)]
+/// @return True if all of the point's components are finite, i.e. not NaN
+/// or any of the infinities.
+inline bool dtVisfinite(const float* v)
+{
+	bool result =
+		dtMathIsfinite(v[0]) &&
+		dtMathIsfinite(v[1]) &&
+		dtMathIsfinite(v[2]);
+
+	return result;
+}
+
+/// Checks that the specified vector's 2D components are finite.
+///  @param[in]		v	A point. [(x, y, z)]
+inline bool dtVisfinite2D(const float* v)
+{
+	bool result = dtMathIsfinite(v[0]) && dtMathIsfinite(v[2]);
+	return result;
 }
 
 /// Derives the dot product of two vectors on the xz-plane. (@p u . @p v)
@@ -370,20 +310,20 @@ inline bool dtVequal(const dtReal* p0, const dtReal* p1)
 /// @return The dot product on the xz-plane.
 ///
 /// The vectors are projected onto the xz-plane, so the y-values are ignored.
-inline dtReal dtVdot2D(const dtReal* u, const dtReal* v)
+inline float dtVdot2D(const float* u, const float* v)
 {
-	return u[0] * v[0] + u[2] * v[2];
+	return u[0]*v[0] + u[2]*v[2];
 }
 
 /// Derives the xz-plane 2D perp product of the two vectors. (uz*vx - ux*vz)
 ///  @param[in]		u		The LHV vector [(x, y, z)]
 ///  @param[in]		v		The RHV vector [(x, y, z)]
-/// @return The dot product on the xz-plane.
+/// @return The perp dot product on the xz-plane.
 ///
 /// The vectors are projected onto the xz-plane, so the y-values are ignored.
-inline dtReal dtVperp2D(const dtReal* u, const dtReal* v)
+inline float dtVperp2D(const float* u, const float* v)
 {
-	return u[2] * v[0] - u[0] * v[2];
+	return u[2]*v[0] - u[0]*v[2];
 }
 
 /// @}
@@ -395,13 +335,13 @@ inline dtReal dtVperp2D(const dtReal* u, const dtReal* v)
 ///  @param[in]		b		Vertex B. [(x, y, z)]
 ///  @param[in]		c		Vertex C. [(x, y, z)]
 /// @return The signed xz-plane area of the triangle.
-inline dtReal dtTriArea2D(const dtReal* a, const dtReal* b, const dtReal* c)
+inline float dtTriArea2D(const float* a, const float* b, const float* c)
 {
-	const dtReal abx = b[0] - a[0];
-	const dtReal abz = b[2] - a[2];
-	const dtReal acx = c[0] - a[0];
-	const dtReal acz = c[2] - a[2];
-	return acx * abz - abx * acz;
+	const float abx = b[0] - a[0];
+	const float abz = b[2] - a[2];
+	const float acx = c[0] - a[0];
+	const float acz = c[2] - a[2];
+	return acx*abz - abx*acz;
 }
 
 /// Determines if two axis-aligned bounding boxes overlap.
@@ -412,7 +352,7 @@ inline dtReal dtTriArea2D(const dtReal* a, const dtReal* b, const dtReal* c)
 /// @return True if the two AABB's overlap.
 /// @see dtOverlapBounds
 inline bool dtOverlapQuantBounds(const unsigned short amin[3], const unsigned short amax[3],
-	const unsigned short bmin[3], const unsigned short bmax[3])
+								 const unsigned short bmin[3], const unsigned short bmax[3])
 {
 	bool overlap = true;
 	overlap = (amin[0] > bmax[0] || amax[0] < bmin[0]) ? false : overlap;
@@ -428,8 +368,8 @@ inline bool dtOverlapQuantBounds(const unsigned short amin[3], const unsigned sh
 ///  @param[in]		bmax	Maximum bounds of box B. [(x, y, z)]
 /// @return True if the two AABB's overlap.
 /// @see dtOverlapQuantBounds
-inline bool dtOverlapBounds(const dtReal* amin, const dtReal* amax,
-	const dtReal* bmin, const dtReal* bmax)
+inline bool dtOverlapBounds(const float* amin, const float* amax,
+							const float* bmin, const float* bmax)
 {
 	bool overlap = true;
 	overlap = (amin[0] > bmax[0] || amax[0] < bmin[0]) ? false : overlap;
@@ -444,8 +384,8 @@ inline bool dtOverlapBounds(const dtReal* amin, const dtReal* amax,
 ///  @param[in]		a		Vertex A of triangle ABC. [(x, y, z)]
 ///  @param[in]		b		Vertex B of triangle ABC. [(x, y, z)]
 ///  @param[in]		c		Vertex C of triangle ABC. [(x, y, z)]
-void dtClosestPtPointTriangle(dtReal* closest, const dtReal* p,
-	const dtReal* a, const dtReal* b, const dtReal* c);
+void dtClosestPtPointTriangle(float* closest, const float* p,
+							  const float* a, const float* b, const float* c);
 
 /// Derives the y-axis height of the closest point on the triangle from the specified reference point.
 ///  @param[in]		p		The reference point from which to test. [(x, y, z)]
@@ -453,36 +393,35 @@ void dtClosestPtPointTriangle(dtReal* closest, const dtReal* p,
 ///  @param[in]		b		Vertex B of triangle ABC. [(x, y, z)]
 ///  @param[in]		c		Vertex C of triangle ABC. [(x, y, z)]
 ///  @param[out]	h		The resulting height.
-bool dtClosestHeightPointTriangle(const dtReal* p, const dtReal* a, const dtReal* b, const dtReal* c, dtReal& h);
+bool dtClosestHeightPointTriangle(const float* p, const float* a, const float* b, const float* c, float& h);
 
-bool dtIntersectSegmentPoly2D(const dtReal* p0, const dtReal* p1,
-	const dtReal* verts, int nverts,
-	dtReal& tmin, dtReal& tmax,
-	int& segMin, int& segMax);
+bool dtIntersectSegmentPoly2D(const float* p0, const float* p1,
+							  const float* verts, int nverts,
+							  float& tmin, float& tmax,
+							  int& segMin, int& segMax);
 
-bool dtIntersectSegSeg2D(const dtReal* ap, const dtReal* aq,
-	const dtReal* bp, const dtReal* bq,
-	dtReal& s, dtReal& t);
+bool dtIntersectSegSeg2D(const float* ap, const float* aq,
+						 const float* bp, const float* bq,
+						 float& s, float& t);
 
 /// Determines if the specified point is inside the convex polygon on the xz-plane.
 ///  @param[in]		pt		The point to check. [(x, y, z)]
 ///  @param[in]		verts	The polygon vertices. [(x, y, z) * @p nverts]
 ///  @param[in]		nverts	The number of vertices. [Limit: >= 3]
 /// @return True if the point is inside the polygon.
-bool dtPointInPolygon(const dtReal* pt, const dtReal* verts, const int nverts);
+bool dtPointInPolygon(const float* pt, const float* verts, const int nverts);
 
-bool dtDistancePtPolyEdgesSqr(const dtReal* pt, const dtReal* verts, const int nverts,
-	dtReal* ed, dtReal* et);
+bool dtDistancePtPolyEdgesSqr(const float* pt, const float* verts, const int nverts,
+							float* ed, float* et);
 
-dtReal dtDistancePtSegSqr2D(const dtReal* pt, const dtReal* p, const dtReal* q, dtReal& t);
-dtReal dtDistancePtSegSqr(const dtReal* pt, const dtReal* p, const dtReal* q);
+float dtDistancePtSegSqr2D(const float* pt, const float* p, const float* q, float& t);
 
 /// Derives the centroid of a convex polygon.
 ///  @param[out]	tc		The centroid of the polgyon. [(x, y, z)]
 ///  @param[in]		idx		The polygon indices. [(vertIndex) * @p nidx]
 ///  @param[in]		nidx	The number of indices in the polygon. [Limit: >= 3]
 ///  @param[in]		verts	The polygon vertices. [(x, y, z) * vertCount]
-void dtCalcPolyCenter(dtReal* tc, const unsigned short* idx, int nidx, const dtReal* verts);
+void dtCalcPolyCenter(float* tc, const unsigned short* idx, int nidx, const float* verts);
 
 /// Determines if the two convex polygons overlap on the xz-plane.
 ///  @param[in]		polya		Polygon A vertices.	[(x, y, z) * @p npolya]
@@ -490,8 +429,8 @@ void dtCalcPolyCenter(dtReal* tc, const unsigned short* idx, int nidx, const dtR
 ///  @param[in]		polyb		Polygon B vertices.	[(x, y, z) * @p npolyb]
 ///  @param[in]		npolyb		The number of vertices in polygon B.
 /// @return True if the two polygons overlap.
-bool dtOverlapPolyPoly2D(const dtReal* polya, const int npolya,
-	const dtReal* polyb, const int npolyb);
+bool dtOverlapPolyPoly2D(const float* polya, const int npolya,
+						 const float* polyb, const int npolyb);
 
 /// @}
 /// @name Miscellanious functions.
@@ -521,18 +460,9 @@ inline unsigned int dtIlog2(unsigned int v)
 	return r;
 }
 
-//@UE BEGIN Align to 8 byte boundaries when using double precision
-inline int dtAlign(int x)
-{
-#if DT_LARGE_WORLD_COORDINATES_DISABLED
-	return (x + 3) & ~3; // Align to 4 byte boundary
-#else
-	return (x + 7) & ~7; // Align to 8 byte boundary
-#endif
-}
-//@UE END
+inline int dtAlign4(int x) { return (x+3) & ~3; }
 
-inline int dtOppositeTile(int side) { return (side + 4) & 0x7; }
+inline int dtOppositeTile(int side) { return (side+4) & 0x7; }
 
 inline void dtSwapByte(unsigned char* a, unsigned char* b)
 {
@@ -544,102 +474,52 @@ inline void dtSwapByte(unsigned char* a, unsigned char* b)
 inline void dtSwapEndian(unsigned short* v)
 {
 	unsigned char* x = (unsigned char*)v;
-	dtSwapByte(x + 0, x + 1);
+	dtSwapByte(x+0, x+1);
 }
 
 inline void dtSwapEndian(short* v)
 {
 	unsigned char* x = (unsigned char*)v;
-	dtSwapByte(x + 0, x + 1);
+	dtSwapByte(x+0, x+1);
 }
 
 inline void dtSwapEndian(unsigned int* v)
 {
 	unsigned char* x = (unsigned char*)v;
-	dtSwapByte(x + 0, x + 3); dtSwapByte(x + 1, x + 2);
+	dtSwapByte(x+0, x+3); dtSwapByte(x+1, x+2);
 }
 
 inline void dtSwapEndian(int* v)
 {
 	unsigned char* x = (unsigned char*)v;
-	dtSwapByte(x + 0, x + 3); dtSwapByte(x + 1, x + 2);
-}
-
-inline void dtSwapEndian(unsigned long long int* v)
-{
-	unsigned char* x = (unsigned char*)v;
-	dtSwapByte(x + 0, x + 7);
-	dtSwapByte(x + 1, x + 6);
-	dtSwapByte(x + 2, x + 5);
-	dtSwapByte(x + 3, x + 4);
-}
-
-inline void dtSwapEndian(long long int* v)
-{
-	unsigned char* x = (unsigned char*)v;
-	dtSwapByte(x + 0, x + 7);
-	dtSwapByte(x + 1, x + 6);
-	dtSwapByte(x + 2, x + 5);
-	dtSwapByte(x + 3, x + 4);
+	dtSwapByte(x+0, x+3); dtSwapByte(x+1, x+2);
 }
 
 inline void dtSwapEndian(float* v)
 {
 	unsigned char* x = (unsigned char*)v;
-	dtSwapByte(x + 0, x + 3); dtSwapByte(x + 1, x + 2);
+	dtSwapByte(x+0, x+3); dtSwapByte(x+1, x+2);
 }
 
-// @UE BEGIN Adding support for LWCoords.
-inline void dtSwapEndian(double* v)
+void dtRandomPointInConvexPoly(const float* pts, const int npts, float* areas,
+							   const float s, const float t, float* out);
+
+template<typename TypeToRetrieveAs>
+TypeToRetrieveAs* dtGetThenAdvanceBufferPointer(const unsigned char*& buffer, const size_t distanceToAdvance)
 {
-	unsigned char* x = (unsigned char*)v;
-	dtSwapByte(x + 0, x + 7); dtSwapByte(x + 1, x + 6); dtSwapByte(x + 2, x + 5); dtSwapByte(x + 3, x + 4);
+	TypeToRetrieveAs* returnPointer = reinterpret_cast<TypeToRetrieveAs*>(buffer);
+	buffer += distanceToAdvance;
+	return returnPointer;
 }
-//@UE END Adding support for LWCoords.
 
-void dtRandomPointInConvexPoly(const dtReal* pts, const int npts, dtReal* areas,
-	const dtReal s, const dtReal t, dtReal* out);
-
-// @UE BEGIN
-enum dtRotation
+template<typename TypeToRetrieveAs>
+TypeToRetrieveAs* dtGetThenAdvanceBufferPointer(unsigned char*& buffer, const size_t distanceToAdvance)
 {
-	DT_ROTATE_0,
-	DT_ROTATE_90,
-	DT_ROTATE_180,
-	DT_ROTATE_270
-};
+	TypeToRetrieveAs* returnPointer = reinterpret_cast<TypeToRetrieveAs*>(buffer);
+	buffer += distanceToAdvance;
+	return returnPointer;
+}
 
-/// Select a 90 degree increment value from an input angle in degree.
-///  @param[in]		rotationDeg The desired rotation in degree.
-///  @return The rotation enum value.
-dtRotation dtSelectRotation(dtReal rotationDeg);
-
-/// Rotate by 90 degree increments.
-///  @param[out]	dest	The result position. [(x, y, z)]
-///  @param[in]		v		The vector to rotate. [(x, y, z)]
-///  @param[in]		rot		The rotation enum value.
-void dtVRot90(dtReal* dest, const dtReal* v, const dtRotation rot);
-
-/// Rotate by 90 degree increments.
-///  @param[out]	dest	The result position. [(x, y, z)]
-///  @param[in]		v		The vector to rotate. [(x, y, z)]
-///  @param[in]		rot		The rotation enum value.
-void dtVRot90(unsigned short* dest, const unsigned short* v, const dtRotation rot);
-
-/// Rotate vector around center position by increments of 90 degrees.
-///  @param[out]	dest	The result position. [(x, y, z)]
-///  @param[in]		v		The vector to rotate. [(x, y, z)]
-///  @param[in]		center	The center point. [(x, y, z)]
-///  @param[in]		rot		The rotation enum value.
-void dtRotate90(dtReal* dest, const dtReal* v, const dtReal* center, const dtRotation rot);
-
-/// Rotate vector around center position by increments of 90 degrees.
-///  @param[out]	dest	The result position. [(x, y, z)]
-///  @param[in]		v		The vector to rotate. [(x, y, z)]
-///  @param[in]		center	The center point. [(x, y, z)]
-///  @param[in]		rot		The rotation enum value.
-void dtRotate90(unsigned short* dest, const unsigned short* v, const unsigned short* center, const dtRotation rot);
-// @UE END
 
 /// @}
 
@@ -652,7 +532,7 @@ void dtRotate90(unsigned short* dest, const unsigned short* v, const unsigned sh
 
 /**
 
-@fn dtReal dtTriArea2D(const dtReal* a, const dtReal* b, const dtReal* c)
+@fn float dtTriArea2D(const float* a, const float* b, const float* c)
 @par
 
 The vertices are projected onto the xz-plane, so the y-values are ignored.

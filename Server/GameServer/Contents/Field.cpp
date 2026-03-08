@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "Field.h"
 
+#include <filesystem>
 #include <utility>
 #include "Contents/Player.h"
 #include "GameSession.h"
@@ -11,10 +12,16 @@ FieldManager& GFieldManager = FieldManager::Instance();
 
 void FieldManager::Init()
 {
-	auto navMesh = NavMeshLoader::LoadNavMeshFromBin("Resources/Test.bin");
-	if(navMesh == nullptr) return;
+	std::filesystem::path path = std::filesystem::current_path() / "Resources";
+	for (const auto& entry : std::filesystem::directory_iterator(path)) {
+		if(entry.path().extension().string() == ".bin")
+		{
+			auto navMesh = NavMeshLoader::LoadNavMeshFromBin(entry.path().string().c_str());
+			if(navMesh == nullptr) return;
 
-	_navMesh[0] = navMesh;
+			_navMesh[stoi(entry.path().filename())] = navMesh;
+		}
+	}
 }
 
 void FieldManager::Create(uint16 fieldId)
@@ -88,7 +95,7 @@ void FieldInstance::EnterPlayer(shared_ptr<PlayerCharacter> player)
 	DoAsync([this, player = std::move(player)]()
 	{
 		_players.insert(player);
-		player->Transform()->SetPos({0, 0, 308.4});
+		player->Transform()->SetPos({6168.718262,-181.932266,150});
 		player->SetField(shared_from_this());
 
 		{
@@ -164,28 +171,28 @@ void FieldInstance::PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Pr
 			return;
 		}
 
-		dtReal startPos[3] {playerRef->Transform()->GetPos().x, playerRef->Transform()->GetPos().z, playerRef->Transform()->GetPos().y};
-		dtReal endPos[3] {dest.x(), dest.z(), dest.y()};
-
-		dtQueryResult result;
-		FindPath(startPos, endPos, result);
+		Vector3 startPos = playerRef->GetCurrentPosition(GetTickCount64());
+		std::swap(startPos.y, startPos.z);
+		Vector3 endPos(dest);
+		std::swap(endPos.y, endPos.z);
 
 		std::vector<Vector3> serverWaypoints;
+		FindPath(startPos, endPos, serverWaypoints);
+
 		Protocol::SC_MOVE_PATH pkt;
 		pkt.set_start_server_tick(GetTickCount64());
 		pkt.set_object_id(playerRef->GetId());
 
-		for (int i = 0; i < result.size(); i++)
+		for (int i = 0; i < serverWaypoints.size(); i++)
 		{
-			auto* pos = result.getPos(i);
-			LOG_DEBUG("[{}] : [{}, {}, {}]", i, pos[0], pos[2], pos[1]);
+			LOG_DEBUG("[{}] : [{}, {}, {}]", i, serverWaypoints[i].x, serverWaypoints[i].y, serverWaypoints[i].z);
 
 			auto* waypoint = pkt.add_waypoints();
-			waypoint->set_x(pos[0]);
-			waypoint->set_y(pos[2]);
-			waypoint->set_z(pos[1]);
+			waypoint->set_x(serverWaypoints[i].x);
+			waypoint->set_y(serverWaypoints[i].y);
+			waypoint->set_z(serverWaypoints[i].z);
 
-			serverWaypoints.emplace_back(*waypoint);
+			serverWaypoints[i] = Vector3(*waypoint); // Ensure serverWaypoints matches exact packet format if needed, but they are already identical.
 		}
 		playerRef->SetMoveInfo(std::move(serverWaypoints), GetTickCount64(), 500.0f);
 
@@ -238,24 +245,30 @@ void FieldInstance::UpdatePlayerPosition()
 	LJobTimer.Reserve(500, GetJobQueue(), job);
 }
 
-void FieldInstance::FindPath(const dtReal* startPos, const dtReal* endPos, OUT dtQueryResult& pathResult)
+void FieldInstance::FindPath(const Vector3& startPos, const Vector3& endPos, OUT std::vector<Vector3>& pathResult)
 {
 	auto start = std::chrono::high_resolution_clock::now();
-
-	dtQueryFilter Filter;
-
-	dtReal Extents[3] = { 10.0, 100.0, 10.0 };
+	dtQueryFilter filter;
+	filter.setIncludeFlags(0xffff);
+	filter.setExcludeFlags(0);
+	// Extents also need to be scaled to meters (e.g. 2m x 4m x 2m search box)
+	float extents[3] = { 2.0f, 4.0f, 2.0f };
 
 	dtPolyRef StartPolyRef = 0;
 	dtPolyRef EndPolyRef = 0;
-	dtReal StartNearestPt[3];
-	dtReal EndNearestPt[3];
+	
+	// Convert Engine coordinates (cm) to Detour coordinates (m)
+	float startPt[3] { (float)startPos.x / 100.0f, (float)startPos.y / 100.0f, (float)startPos.z / 100.0f };
+	float endPt[3] = { (float)endPos.x / 100.0f, (float)endPos.y / 100.0f, (float)endPos.z / 100.0f };
+
+	float StartNearestPt[3];
+	float EndNearestPt[3];
 
 	// (A) 시작점 근처의 폴리곤 찾기
-	_navQuery->findNearestPoly(startPos, Extents, &Filter, &StartPolyRef, StartNearestPt);
+	_navQuery->findNearestPoly(startPt, extents, &filter, &StartPolyRef, StartNearestPt);
 
 	// (B) 도착점 근처의 폴리곤 찾기
-	_navQuery->findNearestPoly(endPos, Extents, &Filter, &EndPolyRef, EndNearestPt);
+	_navQuery->findNearestPoly(endPt, extents, &filter, &EndPolyRef, EndNearestPt);
 
 	if (!StartPolyRef || !EndPolyRef)
 	{
@@ -263,25 +276,33 @@ void FieldInstance::FindPath(const dtReal* startPos, const dtReal* endPos, OUT d
 		return;
 	}
 
-	dtQueryResult result;
-	int PathCount = 0;
-	auto costLimit = DBL_MAX;
-	dtReal totalCost;
+	static constexpr int MAX_PATH_POLYS = 2048;
+	dtPolyRef path[MAX_PATH_POLYS];
+	int pathCount = 0;
 
-	_navQuery->findPath(StartPolyRef, EndPolyRef, StartNearestPt, EndNearestPt, costLimit, &Filter, result, &totalCost);
+	_navQuery->findPath(StartPolyRef, EndPolyRef, StartNearestPt, EndNearestPt, &filter, path, &pathCount, MAX_PATH_POLYS);
+
+	if (pathCount == 0)
+	{
+		return;
+	}
 
 	// (D) 실제 이동 좌표 구하기 (String Pulling)
-	// 폴리곤 ID만으로는 이동을 못하니까, 실제 꺾이는 지점(Waypoints) 좌표를 뽑아야 함
-	static constexpr int MAX_SMOOTH = 256;
-	unsigned char StraightPathFlags[MAX_SMOOTH];
-	dtPolyRef StraightPathRefs[MAX_SMOOTH];
-	result.copyRefs(StraightPathRefs, result.size());
+	unsigned char straightPathFlags[MAX_PATH_POLYS];
+	dtPolyRef straightPathRefs[MAX_PATH_POLYS];
+	float straightPath[MAX_PATH_POLYS * 3];
+	int straightPathCount = 0;
 
-
-	_navQuery->findStraightPath(StartNearestPt, EndNearestPt, StraightPathRefs, result.size(), pathResult);
-	if(pathResult.size() > 0)
+	_navQuery->findStraightPath(StartNearestPt, EndNearestPt, path, pathCount, straightPath, straightPathFlags, straightPathRefs, &straightPathCount, MAX_PATH_POLYS);
+	
+	if(straightPathCount > 0)
 	{
-		LOG_DEBUG("[Path] Found Straight Path!");
+		LOG_DEBUG("[Path] Found Straight Path! Points: {}", straightPathCount);
+		for (int i = 0; i < straightPathCount; ++i)
+		{
+			// Detour: X, Y, Z (m) -> Engine: X, Z, Y (cm)
+			pathResult.push_back(Vector3(straightPath[i*3] * 100.0f, straightPath[i*3+2] * 100.0f, straightPath[i*3+1] * 100.0f));
+		}
 	}
 
 	auto end = std::chrono::high_resolution_clock::now();

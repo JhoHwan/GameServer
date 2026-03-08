@@ -2,6 +2,7 @@
 
 #include "Protocol.pb.h"
 #include "Util/NavMeshLoader.h"
+#include "Util/Vector3.h"
 
 class FieldInstance;
 class FieldManager;
@@ -42,7 +43,7 @@ public:
 	void UpdatePlayerPosition();
 
 private:
-	void FindPath(const dtReal* pos, const dtReal* endPos, OUT dtQueryResult& result);
+	void FindPath(const Vector3& pos, const Vector3& endPos, OUT std::vector<Vector3>& result);
 
 private:
 	std::unordered_set<shared_ptr<PlayerCharacter>> _players;

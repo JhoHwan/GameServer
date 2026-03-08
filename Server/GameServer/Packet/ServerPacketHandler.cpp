@@ -42,7 +42,7 @@ bool Handle_CS_FIELD_LOADING_COMPLETE(SessionRef& session, Protocol::CS_FIELD_LO
         return false;
     }
 
-    auto field = GFieldManager.GetField(0);
+    auto field = GFieldManager.GetField(1);
     if(field) field->EnterPlayer(player);
 
     return true;

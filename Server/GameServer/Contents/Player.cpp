@@ -90,7 +90,7 @@ Vector3 PlayerCharacter::GetCurrentPosition(uint64 now) const
 
 			Vector3 diff = end - start;
 			Vector3 currentPos = start + (diff * ratio);
-			LOG_DEBUG("Player Position Update [{}, {}, {}]", currentPos.x, currentPos.y, currentPos.z);
+			//LOG_DEBUG("Player Position Update [{}, {}, {}]", currentPos.x, currentPos.y, currentPos.z);
 			return currentPos;
 		}
 	}
