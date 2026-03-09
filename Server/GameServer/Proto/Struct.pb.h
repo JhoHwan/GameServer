@@ -189,31 +189,31 @@ class Vector3 final :
     kYFieldNumber = 2,
     kZFieldNumber = 3,
   };
-  // double x = 1;
+  // float x = 1;
   void clear_x();
-  double x() const;
-  void set_x(double value);
+  float x() const;
+  void set_x(float value);
   private:
-  double _internal_x() const;
-  void _internal_set_x(double value);
+  float _internal_x() const;
+  void _internal_set_x(float value);
   public:
 
-  // double y = 2;
+  // float y = 2;
   void clear_y();
-  double y() const;
-  void set_y(double value);
+  float y() const;
+  void set_y(float value);
   private:
-  double _internal_y() const;
-  void _internal_set_y(double value);
+  float _internal_y() const;
+  void _internal_set_y(float value);
   public:
 
-  // double z = 3;
+  // float z = 3;
   void clear_z();
-  double z() const;
-  void set_z(double value);
+  float z() const;
+  void set_z(float value);
   private:
-  double _internal_z() const;
-  void _internal_set_z(double value);
+  float _internal_z() const;
+  void _internal_set_z(float value);
   public:
 
   // @@protoc_insertion_point(class_scope:Protocol.Vector3)
@@ -224,9 +224,9 @@ class Vector3 final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    double x_;
-    double y_;
-    double z_;
+    float x_;
+    float y_;
+    float z_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -356,8 +356,8 @@ class ObjectInfo final :
 
   enum : int {
     kPosFieldNumber = 2,
-    kYawFieldNumber = 3,
     kIdFieldNumber = 1,
+    kYawFieldNumber = 3,
   };
   // .Protocol.Vector3 pos = 2;
   bool has_pos() const;
@@ -377,15 +377,6 @@ class ObjectInfo final :
       ::Protocol::Vector3* pos);
   ::Protocol::Vector3* unsafe_arena_release_pos();
 
-  // double yaw = 3;
-  void clear_yaw();
-  double yaw() const;
-  void set_yaw(double value);
-  private:
-  double _internal_yaw() const;
-  void _internal_set_yaw(double value);
-  public:
-
   // int32 id = 1;
   void clear_id();
   int32_t id() const;
@@ -393,6 +384,15 @@ class ObjectInfo final :
   private:
   int32_t _internal_id() const;
   void _internal_set_id(int32_t value);
+  public:
+
+  // float yaw = 3;
+  void clear_yaw();
+  float yaw() const;
+  void set_yaw(float value);
+  private:
+  float _internal_yaw() const;
+  void _internal_set_yaw(float value);
   public:
 
   // @@protoc_insertion_point(class_scope:Protocol.ObjectInfo)
@@ -404,8 +404,8 @@ class ObjectInfo final :
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::Protocol::Vector3* pos_;
-    double yaw_;
     int32_t id_;
+    float yaw_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -579,62 +579,62 @@ class PlayerInfo final :
 #endif  // __GNUC__
 // Vector3
 
-// double x = 1;
+// float x = 1;
 inline void Vector3::clear_x() {
   _impl_.x_ = 0;
 }
-inline double Vector3::_internal_x() const {
+inline float Vector3::_internal_x() const {
   return _impl_.x_;
 }
-inline double Vector3::x() const {
+inline float Vector3::x() const {
   // @@protoc_insertion_point(field_get:Protocol.Vector3.x)
   return _internal_x();
 }
-inline void Vector3::_internal_set_x(double value) {
+inline void Vector3::_internal_set_x(float value) {
   
   _impl_.x_ = value;
 }
-inline void Vector3::set_x(double value) {
+inline void Vector3::set_x(float value) {
   _internal_set_x(value);
   // @@protoc_insertion_point(field_set:Protocol.Vector3.x)
 }
 
-// double y = 2;
+// float y = 2;
 inline void Vector3::clear_y() {
   _impl_.y_ = 0;
 }
-inline double Vector3::_internal_y() const {
+inline float Vector3::_internal_y() const {
   return _impl_.y_;
 }
-inline double Vector3::y() const {
+inline float Vector3::y() const {
   // @@protoc_insertion_point(field_get:Protocol.Vector3.y)
   return _internal_y();
 }
-inline void Vector3::_internal_set_y(double value) {
+inline void Vector3::_internal_set_y(float value) {
   
   _impl_.y_ = value;
 }
-inline void Vector3::set_y(double value) {
+inline void Vector3::set_y(float value) {
   _internal_set_y(value);
   // @@protoc_insertion_point(field_set:Protocol.Vector3.y)
 }
 
-// double z = 3;
+// float z = 3;
 inline void Vector3::clear_z() {
   _impl_.z_ = 0;
 }
-inline double Vector3::_internal_z() const {
+inline float Vector3::_internal_z() const {
   return _impl_.z_;
 }
-inline double Vector3::z() const {
+inline float Vector3::z() const {
   // @@protoc_insertion_point(field_get:Protocol.Vector3.z)
   return _internal_z();
 }
-inline void Vector3::_internal_set_z(double value) {
+inline void Vector3::_internal_set_z(float value) {
   
   _impl_.z_ = value;
 }
-inline void Vector3::set_z(double value) {
+inline void Vector3::set_z(float value) {
   _internal_set_z(value);
   // @@protoc_insertion_point(field_set:Protocol.Vector3.z)
 }
@@ -753,22 +753,22 @@ inline void ObjectInfo::set_allocated_pos(::Protocol::Vector3* pos) {
   // @@protoc_insertion_point(field_set_allocated:Protocol.ObjectInfo.pos)
 }
 
-// double yaw = 3;
+// float yaw = 3;
 inline void ObjectInfo::clear_yaw() {
   _impl_.yaw_ = 0;
 }
-inline double ObjectInfo::_internal_yaw() const {
+inline float ObjectInfo::_internal_yaw() const {
   return _impl_.yaw_;
 }
-inline double ObjectInfo::yaw() const {
+inline float ObjectInfo::yaw() const {
   // @@protoc_insertion_point(field_get:Protocol.ObjectInfo.yaw)
   return _internal_yaw();
 }
-inline void ObjectInfo::_internal_set_yaw(double value) {
+inline void ObjectInfo::_internal_set_yaw(float value) {
   
   _impl_.yaw_ = value;
 }
-inline void ObjectInfo::set_yaw(double value) {
+inline void ObjectInfo::set_yaw(float value) {
   _internal_set_yaw(value);
   // @@protoc_insertion_point(field_set:Protocol.ObjectInfo.yaw)
 }

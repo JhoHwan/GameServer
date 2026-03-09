@@ -1,11 +1,12 @@
 ﻿#include "GameManager.h"
 
-#include "Field.h"
+#include "Field/Field.h"
 #include "GameObject.h"
 #include "GameSession.h"
 #include "Player.h"
 #include "Protocol.pb.h"
 #include "Types.h"
+#include "Field/FieldManager.h"
 #include "Packet/ServerPacketHandler.h"
 #include "Util/Vector3.h"
 

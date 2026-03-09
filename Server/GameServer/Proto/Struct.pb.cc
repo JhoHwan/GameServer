@@ -39,8 +39,8 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORIT
 PROTOBUF_CONSTEXPR ObjectInfo::ObjectInfo(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.pos_)*/nullptr
-  , /*decltype(_impl_.yaw_)*/0
   , /*decltype(_impl_.id_)*/0
+  , /*decltype(_impl_.yaw_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct ObjectInfoDefaultTypeInternal {
   PROTOBUF_CONSTEXPR ObjectInfoDefaultTypeInternal()
@@ -110,9 +110,9 @@ static const ::_pb::Message* const file_default_instances[] = {
 
 const char descriptor_table_protodef_Struct_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\014Struct.proto\022\010Protocol\"*\n\007Vector3\022\t\n\001x"
-  "\030\001 \001(\001\022\t\n\001y\030\002 \001(\001\022\t\n\001z\030\003 \001(\001\"E\n\nObjectIn"
+  "\030\001 \001(\002\022\t\n\001y\030\002 \001(\002\022\t\n\001z\030\003 \001(\002\"E\n\nObjectIn"
   "fo\022\n\n\002id\030\001 \001(\005\022\036\n\003pos\030\002 \001(\0132\021.Protocol.V"
-  "ector3\022\013\n\003yaw\030\003 \001(\001\"7\n\nPlayerInfo\022)\n\013obj"
+  "ector3\022\013\n\003yaw\030\003 \001(\002\"7\n\nPlayerInfo\022)\n\013obj"
   "ect_info\030\001 \001(\0132\024.Protocol.ObjectInfob\006pr"
   "oto3"
   ;
@@ -208,27 +208,27 @@ const char* Vector3::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) 
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // double x = 1;
+      // float x = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 9)) {
-          _impl_.x_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<double>(ptr);
-          ptr += sizeof(double);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 13)) {
+          _impl_.x_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
         } else
           goto handle_unusual;
         continue;
-      // double y = 2;
+      // float y = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 17)) {
-          _impl_.y_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<double>(ptr);
-          ptr += sizeof(double);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 21)) {
+          _impl_.y_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
         } else
           goto handle_unusual;
         continue;
-      // double z = 3;
+      // float z = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 25)) {
-          _impl_.z_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<double>(ptr);
-          ptr += sizeof(double);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 29)) {
+          _impl_.z_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
         } else
           goto handle_unusual;
         continue;
@@ -261,34 +261,34 @@ uint8_t* Vector3::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // double x = 1;
-  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
-  double tmp_x = this->_internal_x();
-  uint64_t raw_x;
+  // float x = 1;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_x = this->_internal_x();
+  uint32_t raw_x;
   memcpy(&raw_x, &tmp_x, sizeof(tmp_x));
   if (raw_x != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteDoubleToArray(1, this->_internal_x(), target);
+    target = ::_pbi::WireFormatLite::WriteFloatToArray(1, this->_internal_x(), target);
   }
 
-  // double y = 2;
-  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
-  double tmp_y = this->_internal_y();
-  uint64_t raw_y;
+  // float y = 2;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_y = this->_internal_y();
+  uint32_t raw_y;
   memcpy(&raw_y, &tmp_y, sizeof(tmp_y));
   if (raw_y != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteDoubleToArray(2, this->_internal_y(), target);
+    target = ::_pbi::WireFormatLite::WriteFloatToArray(2, this->_internal_y(), target);
   }
 
-  // double z = 3;
-  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
-  double tmp_z = this->_internal_z();
-  uint64_t raw_z;
+  // float z = 3;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_z = this->_internal_z();
+  uint32_t raw_z;
   memcpy(&raw_z, &tmp_z, sizeof(tmp_z));
   if (raw_z != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteDoubleToArray(3, this->_internal_z(), target);
+    target = ::_pbi::WireFormatLite::WriteFloatToArray(3, this->_internal_z(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -307,31 +307,31 @@ size_t Vector3::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // double x = 1;
-  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
-  double tmp_x = this->_internal_x();
-  uint64_t raw_x;
+  // float x = 1;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_x = this->_internal_x();
+  uint32_t raw_x;
   memcpy(&raw_x, &tmp_x, sizeof(tmp_x));
   if (raw_x != 0) {
-    total_size += 1 + 8;
+    total_size += 1 + 4;
   }
 
-  // double y = 2;
-  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
-  double tmp_y = this->_internal_y();
-  uint64_t raw_y;
+  // float y = 2;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_y = this->_internal_y();
+  uint32_t raw_y;
   memcpy(&raw_y, &tmp_y, sizeof(tmp_y));
   if (raw_y != 0) {
-    total_size += 1 + 8;
+    total_size += 1 + 4;
   }
 
-  // double z = 3;
-  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
-  double tmp_z = this->_internal_z();
-  uint64_t raw_z;
+  // float z = 3;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_z = this->_internal_z();
+  uint32_t raw_z;
   memcpy(&raw_z, &tmp_z, sizeof(tmp_z));
   if (raw_z != 0) {
-    total_size += 1 + 8;
+    total_size += 1 + 4;
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
@@ -352,23 +352,23 @@ void Vector3::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOB
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
-  double tmp_x = from._internal_x();
-  uint64_t raw_x;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_x = from._internal_x();
+  uint32_t raw_x;
   memcpy(&raw_x, &tmp_x, sizeof(tmp_x));
   if (raw_x != 0) {
     _this->_internal_set_x(from._internal_x());
   }
-  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
-  double tmp_y = from._internal_y();
-  uint64_t raw_y;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_y = from._internal_y();
+  uint32_t raw_y;
   memcpy(&raw_y, &tmp_y, sizeof(tmp_y));
   if (raw_y != 0) {
     _this->_internal_set_y(from._internal_y());
   }
-  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
-  double tmp_z = from._internal_z();
-  uint64_t raw_z;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_z = from._internal_z();
+  uint32_t raw_z;
   memcpy(&raw_z, &tmp_z, sizeof(tmp_z));
   if (raw_z != 0) {
     _this->_internal_set_z(from._internal_z());
@@ -426,17 +426,17 @@ ObjectInfo::ObjectInfo(const ObjectInfo& from)
   ObjectInfo* const _this = this; (void)_this;
   new (&_impl_) Impl_{
       decltype(_impl_.pos_){nullptr}
-    , decltype(_impl_.yaw_){}
     , decltype(_impl_.id_){}
+    , decltype(_impl_.yaw_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   if (from._internal_has_pos()) {
     _this->_impl_.pos_ = new ::Protocol::Vector3(*from._impl_.pos_);
   }
-  ::memcpy(&_impl_.yaw_, &from._impl_.yaw_,
-    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.id_) -
-    reinterpret_cast<char*>(&_impl_.yaw_)) + sizeof(_impl_.id_));
+  ::memcpy(&_impl_.id_, &from._impl_.id_,
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.yaw_) -
+    reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.yaw_));
   // @@protoc_insertion_point(copy_constructor:Protocol.ObjectInfo)
 }
 
@@ -446,8 +446,8 @@ inline void ObjectInfo::SharedCtor(
   (void)is_message_owned;
   new (&_impl_) Impl_{
       decltype(_impl_.pos_){nullptr}
-    , decltype(_impl_.yaw_){0}
     , decltype(_impl_.id_){0}
+    , decltype(_impl_.yaw_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -480,9 +480,9 @@ void ObjectInfo::Clear() {
     delete _impl_.pos_;
   }
   _impl_.pos_ = nullptr;
-  ::memset(&_impl_.yaw_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&_impl_.id_) -
-      reinterpret_cast<char*>(&_impl_.yaw_)) + sizeof(_impl_.id_));
+  ::memset(&_impl_.id_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&_impl_.yaw_) -
+      reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.yaw_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -508,11 +508,11 @@ const char* ObjectInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ct
         } else
           goto handle_unusual;
         continue;
-      // double yaw = 3;
+      // float yaw = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 25)) {
-          _impl_.yaw_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<double>(ptr);
-          ptr += sizeof(double);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 29)) {
+          _impl_.yaw_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
         } else
           goto handle_unusual;
         continue;
@@ -558,14 +558,14 @@ uint8_t* ObjectInfo::_InternalSerialize(
         _Internal::pos(this).GetCachedSize(), target, stream);
   }
 
-  // double yaw = 3;
-  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
-  double tmp_yaw = this->_internal_yaw();
-  uint64_t raw_yaw;
+  // float yaw = 3;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_yaw = this->_internal_yaw();
+  uint32_t raw_yaw;
   memcpy(&raw_yaw, &tmp_yaw, sizeof(tmp_yaw));
   if (raw_yaw != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteDoubleToArray(3, this->_internal_yaw(), target);
+    target = ::_pbi::WireFormatLite::WriteFloatToArray(3, this->_internal_yaw(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -591,18 +591,18 @@ size_t ObjectInfo::ByteSizeLong() const {
         *_impl_.pos_);
   }
 
-  // double yaw = 3;
-  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
-  double tmp_yaw = this->_internal_yaw();
-  uint64_t raw_yaw;
-  memcpy(&raw_yaw, &tmp_yaw, sizeof(tmp_yaw));
-  if (raw_yaw != 0) {
-    total_size += 1 + 8;
-  }
-
   // int32 id = 1;
   if (this->_internal_id() != 0) {
     total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_id());
+  }
+
+  // float yaw = 3;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_yaw = this->_internal_yaw();
+  uint32_t raw_yaw;
+  memcpy(&raw_yaw, &tmp_yaw, sizeof(tmp_yaw));
+  if (raw_yaw != 0) {
+    total_size += 1 + 4;
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
@@ -627,15 +627,15 @@ void ObjectInfo::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PRO
     _this->_internal_mutable_pos()->::Protocol::Vector3::MergeFrom(
         from._internal_pos());
   }
-  static_assert(sizeof(uint64_t) == sizeof(double), "Code assumes uint64_t and double are the same size.");
-  double tmp_yaw = from._internal_yaw();
-  uint64_t raw_yaw;
+  if (from._internal_id() != 0) {
+    _this->_internal_set_id(from._internal_id());
+  }
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_yaw = from._internal_yaw();
+  uint32_t raw_yaw;
   memcpy(&raw_yaw, &tmp_yaw, sizeof(tmp_yaw));
   if (raw_yaw != 0) {
     _this->_internal_set_yaw(from._internal_yaw());
-  }
-  if (from._internal_id() != 0) {
-    _this->_internal_set_id(from._internal_id());
   }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -655,8 +655,8 @@ void ObjectInfo::InternalSwap(ObjectInfo* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(ObjectInfo, _impl_.id_)
-      + sizeof(ObjectInfo::_impl_.id_)
+      PROTOBUF_FIELD_OFFSET(ObjectInfo, _impl_.yaw_)
+      + sizeof(ObjectInfo::_impl_.yaw_)
       - PROTOBUF_FIELD_OFFSET(ObjectInfo, _impl_.pos_)>(
           reinterpret_cast<char*>(&_impl_.pos_),
           reinterpret_cast<char*>(&other->_impl_.pos_));

@@ -12,10 +12,11 @@
 #include <vector>
 
 #include "Packet/ServerPacketHandler.h"
-#include "Contents/Field.h"
+#include "Contents/Field/Field.h"
 
 #include "NetCore.h"
 #include "LogManager.h"
+#include "Contents/Field/FieldManager.h"
 
 std::atomic<bool> GIsRunning{true};
 

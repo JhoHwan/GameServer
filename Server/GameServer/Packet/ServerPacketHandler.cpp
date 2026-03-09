@@ -1,10 +1,10 @@
-﻿#include "pch.h"
-#include "ServerPacketHandler.h"
+﻿#include "ServerPacketHandler.h"
 #include "Contents/Player.h"
-#include "Contents/Field.h"
+#include "../Contents/Field/Field.h"
 #include "GameSession.h"
 #include "LogManager.h"
 #include "Contents/GameManager.h"
+#include "Contents/Field/FieldManager.h"
 
 PacketHandlerFunc GPacketHandler[UINT16_MAX];
 

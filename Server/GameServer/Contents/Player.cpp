@@ -32,15 +32,15 @@ void PlayerCharacter::SetMoveInfo(std::vector<Vector3> waypoints, uint64 startTi
 	_isMoving = true;
 
 	uint64 accumulatedTime = startTime;
-	double totalDist = 0;
+	float totalDist = 0;
 	for(int i = 1; i < _moveWaypoints.size(); i++)
 	{
-		double dist = Vector3::Dist2D(_moveWaypoints[i-1], _moveWaypoints[i]);
+		float dist = Vector3::Dist2D(_moveWaypoints[i-1], _moveWaypoints[i]);
 		totalDist += dist;
 
-		double seconds = dist / speed;
+		float seconds = dist / speed;
 
-		uint64 timeToTravel = static_cast<uint64>(seconds * 1000.0);
+		uint64 timeToTravel = static_cast<uint64>(seconds * 1000.0f);
 		accumulatedTime += timeToTravel;
 		_moveArrivalTimes.push_back(accumulatedTime);
 	}

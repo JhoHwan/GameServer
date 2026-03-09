@@ -3,67 +3,16 @@
 
 #include <filesystem>
 #include <utility>
+
+#include "FieldManager.h"
 #include "Contents/Player.h"
 #include "GameSession.h"
 #include "LogManager.h"
 #include "Packet/ServerPacketHandler.h"
+#include "Detour/Include/DetourNavMeshQuery.h"
 
-FieldManager& GFieldManager = FieldManager::Instance();
 
-void FieldManager::Init()
-{
-	std::filesystem::path path = std::filesystem::current_path() / "Resources";
-	for (const auto& entry : std::filesystem::directory_iterator(path)) {
-		if(entry.path().extension().string() == ".bin")
-		{
-			auto navMesh = NavMeshLoader::LoadNavMeshFromBin(entry.path().string().c_str());
-			if(navMesh == nullptr) return;
-
-			_navMesh[stoi(entry.path().filename())] = navMesh;
-		}
-	}
-}
-
-void FieldManager::Create(uint16 fieldId)
-{
-	{
-		WRITE_LOCK;
-		auto fieldIt = _navMesh.find(fieldId);
-		if (fieldIt == _navMesh.end() || fieldIt->second == nullptr) return;
-		auto field = fieldIt->second;
-
-		_fields[fieldId] = make_shared<FieldInstance>(fieldId, field);
-		_fields[fieldId]->Init();
-	}
-
-	LOG_INFO("FieldManager : {} is Created", fieldId);
-}
-
-void FieldManager::Destroy(uint16 fieldId)
-{
-	WRITE_LOCK;
-	_fields.erase(fieldId);
-}
-
-shared_ptr<FieldInstance> FieldManager::GetField(uint16 fieldId)
-{
-	shared_ptr<FieldInstance> field = nullptr;
-	{
-		READ_LOCK;
-		auto fieldIt = _fields.find(fieldId);
-		field = fieldIt == _fields.end() ? nullptr : fieldIt->second;
-	}
-
-	if (field == nullptr)
-	{
-		Create(fieldId);
-	}
-
-	field = _fields[fieldId];
-	return field;
-}
-
-FieldInstance::FieldInstance(uint16 id, dtNavMesh* navMesh) : _id(id), _navMesh(navMesh)
+Field::Field(uint16 id, dtNavMesh* navMesh) : _id(id), _navMesh(navMesh)
 {
 	_navQuery = dtAllocNavMeshQuery();
 	dtStatus Status = _navQuery->init(_navMesh, 2048);
@@ -73,12 +22,12 @@ FieldInstance::FieldInstance(uint16 id, dtNavMesh* navMesh) : _id(id), _navMesh(
 	}
 }
 
-FieldInstance::~FieldInstance()
+Field::~Field()
 {
 	LOG_DEBUG("FieldInstance : {} is Destroyed", _id);
 }
 
-void FieldInstance::Init()
+void Field::Init()
 {
 	JobRef job = make_shared<Job>([weakSelf = weak_from_this()]() {
 		auto self = weakSelf.lock();
@@ -90,7 +39,7 @@ void FieldInstance::Init()
 	LJobTimer.Reserve(500, GetJobQueue(), job);
 }
 
-void FieldInstance::EnterPlayer(shared_ptr<PlayerCharacter> player)
+void Field::EnterPlayer(shared_ptr<PlayerCharacter> player)
 {
 	DoAsync([this, player = std::move(player)]()
 	{
@@ -138,7 +87,7 @@ void FieldInstance::EnterPlayer(shared_ptr<PlayerCharacter> player)
 	});
 }
 
-void FieldInstance::BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerCharacter>& except)
+void Field::BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerCharacter>& except)
 {
 	DoAsync([this, sendBuffer = std::move(sendBuffer), except]()
 	{
@@ -159,7 +108,7 @@ void FieldInstance::BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerC
 	});
 }
 
-void FieldInstance::PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Protocol::Vector3& dest)
+void Field::PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Protocol::Vector3& dest)
 {
 	DoAsync([this, player = std::move(player), dest]()
 	{
@@ -201,7 +150,7 @@ void FieldInstance::PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Pr
 	});
 }
 
-void FieldInstance::LeavePlayer(shared_ptr<PlayerCharacter> player, shared_ptr<FieldInstance> nextField)
+void Field::LeavePlayer(shared_ptr<PlayerCharacter> player, shared_ptr<Field> nextField)
 {
 	DoAsync([this, player = std::move(player), nextField = std::move(nextField)]() {
 		player->SetField(nullptr);
@@ -222,7 +171,7 @@ void FieldInstance::LeavePlayer(shared_ptr<PlayerCharacter> player, shared_ptr<F
 	});
 }
 
-void FieldInstance::UpdatePlayerPosition()
+void Field::UpdatePlayerPosition()
 {
 	//LOG_DEBUG("[FieldInstance] UpdatePlayerPosition");
 
@@ -245,14 +194,14 @@ void FieldInstance::UpdatePlayerPosition()
 	LJobTimer.Reserve(500, GetJobQueue(), job);
 }
 
-void FieldInstance::FindPath(const Vector3& startPos, const Vector3& endPos, OUT std::vector<Vector3>& pathResult)
+void Field::FindPath(const Vector3& startPos, const Vector3& endPos, OUT std::vector<Vector3>& pathResult)
 {
 	auto start = std::chrono::high_resolution_clock::now();
 	dtQueryFilter filter;
 	filter.setIncludeFlags(0xffff);
 	filter.setExcludeFlags(0);
-	// Extents also need to be scaled to meters (e.g. 2m x 4m x 2m search box)
-	float extents[3] = { 2.0f, 4.0f, 2.0f };
+
+	float extents[3] = { 0.5f, 1.0f, 0.5f };
 
 	dtPolyRef StartPolyRef = 0;
 	dtPolyRef EndPolyRef = 0;

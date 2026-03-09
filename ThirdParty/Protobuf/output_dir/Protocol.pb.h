@@ -33,7 +33,7 @@
 #include "Struct.pb.h"
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
-#define PROTOBUF_INTERNAL_EXPORT_Protocol_2eproto GAMENET_API
+#define PROTOBUF_INTERNAL_EXPORT_Protocol_2eproto
 PROTOBUF_NAMESPACE_OPEN
 namespace internal {
 class AnyMetadata;
@@ -41,67 +41,59 @@ class AnyMetadata;
 PROTOBUF_NAMESPACE_CLOSE
 
 // Internal implementation detail -- do not use these members.
-struct GAMENET_API TableStruct_Protocol_2eproto {
+struct TableStruct_Protocol_2eproto {
   static const uint32_t offsets[];
 };
-GAMENET_API extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_Protocol_2eproto;
+extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_Protocol_2eproto;
 namespace Protocol {
 class CS_FIELD_LOADING_COMPLETE;
 struct CS_FIELD_LOADING_COMPLETEDefaultTypeInternal;
-GAMENET_API extern CS_FIELD_LOADING_COMPLETEDefaultTypeInternal _CS_FIELD_LOADING_COMPLETE_default_instance_;
-class CS_PING;
-struct CS_PINGDefaultTypeInternal;
-GAMENET_API extern CS_PINGDefaultTypeInternal _CS_PING_default_instance_;
+extern CS_FIELD_LOADING_COMPLETEDefaultTypeInternal _CS_FIELD_LOADING_COMPLETE_default_instance_;
 class CS_REQUEST_MOVE;
 struct CS_REQUEST_MOVEDefaultTypeInternal;
-GAMENET_API extern CS_REQUEST_MOVEDefaultTypeInternal _CS_REQUEST_MOVE_default_instance_;
+extern CS_REQUEST_MOVEDefaultTypeInternal _CS_REQUEST_MOVE_default_instance_;
 class CS_REQ_ENTER_GAME;
 struct CS_REQ_ENTER_GAMEDefaultTypeInternal;
-GAMENET_API extern CS_REQ_ENTER_GAMEDefaultTypeInternal _CS_REQ_ENTER_GAME_default_instance_;
+extern CS_REQ_ENTER_GAMEDefaultTypeInternal _CS_REQ_ENTER_GAME_default_instance_;
 class CS_REQ_MOVE_FIELD;
 struct CS_REQ_MOVE_FIELDDefaultTypeInternal;
-GAMENET_API extern CS_REQ_MOVE_FIELDDefaultTypeInternal _CS_REQ_MOVE_FIELD_default_instance_;
+extern CS_REQ_MOVE_FIELDDefaultTypeInternal _CS_REQ_MOVE_FIELD_default_instance_;
 class SC_DESPAWN_PLAYER;
 struct SC_DESPAWN_PLAYERDefaultTypeInternal;
-GAMENET_API extern SC_DESPAWN_PLAYERDefaultTypeInternal _SC_DESPAWN_PLAYER_default_instance_;
+extern SC_DESPAWN_PLAYERDefaultTypeInternal _SC_DESPAWN_PLAYER_default_instance_;
 class SC_ENTER_FIELD;
 struct SC_ENTER_FIELDDefaultTypeInternal;
-GAMENET_API extern SC_ENTER_FIELDDefaultTypeInternal _SC_ENTER_FIELD_default_instance_;
+extern SC_ENTER_FIELDDefaultTypeInternal _SC_ENTER_FIELD_default_instance_;
 class SC_ENTER_GAME_RESULT;
 struct SC_ENTER_GAME_RESULTDefaultTypeInternal;
-GAMENET_API extern SC_ENTER_GAME_RESULTDefaultTypeInternal _SC_ENTER_GAME_RESULT_default_instance_;
+extern SC_ENTER_GAME_RESULTDefaultTypeInternal _SC_ENTER_GAME_RESULT_default_instance_;
 class SC_MOVE_FIELD_FAIL;
 struct SC_MOVE_FIELD_FAILDefaultTypeInternal;
-GAMENET_API extern SC_MOVE_FIELD_FAILDefaultTypeInternal _SC_MOVE_FIELD_FAIL_default_instance_;
-class SC_PONG;
-struct SC_PONGDefaultTypeInternal;
-GAMENET_API extern SC_PONGDefaultTypeInternal _SC_PONG_default_instance_;
+extern SC_MOVE_FIELD_FAILDefaultTypeInternal _SC_MOVE_FIELD_FAIL_default_instance_;
 class SC_SPAWN_PLAYER;
 struct SC_SPAWN_PLAYERDefaultTypeInternal;
-GAMENET_API extern SC_SPAWN_PLAYERDefaultTypeInternal _SC_SPAWN_PLAYER_default_instance_;
+extern SC_SPAWN_PLAYERDefaultTypeInternal _SC_SPAWN_PLAYER_default_instance_;
 class SC_START_FIELD_LOADING;
 struct SC_START_FIELD_LOADINGDefaultTypeInternal;
-GAMENET_API extern SC_START_FIELD_LOADINGDefaultTypeInternal _SC_START_FIELD_LOADING_default_instance_;
+extern SC_START_FIELD_LOADINGDefaultTypeInternal _SC_START_FIELD_LOADING_default_instance_;
 }  // namespace Protocol
 PROTOBUF_NAMESPACE_OPEN
-template<> GAMENET_API ::Protocol::CS_FIELD_LOADING_COMPLETE* Arena::CreateMaybeMessage<::Protocol::CS_FIELD_LOADING_COMPLETE>(Arena*);
-template<> GAMENET_API ::Protocol::CS_PING* Arena::CreateMaybeMessage<::Protocol::CS_PING>(Arena*);
-template<> GAMENET_API ::Protocol::CS_REQUEST_MOVE* Arena::CreateMaybeMessage<::Protocol::CS_REQUEST_MOVE>(Arena*);
-template<> GAMENET_API ::Protocol::CS_REQ_ENTER_GAME* Arena::CreateMaybeMessage<::Protocol::CS_REQ_ENTER_GAME>(Arena*);
-template<> GAMENET_API ::Protocol::CS_REQ_MOVE_FIELD* Arena::CreateMaybeMessage<::Protocol::CS_REQ_MOVE_FIELD>(Arena*);
-template<> GAMENET_API ::Protocol::SC_DESPAWN_PLAYER* Arena::CreateMaybeMessage<::Protocol::SC_DESPAWN_PLAYER>(Arena*);
-template<> GAMENET_API ::Protocol::SC_ENTER_FIELD* Arena::CreateMaybeMessage<::Protocol::SC_ENTER_FIELD>(Arena*);
-template<> GAMENET_API ::Protocol::SC_ENTER_GAME_RESULT* Arena::CreateMaybeMessage<::Protocol::SC_ENTER_GAME_RESULT>(Arena*);
-template<> GAMENET_API ::Protocol::SC_MOVE_FIELD_FAIL* Arena::CreateMaybeMessage<::Protocol::SC_MOVE_FIELD_FAIL>(Arena*);
-template<> GAMENET_API ::Protocol::SC_PONG* Arena::CreateMaybeMessage<::Protocol::SC_PONG>(Arena*);
-template<> GAMENET_API ::Protocol::SC_SPAWN_PLAYER* Arena::CreateMaybeMessage<::Protocol::SC_SPAWN_PLAYER>(Arena*);
-template<> GAMENET_API ::Protocol::SC_START_FIELD_LOADING* Arena::CreateMaybeMessage<::Protocol::SC_START_FIELD_LOADING>(Arena*);
+template<> ::Protocol::CS_FIELD_LOADING_COMPLETE* Arena::CreateMaybeMessage<::Protocol::CS_FIELD_LOADING_COMPLETE>(Arena*);
+template<> ::Protocol::CS_REQUEST_MOVE* Arena::CreateMaybeMessage<::Protocol::CS_REQUEST_MOVE>(Arena*);
+template<> ::Protocol::CS_REQ_ENTER_GAME* Arena::CreateMaybeMessage<::Protocol::CS_REQ_ENTER_GAME>(Arena*);
+template<> ::Protocol::CS_REQ_MOVE_FIELD* Arena::CreateMaybeMessage<::Protocol::CS_REQ_MOVE_FIELD>(Arena*);
+template<> ::Protocol::SC_DESPAWN_PLAYER* Arena::CreateMaybeMessage<::Protocol::SC_DESPAWN_PLAYER>(Arena*);
+template<> ::Protocol::SC_ENTER_FIELD* Arena::CreateMaybeMessage<::Protocol::SC_ENTER_FIELD>(Arena*);
+template<> ::Protocol::SC_ENTER_GAME_RESULT* Arena::CreateMaybeMessage<::Protocol::SC_ENTER_GAME_RESULT>(Arena*);
+template<> ::Protocol::SC_MOVE_FIELD_FAIL* Arena::CreateMaybeMessage<::Protocol::SC_MOVE_FIELD_FAIL>(Arena*);
+template<> ::Protocol::SC_SPAWN_PLAYER* Arena::CreateMaybeMessage<::Protocol::SC_SPAWN_PLAYER>(Arena*);
+template<> ::Protocol::SC_START_FIELD_LOADING* Arena::CreateMaybeMessage<::Protocol::SC_START_FIELD_LOADING>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace Protocol {
 
 // ===================================================================
 
-class GAMENET_API CS_REQ_ENTER_GAME final :
+class CS_REQ_ENTER_GAME final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.CS_REQ_ENTER_GAME) */ {
  public:
   inline CS_REQ_ENTER_GAME() : CS_REQ_ENTER_GAME(nullptr) {}
@@ -260,7 +252,7 @@ class GAMENET_API CS_REQ_ENTER_GAME final :
 };
 // -------------------------------------------------------------------
 
-class GAMENET_API SC_ENTER_GAME_RESULT final :
+class SC_ENTER_GAME_RESULT final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.SC_ENTER_GAME_RESULT) */ {
  public:
   inline SC_ENTER_GAME_RESULT() : SC_ENTER_GAME_RESULT(nullptr) {}
@@ -419,7 +411,7 @@ class GAMENET_API SC_ENTER_GAME_RESULT final :
 };
 // -------------------------------------------------------------------
 
-class GAMENET_API CS_REQ_MOVE_FIELD final :
+class CS_REQ_MOVE_FIELD final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.CS_REQ_MOVE_FIELD) */ {
  public:
   inline CS_REQ_MOVE_FIELD() : CS_REQ_MOVE_FIELD(nullptr) {}
@@ -567,7 +559,7 @@ class GAMENET_API CS_REQ_MOVE_FIELD final :
 };
 // -------------------------------------------------------------------
 
-class GAMENET_API SC_MOVE_FIELD_FAIL final :
+class SC_MOVE_FIELD_FAIL final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.SC_MOVE_FIELD_FAIL) */ {
  public:
   inline SC_MOVE_FIELD_FAIL() : SC_MOVE_FIELD_FAIL(nullptr) {}
@@ -715,7 +707,7 @@ class GAMENET_API SC_MOVE_FIELD_FAIL final :
 };
 // -------------------------------------------------------------------
 
-class GAMENET_API SC_START_FIELD_LOADING final :
+class SC_START_FIELD_LOADING final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.SC_START_FIELD_LOADING) */ {
  public:
   inline SC_START_FIELD_LOADING() : SC_START_FIELD_LOADING(nullptr) {}
@@ -883,7 +875,7 @@ class GAMENET_API SC_START_FIELD_LOADING final :
 };
 // -------------------------------------------------------------------
 
-class GAMENET_API CS_FIELD_LOADING_COMPLETE final :
+class CS_FIELD_LOADING_COMPLETE final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.CS_FIELD_LOADING_COMPLETE) */ {
  public:
   inline CS_FIELD_LOADING_COMPLETE() : CS_FIELD_LOADING_COMPLETE(nullptr) {}
@@ -1031,7 +1023,7 @@ class GAMENET_API CS_FIELD_LOADING_COMPLETE final :
 };
 // -------------------------------------------------------------------
 
-class GAMENET_API SC_ENTER_FIELD final :
+class SC_ENTER_FIELD final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.SC_ENTER_FIELD) */ {
  public:
   inline SC_ENTER_FIELD() : SC_ENTER_FIELD(nullptr) {}
@@ -1188,7 +1180,7 @@ class GAMENET_API SC_ENTER_FIELD final :
 };
 // -------------------------------------------------------------------
 
-class GAMENET_API SC_SPAWN_PLAYER final :
+class SC_SPAWN_PLAYER final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.SC_SPAWN_PLAYER) */ {
  public:
   inline SC_SPAWN_PLAYER() : SC_SPAWN_PLAYER(nullptr) {}
@@ -1345,7 +1337,7 @@ class GAMENET_API SC_SPAWN_PLAYER final :
 };
 // -------------------------------------------------------------------
 
-class GAMENET_API SC_DESPAWN_PLAYER final :
+class SC_DESPAWN_PLAYER final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.SC_DESPAWN_PLAYER) */ {
  public:
   inline SC_DESPAWN_PLAYER() : SC_DESPAWN_PLAYER(nullptr) {}
@@ -1507,7 +1499,7 @@ class GAMENET_API SC_DESPAWN_PLAYER final :
 };
 // -------------------------------------------------------------------
 
-class GAMENET_API CS_REQUEST_MOVE final :
+class CS_REQUEST_MOVE final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.CS_REQUEST_MOVE) */ {
  public:
   inline CS_REQUEST_MOVE() : CS_REQUEST_MOVE(nullptr) {}
@@ -1657,302 +1649,6 @@ class GAMENET_API CS_REQUEST_MOVE final :
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::Protocol::Vector3* pos_;
-    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_Protocol_2eproto;
-};
-// -------------------------------------------------------------------
-
-class GAMENET_API CS_PING final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.CS_PING) */ {
- public:
-  inline CS_PING() : CS_PING(nullptr) {}
-  ~CS_PING() override;
-  explicit PROTOBUF_CONSTEXPR CS_PING(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
-
-  CS_PING(const CS_PING& from);
-  CS_PING(CS_PING&& from) noexcept
-    : CS_PING() {
-    *this = ::std::move(from);
-  }
-
-  inline CS_PING& operator=(const CS_PING& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline CS_PING& operator=(CS_PING&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
-  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
-        && GetOwningArena() != nullptr
-  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
-    ) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const CS_PING& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const CS_PING* internal_default_instance() {
-    return reinterpret_cast<const CS_PING*>(
-               &_CS_PING_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    10;
-
-  friend void swap(CS_PING& a, CS_PING& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(CS_PING* other) {
-    if (other == this) return;
-  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
-   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
-  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
-      InternalSwap(other);
-    } else {
-      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(CS_PING* other) {
-    if (other == this) return;
-    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  CS_PING* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<CS_PING>(arena);
-  }
-  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const CS_PING& from);
-  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom( const CS_PING& from) {
-    CS_PING::MergeImpl(*this, from);
-  }
-  private:
-  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
-  public:
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
-  void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(CS_PING* other);
-
-  private:
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "Protocol.CS_PING";
-  }
-  protected:
-  explicit CS_PING(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
-  public:
-
-  static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kIdFieldNumber = 1,
-  };
-  // int32 id = 1;
-  void clear_id();
-  int32_t id() const;
-  void set_id(int32_t value);
-  private:
-  int32_t _internal_id() const;
-  void _internal_set_id(int32_t value);
-  public:
-
-  // @@protoc_insertion_point(class_scope:Protocol.CS_PING)
- private:
-  class _Internal;
-
-  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
-  typedef void InternalArenaConstructable_;
-  typedef void DestructorSkippable_;
-  struct Impl_ {
-    int32_t id_;
-    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_Protocol_2eproto;
-};
-// -------------------------------------------------------------------
-
-class GAMENET_API SC_PONG final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.SC_PONG) */ {
- public:
-  inline SC_PONG() : SC_PONG(nullptr) {}
-  ~SC_PONG() override;
-  explicit PROTOBUF_CONSTEXPR SC_PONG(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
-
-  SC_PONG(const SC_PONG& from);
-  SC_PONG(SC_PONG&& from) noexcept
-    : SC_PONG() {
-    *this = ::std::move(from);
-  }
-
-  inline SC_PONG& operator=(const SC_PONG& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline SC_PONG& operator=(SC_PONG&& from) noexcept {
-    if (this == &from) return *this;
-    if (GetOwningArena() == from.GetOwningArena()
-  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
-        && GetOwningArena() != nullptr
-  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
-    ) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const SC_PONG& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const SC_PONG* internal_default_instance() {
-    return reinterpret_cast<const SC_PONG*>(
-               &_SC_PONG_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    11;
-
-  friend void swap(SC_PONG& a, SC_PONG& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(SC_PONG* other) {
-    if (other == this) return;
-  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() != nullptr &&
-        GetOwningArena() == other->GetOwningArena()) {
-   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
-    if (GetOwningArena() == other->GetOwningArena()) {
-  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
-      InternalSwap(other);
-    } else {
-      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(SC_PONG* other) {
-    if (other == this) return;
-    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  SC_PONG* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<SC_PONG>(arena);
-  }
-  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const SC_PONG& from);
-  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom( const SC_PONG& from) {
-    SC_PONG::MergeImpl(*this, from);
-  }
-  private:
-  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
-  public:
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  uint8_t* _InternalSerialize(
-      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
-  void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(SC_PONG* other);
-
-  private:
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "Protocol.SC_PONG";
-  }
-  protected:
-  explicit SC_PONG(::PROTOBUF_NAMESPACE_ID::Arena* arena,
-                       bool is_message_owned = false);
-  public:
-
-  static const ClassData _class_data_;
-  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kIdFieldNumber = 1,
-  };
-  // int32 id = 1;
-  void clear_id();
-  int32_t id() const;
-  void set_id(int32_t value);
-  private:
-  int32_t _internal_id() const;
-  void _internal_set_id(int32_t value);
-  public:
-
-  // @@protoc_insertion_point(class_scope:Protocol.SC_PONG)
- private:
-  class _Internal;
-
-  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
-  typedef void InternalArenaConstructable_;
-  typedef void DestructorSkippable_;
-  struct Impl_ {
-    int32_t id_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -2504,61 +2200,9 @@ inline void CS_REQUEST_MOVE::set_allocated_pos(::Protocol::Vector3* pos) {
   // @@protoc_insertion_point(field_set_allocated:Protocol.CS_REQUEST_MOVE.pos)
 }
 
-// -------------------------------------------------------------------
-
-// CS_PING
-
-// int32 id = 1;
-inline void CS_PING::clear_id() {
-  _impl_.id_ = 0;
-}
-inline int32_t CS_PING::_internal_id() const {
-  return _impl_.id_;
-}
-inline int32_t CS_PING::id() const {
-  // @@protoc_insertion_point(field_get:Protocol.CS_PING.id)
-  return _internal_id();
-}
-inline void CS_PING::_internal_set_id(int32_t value) {
-  
-  _impl_.id_ = value;
-}
-inline void CS_PING::set_id(int32_t value) {
-  _internal_set_id(value);
-  // @@protoc_insertion_point(field_set:Protocol.CS_PING.id)
-}
-
-// -------------------------------------------------------------------
-
-// SC_PONG
-
-// int32 id = 1;
-inline void SC_PONG::clear_id() {
-  _impl_.id_ = 0;
-}
-inline int32_t SC_PONG::_internal_id() const {
-  return _impl_.id_;
-}
-inline int32_t SC_PONG::id() const {
-  // @@protoc_insertion_point(field_get:Protocol.SC_PONG.id)
-  return _internal_id();
-}
-inline void SC_PONG::_internal_set_id(int32_t value) {
-  
-  _impl_.id_ = value;
-}
-inline void SC_PONG::set_id(int32_t value) {
-  _internal_set_id(value);
-  // @@protoc_insertion_point(field_set:Protocol.SC_PONG.id)
-}
-
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
-// -------------------------------------------------------------------
-
-// -------------------------------------------------------------------
-
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

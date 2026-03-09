@@ -1,17 +1,18 @@
 ﻿#pragma once
 #include <cmath>
 #include "Struct.pb.h"
+#include "nlohmann/json.hpp"
 
 struct Vector3
 {
 public:
-	double x;
-	double y;
-	double z;
+	float x;
+	float y;
+	float z;
 
 public:
 	Vector3() : Vector3(0, 0, 0) {}
-	Vector3(double x, double y, double z) : x(x), y(y), z(z) {}
+	Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
 	Vector3(const Protocol::Vector3& vec) : Vector3(vec.x(), vec.y(), vec.z()) {}
 
 	Protocol::Vector3 ToProto() const
@@ -28,24 +29,24 @@ public:
 public:
 	Vector3 operator+(const Vector3& other) const { return Vector3(x + other.x, y + other.y, z + other.z); }
 	Vector3 operator-(const Vector3& other) const { return Vector3(x - other.x, y - other.y, z - other.z); }
-	Vector3 operator*(double scalar) const { return Vector3(x * scalar, y * scalar, z * scalar); }
-	Vector3 operator/(double scalar) const { return Vector3(x / scalar, y / scalar, z / scalar); }
+	Vector3 operator*(float scalar) const { return Vector3(x * scalar, y * scalar, z * scalar); }
+	Vector3 operator/(float scalar) const { return Vector3(x / scalar, y / scalar, z / scalar); }
 
 	bool operator==(const Vector3& other) const { return x == other.x && y == other.y && z == other.z; }
 	bool operator!=(const Vector3& other) const { return !(*this == other); }
 
 	Vector3& operator+=(const Vector3& other) { x += other.x; y += other.y; z += other.z; return *this; }
 	Vector3& operator-=(const Vector3& other) { x -= other.x; y -= other.y; z -= other.z; return *this; }
-	Vector3& operator*=(double scalar) { x *= scalar; y *= scalar; z *= scalar; return *this; }
+	Vector3& operator*=(float scalar) { x *= scalar; y *= scalar; z *= scalar; return *this; }
 
 public:
-	double LengthSquared() const { return x * x + y * y + z * z; }
-	double Length() const { return std::sqrt(LengthSquared()); }
+	float LengthSquared() const { return x * x + y * y + z * z; }
+	float Length() const { return std::sqrt(LengthSquared()); }
 
 	void Normalize()
 	{
-		double len = Length();
-		if (len < 0.000001) return;
+		float len = Length();
+		if (len < 0.000001f) return;
 		x /= len; y /= len; z /= len;
 	}
 
@@ -56,7 +57,7 @@ public:
 		return v;
 	}
 
-	double Dot(const Vector3& other) const { return x * other.x + y * other.y + z * other.z; }
+	float Dot(const Vector3& other) const { return x * other.x + y * other.y + z * other.z; }
 	Vector3 Cross(const Vector3& other) const
 	{
 		return Vector3(
@@ -66,10 +67,17 @@ public:
 		);
 	}
 
-	static double Dist(const Vector3& v1, const Vector3& v2) { return (v1 - v2).Length(); }
-	static double Dist2D(const Vector3& v1, const Vector3& v2)
+	static float Dist(const Vector3& v1, const Vector3& v2) { return (v1 - v2).Length(); }
+	static float Dist2D(const Vector3& v1, const Vector3& v2)
 	{
 		return std::sqrt((v1.x - v2.x) * (v1.x - v2.x) + (v1.y - v2.y) * (v1.y - v2.y));
 	}
-	static double DistSquared(const Vector3& v1, const Vector3& v2) { return (v1 - v2).LengthSquared(); }
+	static float DistSquared(const Vector3& v1, const Vector3& v2) { return (v1 - v2).LengthSquared(); }
 };
+
+inline void from_json(const nlohmann::json& j, Vector3& v)
+{
+	j.at("X").get_to(v.x);
+	j.at("Y").get_to(v.y);
+	j.at("Z").get_to(v.z);
+}

@@ -1,13 +1,13 @@
 ﻿#pragma once
 
+#include <filesystem>
+
 #include "DetourNavMesh.h"
-#include "DetourAlloc.h" 
-#include "DetourNavMeshQuery.h"
 
 class NavMeshLoader
 {
 public:
-    static dtNavMesh* LoadNavMeshFromBin(const char* FilePath);
+    static dtNavMesh* LoadNavMeshFromBin(const std::filesystem::path& path);
 
 private:
     static constexpr int NAVMESHSET_MAGIC = 'M' << 24 | 'S' << 16 | 'E' << 8 | 'T'; //'MSET';

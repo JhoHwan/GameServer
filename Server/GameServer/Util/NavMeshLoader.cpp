@@ -6,37 +6,32 @@
 
 #include "LogManager.h"
 
-dtNavMesh* NavMeshLoader::LoadNavMeshFromBin(const char* path)
+dtNavMesh* NavMeshLoader::LoadNavMeshFromBin(const std::filesystem::path& path)
 {
-    LOG_DEBUG("[NavMesh] Trying to load NavMesh from: {}", path);
+    LOG_DEBUG("[NavMesh] Trying to load NavMesh from: {}", path.filename().string());
 
-    std::FILE* fp = std::fopen(path, "rb");
-    if (!fp) 
+    std::ifstream file(path, std::ios::binary);
+    if (!file.is_open()) 
     {
-        LOG_ERROR("[NavMesh] Failed to open file: {}", path);
+        LOG_ERROR("[NavMesh] Failed to open file: {}", path.string());
         return nullptr;
     }
 
     // Read header.
     NavMeshSetHeader header{};
-    size_t sizenum = sizeof(NavMeshSetHeader);
-    size_t readLen = std::fread(&header, sizenum, 1, fp);
-    if (readLen != 1)
+    if (!file.read(reinterpret_cast<char*>(&header), sizeof(NavMeshSetHeader)))
     {
         LOG_ERROR("[NavMesh] Failed to read NavMeshSetHeader.");
-        std::fclose(fp);
         return nullptr;
     }
     if (header.magic != NAVMESHSET_MAGIC)
     {
         LOG_ERROR("[NavMesh] Magic number mismatch. Expected: {}, Got: {}", NAVMESHSET_MAGIC, header.magic);
-        std::fclose(fp);
         return nullptr;
     }
     if (header.version != NAVMESHSET_VERSION)
     {
         LOG_ERROR("[NavMesh] Version mismatch. Expected: {}, Got: {}", NAVMESHSET_VERSION, header.version);
-        std::fclose(fp);
         return nullptr;
     }
 
@@ -46,7 +41,6 @@ dtNavMesh* NavMeshLoader::LoadNavMeshFromBin(const char* path)
     if (!mesh)
     {
         LOG_ERROR("[NavMesh] Failed to allocate dtNavMesh.");
-        std::fclose(fp);
         return nullptr;
     }
 
@@ -58,7 +52,6 @@ dtNavMesh* NavMeshLoader::LoadNavMeshFromBin(const char* path)
         LOG_ERROR(" - tileWidth: {}, tileHeight: {}", header.params.tileWidth, header.params.tileHeight);
         LOG_ERROR(" - maxTiles: {}, maxPolys: {}", header.params.maxTiles, header.params.maxPolys);
         dtFreeNavMesh(mesh);
-        std::fclose(fp);
         return nullptr;
     }
 
@@ -67,12 +60,10 @@ dtNavMesh* NavMeshLoader::LoadNavMeshFromBin(const char* path)
     for (int i = 0; i < header.numTiles; ++i)
     {
         NavMeshTileHeader tileHeader{};
-        readLen = std::fread(&tileHeader, sizeof(tileHeader), 1, fp);
-        if (readLen != 1)
+        if (!file.read(reinterpret_cast<char*>(&tileHeader), sizeof(tileHeader)))
         {
             LOG_ERROR("[NavMesh] Failed to read NavMeshTileHeader for tile index {}", i);
             dtFreeNavMesh(mesh);
-            std::fclose(fp);
             return nullptr;
         }
 
@@ -89,13 +80,11 @@ dtNavMesh* NavMeshLoader::LoadNavMeshFromBin(const char* path)
             break;
         }
         std::memset(data, 0, tileHeader.dataSize);
-        readLen = fread(data, tileHeader.dataSize, 1, fp);
-        if (readLen != 1)
+        if (!file.read(reinterpret_cast<char*>(data), tileHeader.dataSize))
         {
             LOG_ERROR("[NavMesh] Failed to read tile data for tile index {}", i);
             dtFree(data);
             dtFreeNavMesh(mesh);
-            fclose(fp);
             return nullptr;
         }
 
@@ -109,9 +98,8 @@ dtNavMesh* NavMeshLoader::LoadNavMeshFromBin(const char* path)
         successTiles++;
     }
 
-    std::fclose(fp);
+    LOG_DEBUG("[NavMesh] Successfully loaded {} NavMesh. Loaded tiles: {}/{}", path.filename().string(), successTiles, header.numTiles);
 
-    LOG_DEBUG("[NavMesh] Successfully loaded NavMesh. Loaded tiles: {}/{}", successTiles, header.numTiles);
-
+    file.close();
     return mesh;
 }

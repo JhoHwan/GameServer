@@ -52,8 +52,9 @@ else()
     set(PROTOBUF_LIB "${CMAKE_CURRENT_SOURCE_DIR}/../../ThirdParty/Protobuf/Lib/libprotobuf.a")
 endif()
 
-# GameServer라는 이름의 실행 파일(.exe) 만들기
+
 add_executable(GameServer ${GAME_SOURCES})
+
 
 # GameServer 전용 pch.h 설정
 #target_precompile_headers(GameServer PRIVATE pch.h)

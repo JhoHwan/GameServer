@@ -27,11 +27,11 @@ public:
 	TransformComponent(CreateKey key, std::weak_ptr<GameObject> owner) : Component(key, owner) {}
 
 	const Vector3& GetPos() const { return _position; }
-	double GetYaw() const { return _yaw; }
+	float GetYaw() const { return _yaw; }
 
 	void SetPos(const Vector3& netPos) {_position = netPos; };
 
 private:
 	Vector3 _position;
-	double _yaw = 0;
+	float _yaw = 0;
 };
