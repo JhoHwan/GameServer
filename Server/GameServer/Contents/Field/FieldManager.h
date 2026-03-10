@@ -13,7 +13,7 @@ public:
     void Init();
     void Load();
 
-    void Create(uint64 fieldId);
+    void Create(int32 fieldId);
     void Destroy(uint64 fieldId);
 
     shared_ptr<class Field> GetField(uint16 fieldId);

@@ -33,8 +33,7 @@ public:
 		static atomic<uint64> objectId{0};
 		std::shared_ptr<T> newObject{ std::make_shared<T>(std::forward<Args>(args)...) };
 		newObject->Init();
-		newObject->SetId(objectId);
-		objectId.fetch_add(1);
+		newObject->SetId(objectId.fetch_add(1));
 
 		return newObject;
 	}

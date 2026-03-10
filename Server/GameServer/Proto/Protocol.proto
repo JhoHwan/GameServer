@@ -29,7 +29,6 @@ message SC_MOVE_FIELD_FAIL
 message SC_START_FIELD_LOADING
 {
     uint32 target_map_id = 1;
-    Vector3 start_pos = 2;
 }
 
 message CS_FIELD_LOADING_COMPLETE

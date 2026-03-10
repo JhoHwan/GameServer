@@ -34,14 +34,18 @@ void FieldManager::Load()
     }
 }
 
-void FieldManager::Create(uint64 fieldId)
+void FieldManager::Create(int32 fieldId)
 {
+    static int32 instance = 0;
     {
         WRITE_LOCK;
         auto fieldIt = _fieldDatas.find(fieldId);
         if (fieldIt == _fieldDatas.end() || fieldIt->second == nullptr) return;
-        auto field = fieldIt->second;
+        auto fieldData = fieldIt->second;
 
+        //uint64 id = (fieldId << 32) | instance;
+
+        _fields[fieldId] = make_shared<Field>(fieldId, fieldData.get());
         _fields[fieldId]->Init();
     }
 

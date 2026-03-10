@@ -42,7 +42,8 @@ bool Handle_CS_FIELD_LOADING_COMPLETE(SessionRef& session, Protocol::CS_FIELD_LO
         return false;
     }
 
-    auto field = GFieldManager.GetField(1);
+    // TODO : 하드 코딩 됨
+    auto field = GFieldManager.GetField(0);
     if(field) field->EnterPlayer(player);
 
     return true;

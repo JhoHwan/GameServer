@@ -77,8 +77,7 @@ struct SC_MOVE_FIELD_FAILDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 SC_MOVE_FIELD_FAILDefaultTypeInternal _SC_MOVE_FIELD_FAIL_default_instance_;
 PROTOBUF_CONSTEXPR SC_START_FIELD_LOADING::SC_START_FIELD_LOADING(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.start_pos_)*/nullptr
-  , /*decltype(_impl_.target_map_id_)*/0u
+    /*decltype(_impl_.target_map_id_)*/0u
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct SC_START_FIELD_LOADINGDefaultTypeInternal {
   PROTOBUF_CONSTEXPR SC_START_FIELD_LOADINGDefaultTypeInternal()
@@ -240,7 +239,6 @@ const uint32_t TableStruct_Protocol_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
   PROTOBUF_FIELD_OFFSET(::Protocol::SC_START_FIELD_LOADING, _impl_.target_map_id_),
-  PROTOBUF_FIELD_OFFSET(::Protocol::SC_START_FIELD_LOADING, _impl_.start_pos_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::Protocol::CS_FIELD_LOADING_COMPLETE, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -307,14 +305,14 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 16, -1, -1, sizeof(::Protocol::CS_REQ_MOVE_FIELD)},
   { 23, -1, -1, sizeof(::Protocol::SC_MOVE_FIELD_FAIL)},
   { 30, -1, -1, sizeof(::Protocol::SC_START_FIELD_LOADING)},
-  { 38, -1, -1, sizeof(::Protocol::CS_FIELD_LOADING_COMPLETE)},
-  { 45, -1, -1, sizeof(::Protocol::SC_ENTER_FIELD)},
-  { 52, -1, -1, sizeof(::Protocol::SC_SPAWN_PLAYER)},
-  { 59, -1, -1, sizeof(::Protocol::SC_DESPAWN_PLAYER)},
-  { 66, -1, -1, sizeof(::Protocol::CS_REQUEST_MOVE)},
-  { 73, -1, -1, sizeof(::Protocol::SC_MOVE_PATH)},
-  { 82, -1, -1, sizeof(::Protocol::CS_TIME_SYNC)},
-  { 89, -1, -1, sizeof(::Protocol::SC_TIME_SYNC)},
+  { 37, -1, -1, sizeof(::Protocol::CS_FIELD_LOADING_COMPLETE)},
+  { 44, -1, -1, sizeof(::Protocol::SC_ENTER_FIELD)},
+  { 51, -1, -1, sizeof(::Protocol::SC_SPAWN_PLAYER)},
+  { 58, -1, -1, sizeof(::Protocol::SC_DESPAWN_PLAYER)},
+  { 65, -1, -1, sizeof(::Protocol::CS_REQUEST_MOVE)},
+  { 72, -1, -1, sizeof(::Protocol::SC_MOVE_PATH)},
+  { 81, -1, -1, sizeof(::Protocol::CS_TIME_SYNC)},
+  { 88, -1, -1, sizeof(::Protocol::SC_TIME_SYNC)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -339,28 +337,27 @@ const char descriptor_table_protodef_Protocol_2eproto[] PROTOBUF_SECTION_VARIABL
   "\n\005token\030\002 \001(\005\";\n\024SC_ENTER_GAME_RESULT\022\017\n"
   "\007success\030\001 \001(\010\022\022\n\nerror_code\030\002 \001(\005\"#\n\021CS"
   "_REQ_MOVE_FIELD\022\016\n\006map_id\030\001 \001(\r\"(\n\022SC_MO"
-  "VE_FIELD_FAIL\022\022\n\nerror_code\030\001 \001(\005\"U\n\026SC_"
+  "VE_FIELD_FAIL\022\022\n\nerror_code\030\001 \001(\005\"/\n\026SC_"
   "START_FIELD_LOADING\022\025\n\rtarget_map_id\030\001 \001"
-  "(\r\022$\n\tstart_pos\030\002 \001(\0132\021.Protocol.Vector3"
-  "\"/\n\031CS_FIELD_LOADING_COMPLETE\022\022\n\nis_succ"
-  "ess\030\001 \001(\010\"7\n\016SC_ENTER_FIELD\022%\n\007my_info\030\001"
-  " \001(\0132\024.Protocol.PlayerInfo\"5\n\017SC_SPAWN_P"
-  "LAYER\022\"\n\004info\030\001 \003(\0132\024.Protocol.PlayerInf"
-  "o\"&\n\021SC_DESPAWN_PLAYER\022\021\n\tplayer_id\030\001 \003("
-  "\004\"1\n\017CS_REQUEST_MOVE\022\036\n\003pos\030\001 \001(\0132\021.Prot"
-  "ocol.Vector3\"b\n\014SC_MOVE_PATH\022\021\n\tobject_i"
-  "d\030\001 \001(\004\022\031\n\021start_server_tick\030\002 \001(\004\022$\n\twa"
-  "ypoints\030\003 \003(\0132\021.Protocol.Vector3\"#\n\014CS_T"
-  "IME_SYNC\022\023\n\013client_tick\030\001 \001(\004\"8\n\014SC_TIME"
-  "_SYNC\022\023\n\013client_tick\030\001 \001(\004\022\023\n\013server_tic"
-  "k\030\002 \001(\004b\006proto3"
+  "(\r\"/\n\031CS_FIELD_LOADING_COMPLETE\022\022\n\nis_su"
+  "ccess\030\001 \001(\010\"7\n\016SC_ENTER_FIELD\022%\n\007my_info"
+  "\030\001 \001(\0132\024.Protocol.PlayerInfo\"5\n\017SC_SPAWN"
+  "_PLAYER\022\"\n\004info\030\001 \003(\0132\024.Protocol.PlayerI"
+  "nfo\"&\n\021SC_DESPAWN_PLAYER\022\021\n\tplayer_id\030\001 "
+  "\003(\004\"1\n\017CS_REQUEST_MOVE\022\036\n\003pos\030\001 \001(\0132\021.Pr"
+  "otocol.Vector3\"b\n\014SC_MOVE_PATH\022\021\n\tobject"
+  "_id\030\001 \001(\004\022\031\n\021start_server_tick\030\002 \001(\004\022$\n\t"
+  "waypoints\030\003 \003(\0132\021.Protocol.Vector3\"#\n\014CS"
+  "_TIME_SYNC\022\023\n\013client_tick\030\001 \001(\004\"8\n\014SC_TI"
+  "ME_SYNC\022\023\n\013client_tick\030\001 \001(\004\022\023\n\013server_t"
+  "ick\030\002 \001(\004b\006proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_Protocol_2eproto_deps[1] = {
   &::descriptor_table_Struct_2eproto,
 };
 static ::_pbi::once_flag descriptor_table_Protocol_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_Protocol_2eproto = {
-    false, false, 775, descriptor_table_protodef_Protocol_2eproto,
+    false, false, 737, descriptor_table_protodef_Protocol_2eproto,
     "Protocol.proto",
     &descriptor_table_Protocol_2eproto_once, descriptor_table_Protocol_2eproto_deps, 1, 13,
     schemas, file_default_instances, TableStruct_Protocol_2eproto::offsets,
@@ -1157,19 +1154,8 @@ void SC_MOVE_FIELD_FAIL::InternalSwap(SC_MOVE_FIELD_FAIL* other) {
 
 class SC_START_FIELD_LOADING::_Internal {
  public:
-  static const ::Protocol::Vector3& start_pos(const SC_START_FIELD_LOADING* msg);
 };
 
-const ::Protocol::Vector3&
-SC_START_FIELD_LOADING::_Internal::start_pos(const SC_START_FIELD_LOADING* msg) {
-  return *msg->_impl_.start_pos_;
-}
-void SC_START_FIELD_LOADING::clear_start_pos() {
-  if (GetArenaForAllocation() == nullptr && _impl_.start_pos_ != nullptr) {
-    delete _impl_.start_pos_;
-  }
-  _impl_.start_pos_ = nullptr;
-}
 SC_START_FIELD_LOADING::SC_START_FIELD_LOADING(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
@@ -1180,14 +1166,10 @@ SC_START_FIELD_LOADING::SC_START_FIELD_LOADING(const SC_START_FIELD_LOADING& fro
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   SC_START_FIELD_LOADING* const _this = this; (void)_this;
   new (&_impl_) Impl_{
-      decltype(_impl_.start_pos_){nullptr}
-    , decltype(_impl_.target_map_id_){}
+      decltype(_impl_.target_map_id_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  if (from._internal_has_start_pos()) {
-    _this->_impl_.start_pos_ = new ::Protocol::Vector3(*from._impl_.start_pos_);
-  }
   _this->_impl_.target_map_id_ = from._impl_.target_map_id_;
   // @@protoc_insertion_point(copy_constructor:Protocol.SC_START_FIELD_LOADING)
 }
@@ -1197,8 +1179,7 @@ inline void SC_START_FIELD_LOADING::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.start_pos_){nullptr}
-    , decltype(_impl_.target_map_id_){0u}
+      decltype(_impl_.target_map_id_){0u}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -1214,7 +1195,6 @@ SC_START_FIELD_LOADING::~SC_START_FIELD_LOADING() {
 
 inline void SC_START_FIELD_LOADING::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete _impl_.start_pos_;
 }
 
 void SC_START_FIELD_LOADING::SetCachedSize(int size) const {
@@ -1227,10 +1207,6 @@ void SC_START_FIELD_LOADING::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaForAllocation() == nullptr && _impl_.start_pos_ != nullptr) {
-    delete _impl_.start_pos_;
-  }
-  _impl_.start_pos_ = nullptr;
   _impl_.target_map_id_ = 0u;
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -1245,14 +1221,6 @@ const char* SC_START_FIELD_LOADING::_InternalParse(const char* ptr, ::_pbi::Pars
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
           _impl_.target_map_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
-          CHK_(ptr);
-        } else
-          goto handle_unusual;
-        continue;
-      // .Protocol.Vector3 start_pos = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
-          ptr = ctx->ParseMessage(_internal_mutable_start_pos(), ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -1292,13 +1260,6 @@ uint8_t* SC_START_FIELD_LOADING::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteUInt32ToArray(1, this->_internal_target_map_id(), target);
   }
 
-  // .Protocol.Vector3 start_pos = 2;
-  if (this->_internal_has_start_pos()) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(2, _Internal::start_pos(this),
-        _Internal::start_pos(this).GetCachedSize(), target, stream);
-  }
-
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -1314,13 +1275,6 @@ size_t SC_START_FIELD_LOADING::ByteSizeLong() const {
   uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
-
-  // .Protocol.Vector3 start_pos = 2;
-  if (this->_internal_has_start_pos()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *_impl_.start_pos_);
-  }
 
   // uint32 target_map_id = 1;
   if (this->_internal_target_map_id() != 0) {
@@ -1345,10 +1299,6 @@ void SC_START_FIELD_LOADING::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg,
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from._internal_has_start_pos()) {
-    _this->_internal_mutable_start_pos()->::Protocol::Vector3::MergeFrom(
-        from._internal_start_pos());
-  }
   if (from._internal_target_map_id() != 0) {
     _this->_internal_set_target_map_id(from._internal_target_map_id());
   }
@@ -1369,12 +1319,7 @@ bool SC_START_FIELD_LOADING::IsInitialized() const {
 void SC_START_FIELD_LOADING::InternalSwap(SC_START_FIELD_LOADING* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(SC_START_FIELD_LOADING, _impl_.target_map_id_)
-      + sizeof(SC_START_FIELD_LOADING::_impl_.target_map_id_)
-      - PROTOBUF_FIELD_OFFSET(SC_START_FIELD_LOADING, _impl_.start_pos_)>(
-          reinterpret_cast<char*>(&_impl_.start_pos_),
-          reinterpret_cast<char*>(&other->_impl_.start_pos_));
+  swap(_impl_.target_map_id_, other->_impl_.target_map_id_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata SC_START_FIELD_LOADING::GetMetadata() const {

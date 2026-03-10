@@ -28,7 +28,13 @@ void GameSession::OnDisconnected()
 
 	LOG_INFO("Client DisConnected : {}", GetAddress().GetIpAddress());
 
-	_playerRef->GetField()->LeavePlayer(_playerRef);
+	if(_playerRef)
+	{
+		if(_playerRef->GetField())
+		{
+			_playerRef->GetField()->LeavePlayer(_playerRef);
+		}
+	}
 	_playerRef.reset();
 }
 

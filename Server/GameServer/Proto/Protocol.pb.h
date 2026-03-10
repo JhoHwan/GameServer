@@ -840,27 +840,8 @@ class SC_START_FIELD_LOADING final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kStartPosFieldNumber = 2,
     kTargetMapIdFieldNumber = 1,
   };
-  // .Protocol.Vector3 start_pos = 2;
-  bool has_start_pos() const;
-  private:
-  bool _internal_has_start_pos() const;
-  public:
-  void clear_start_pos();
-  const ::Protocol::Vector3& start_pos() const;
-  PROTOBUF_NODISCARD ::Protocol::Vector3* release_start_pos();
-  ::Protocol::Vector3* mutable_start_pos();
-  void set_allocated_start_pos(::Protocol::Vector3* start_pos);
-  private:
-  const ::Protocol::Vector3& _internal_start_pos() const;
-  ::Protocol::Vector3* _internal_mutable_start_pos();
-  public:
-  void unsafe_arena_set_allocated_start_pos(
-      ::Protocol::Vector3* start_pos);
-  ::Protocol::Vector3* unsafe_arena_release_start_pos();
-
   // uint32 target_map_id = 1;
   void clear_target_map_id();
   uint32_t target_map_id() const;
@@ -878,7 +859,6 @@ class SC_START_FIELD_LOADING final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::Protocol::Vector3* start_pos_;
     uint32_t target_map_id_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -2317,91 +2297,6 @@ inline void SC_START_FIELD_LOADING::_internal_set_target_map_id(uint32_t value) 
 inline void SC_START_FIELD_LOADING::set_target_map_id(uint32_t value) {
   _internal_set_target_map_id(value);
   // @@protoc_insertion_point(field_set:Protocol.SC_START_FIELD_LOADING.target_map_id)
-}
-
-// .Protocol.Vector3 start_pos = 2;
-inline bool SC_START_FIELD_LOADING::_internal_has_start_pos() const {
-  return this != internal_default_instance() && _impl_.start_pos_ != nullptr;
-}
-inline bool SC_START_FIELD_LOADING::has_start_pos() const {
-  return _internal_has_start_pos();
-}
-inline const ::Protocol::Vector3& SC_START_FIELD_LOADING::_internal_start_pos() const {
-  const ::Protocol::Vector3* p = _impl_.start_pos_;
-  return p != nullptr ? *p : reinterpret_cast<const ::Protocol::Vector3&>(
-      ::Protocol::_Vector3_default_instance_);
-}
-inline const ::Protocol::Vector3& SC_START_FIELD_LOADING::start_pos() const {
-  // @@protoc_insertion_point(field_get:Protocol.SC_START_FIELD_LOADING.start_pos)
-  return _internal_start_pos();
-}
-inline void SC_START_FIELD_LOADING::unsafe_arena_set_allocated_start_pos(
-    ::Protocol::Vector3* start_pos) {
-  if (GetArenaForAllocation() == nullptr) {
-    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.start_pos_);
-  }
-  _impl_.start_pos_ = start_pos;
-  if (start_pos) {
-    
-  } else {
-    
-  }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:Protocol.SC_START_FIELD_LOADING.start_pos)
-}
-inline ::Protocol::Vector3* SC_START_FIELD_LOADING::release_start_pos() {
-  
-  ::Protocol::Vector3* temp = _impl_.start_pos_;
-  _impl_.start_pos_ = nullptr;
-#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
-  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
-  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
-#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
-    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  }
-#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
-  return temp;
-}
-inline ::Protocol::Vector3* SC_START_FIELD_LOADING::unsafe_arena_release_start_pos() {
-  // @@protoc_insertion_point(field_release:Protocol.SC_START_FIELD_LOADING.start_pos)
-  
-  ::Protocol::Vector3* temp = _impl_.start_pos_;
-  _impl_.start_pos_ = nullptr;
-  return temp;
-}
-inline ::Protocol::Vector3* SC_START_FIELD_LOADING::_internal_mutable_start_pos() {
-  
-  if (_impl_.start_pos_ == nullptr) {
-    auto* p = CreateMaybeMessage<::Protocol::Vector3>(GetArenaForAllocation());
-    _impl_.start_pos_ = p;
-  }
-  return _impl_.start_pos_;
-}
-inline ::Protocol::Vector3* SC_START_FIELD_LOADING::mutable_start_pos() {
-  ::Protocol::Vector3* _msg = _internal_mutable_start_pos();
-  // @@protoc_insertion_point(field_mutable:Protocol.SC_START_FIELD_LOADING.start_pos)
-  return _msg;
-}
-inline void SC_START_FIELD_LOADING::set_allocated_start_pos(::Protocol::Vector3* start_pos) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
-    delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.start_pos_);
-  }
-  if (start_pos) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
-        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(start_pos));
-    if (message_arena != submessage_arena) {
-      start_pos = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, start_pos, submessage_arena);
-    }
-    
-  } else {
-    
-  }
-  _impl_.start_pos_ = start_pos;
-  // @@protoc_insertion_point(field_set_allocated:Protocol.SC_START_FIELD_LOADING.start_pos)
 }
 
 // -------------------------------------------------------------------

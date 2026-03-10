@@ -72,3 +72,20 @@ target_include_directories(GameServer PRIVATE
 
 # Protobuf 정적 라이브러리 파일(.lib) 연결
 target_link_libraries(GameServer PRIVATE ${PROTOBUF_LIB})
+
+# 1. Resources 폴더 안의 모든 파일 목록을 싹 긁어옴
+# CONFIGURE_DEPENDS 옵션: 파일이 새로 생기거나 삭제되면 CMake가 알아서 재구성(Re-configure)되게 만듦
+file(GLOB_RECURSE RESOURCE_FILES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/Resources/*")
+
+# 2. 리소스 복사를 전담하는 가짜 타겟(Custom Target) 생성
+add_custom_target(CopyResources ALL
+        # 플랫폼(Windows/Linux) 상관없이 동작하는 내장 복사 명령어 사용
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_CURRENT_SOURCE_DIR}/Resources"
+        "${CMAKE_CURRENT_BINARY_DIR}/Resources"
+        DEPENDS ${RESOURCE_FILES} # 💡 핵심: 리소스 파일들의 타임스탬프(수정 시간)가 변하면 이 타겟을 다시 실행함
+        COMMENT "Syncing Resources directory..."
+)
+
+# 3. GameServer 타겟이 CopyResources 타겟에 의존(Dependency)하도록 연결
+add_dependencies(GameServer CopyResources)

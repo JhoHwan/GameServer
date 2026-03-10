@@ -3,6 +3,7 @@
 
 #include "GameObject.h"
 #include "JobQueue.h"
+#include "LogManager.h"
 
 class GameSession;
 
@@ -11,7 +12,7 @@ class PlayerCharacter : public GameObject, public AsyncActor
 public:
 	PlayerCharacter(weak_ptr<GameSession> session) : _sessionRef(std::move(session))
 	{
-
+		LOG_DEBUG("Player[{}] Created", ObjectId());
 	}
 	~PlayerCharacter() override;
 

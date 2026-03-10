@@ -25,8 +25,9 @@ void GameManager::ProcessEnterGame(std::weak_ptr<GameSession> session)
             auto player = GameObject::Create<PlayerCharacter>(session);
 
             Protocol::SC_START_FIELD_LOADING loadPacket;
+
+            // TODO : 플레이어 로딩 맵 아이디 하드코딩 됨
             loadPacket.set_target_map_id(0);
-            loadPacket.mutable_start_pos()->CopyFrom(Vector3::Zero().ToProto());
             session->Send(ServerPacketHandler::MakeSendBuffer(loadPacket));
             session->SetTimeOut(60000, "Map Loading");
         });

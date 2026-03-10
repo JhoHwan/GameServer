@@ -2,6 +2,7 @@
 #include "FieldData.h"
 #include "Util/NavMeshLoader.h"
 #include <filesystem>
+#include <nlohmann/json.hpp>
 
 namespace fs = std::filesystem;
 
@@ -14,8 +15,7 @@ FieldData::FieldData(nlohmann::json j)
     {
         for (const auto& item : j["PlayerStart"])
         {
-            Vector3 playerStart = item["Position"].get<Vector3>();
-            _playerStarts.push_back(std::move(playerStart));
+            _playerStarts.push_back(item["Position"].get<Vector3>());
         }
     }
 
@@ -23,8 +23,7 @@ FieldData::FieldData(nlohmann::json j)
     {
         for (const auto& item : j["FieldPortal"])
         {
-            Vector3 fieldPortal = item["Position"].get<Vector3>();
-            _fieldsPortals.push_back(std::move(fieldPortal));
+            _fieldsPortals.push_back(item["Position"].get<Vector3>());
         }
     }
 

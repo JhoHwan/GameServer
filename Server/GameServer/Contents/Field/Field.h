@@ -1,22 +1,26 @@
 ﻿#pragma once
 
+#include "FieldData.h"
 #include "Util/NavMeshLoader.h"
 #include "Util/Vector3.h"
 
 class Field;
 class FieldManager;
 class PlayerCharacter;
+class dtNavMeshQuery;
 
 
 class Field : public AsyncActor, public std::enable_shared_from_this<Field>
 {
 public:
-	Field(uint16 id, dtNavMesh* navMesh);
+
+	Field(uint64 id, const FieldData* fieldData);
+
 	~Field();
 
 	void Init();
 
-	void EnterPlayer(shared_ptr<PlayerCharacter> );
+	void EnterPlayer(weak_ptr<PlayerCharacter> );
 	void BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerCharacter>& except = nullptr);
 
 	void PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Protocol::Vector3& pos);
@@ -31,8 +35,12 @@ private:
 private:
 	std::unordered_set<shared_ptr<PlayerCharacter>> _players;
 
-	uint16 _id;
+	atomic<uint64> DestroyToken{0};
+
+	uint64 _id;
 	dtNavMesh* _navMesh;
-	class dtNavMeshQuery* _navQuery;
+	dtNavMeshQuery* _navQuery;
+
+	const FieldData* const _fieldData;
 };
 

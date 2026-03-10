@@ -12,7 +12,7 @@
 #include "Detour/Include/DetourNavMeshQuery.h"
 
 
-Field::Field(uint16 id, dtNavMesh* navMesh) : _id(id), _navMesh(navMesh)
+Field::Field(uint64 id, const FieldData* fieldData) : _navMesh(fieldData->NavMesh()), _id(id), _fieldData(fieldData)
 {
 	_navQuery = dtAllocNavMeshQuery();
 	dtStatus Status = _navQuery->init(_navMesh, 2048);
@@ -39,20 +39,25 @@ void Field::Init()
 	LJobTimer.Reserve(500, GetJobQueue(), job);
 }
 
-void Field::EnterPlayer(shared_ptr<PlayerCharacter> player)
+void Field::EnterPlayer(weak_ptr<PlayerCharacter> player)
 {
-	DoAsync([this, player = std::move(player)]()
+	DestroyToken.fetch_add(1);
+	DoAsync([self = shared_from_this(), playerWeak = std::move(player)]()
 	{
-		_players.insert(player);
-		player->Transform()->SetPos({6168.718262,-181.932266,150});
-		player->SetField(shared_from_this());
+		auto player = playerWeak.lock();
+		if(!player) return;
+
+		self->_players.insert(player);
+
+		player->Transform()->SetPos( self->_fieldData->PlayerStarts()[0]);
+		player->SetField(self);
 
 		{
 			Protocol::SC_ENTER_FIELD packet;
-		   player->GetObjectInfo(packet.mutable_my_info()->mutable_object_info());
-		   SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(packet);
-		   auto session = player->GetSession();
-		   if (session) session->Send(sendBuffer);
+			player->GetObjectInfo(packet.mutable_my_info()->mutable_object_info());
+			SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(packet);
+			auto session = player->GetSession();
+			if (session) session->Send(sendBuffer);
 		}
 
 		// 주변 유저에게 새로 들어온 플레이어 스폰
@@ -63,14 +68,14 @@ void Field::EnterPlayer(shared_ptr<PlayerCharacter> player)
 			player->GetObjectInfo(objInfo);
 
 			SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(packet);
-			BroadCast(sendBuffer, player);
+			self->BroadCast(sendBuffer, player);
 		}
 
 		// 새로 들어온 플레이어에게 주변 유저 스폰
 		{
 			Protocol::SC_SPAWN_PLAYER packet;
 			{
-				for (const auto& other : _players)
+				for (const auto& other : self->_players)
 				{
 					if (other == player) continue;
 					other->GetObjectInfo(packet.add_info()->mutable_object_info());
@@ -89,12 +94,12 @@ void Field::EnterPlayer(shared_ptr<PlayerCharacter> player)
 
 void Field::BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerCharacter>& except)
 {
-	DoAsync([this, sendBuffer = std::move(sendBuffer), except]()
+	DoAsync([self = shared_from_this(), sendBuffer = std::move(sendBuffer), except]()
 	{
 		vector<SessionRef> sessions;
-		sessions.reserve(_players.size());
+		sessions.reserve(self->_players.size());
 
-		for (auto& player : _players)
+		for (auto& player : self->_players)
 		{
 			if (except == player) continue;
 			auto session = player->GetSession();
@@ -110,23 +115,21 @@ void Field::BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerCharacter
 
 void Field::PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Protocol::Vector3& dest)
 {
-	DoAsync([this, player = std::move(player), dest]()
+	DoAsync([self = shared_from_this(), player = std::move(player), dest]()
 	{
 		auto playerRef = player.lock();
 		if(playerRef == nullptr) return;
-		if(_players.find(playerRef) == _players.end())
+		if(!self->_players.contains(playerRef))
 		{
 			LOG_ERROR("PlayerRequestMove Error");
 			return;
 		}
 
 		Vector3 startPos = playerRef->GetCurrentPosition(GetTickCount64());
-		std::swap(startPos.y, startPos.z);
 		Vector3 endPos(dest);
-		std::swap(endPos.y, endPos.z);
 
 		std::vector<Vector3> serverWaypoints;
-		FindPath(startPos, endPos, serverWaypoints);
+		self->FindPath(startPos, endPos, serverWaypoints);
 
 		Protocol::SC_MOVE_PATH pkt;
 		pkt.set_start_server_tick(GetTickCount64());
@@ -146,24 +149,26 @@ void Field::PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Protocol::
 		playerRef->SetMoveInfo(std::move(serverWaypoints), GetTickCount64(), 500.0f);
 
 		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
-		BroadCast(sendBuffer);
+		self->BroadCast(sendBuffer);
 	});
 }
 
 void Field::LeavePlayer(shared_ptr<PlayerCharacter> player, shared_ptr<Field> nextField)
 {
-	DoAsync([this, player = std::move(player), nextField = std::move(nextField)]() {
+	DoAsync([self = shared_from_this(), player = std::move(player), nextField = std::move(nextField)]() {
 		player->SetField(nullptr);
-		_players.erase(player);
+		self->_players.erase(player);
 
 		// TODO : 디스폰 패킷 전송
 
-		if(_players.empty())
+		if(self->_players.empty())
 		{
-			JobRef job = make_shared<Job>([fieldId = _id]() {
+			JobRef job = make_shared<Job>([self, fieldId = self->_id, Token = self->DestroyToken.load()]()
+			{
+				if(self->DestroyToken.load() != Token) return;
 				GFieldManager.Destroy(fieldId);
 			});
-			LJobTimer.Reserve(10000, GetJobQueue(), job);
+			LJobTimer.Reserve(10000, self->GetJobQueue(), job);
 		}
 
 		if(!nextField) return;
@@ -207,16 +212,13 @@ void Field::FindPath(const Vector3& startPos, const Vector3& endPos, OUT std::ve
 	dtPolyRef EndPolyRef = 0;
 	
 	// Convert Engine coordinates (cm) to Detour coordinates (m)
-	float startPt[3] { (float)startPos.x / 100.0f, (float)startPos.y / 100.0f, (float)startPos.z / 100.0f };
-	float endPt[3] = { (float)endPos.x / 100.0f, (float)endPos.y / 100.0f, (float)endPos.z / 100.0f };
+	float startPt[3] { (float)startPos.x / 100.0f, (float)startPos.z / 100.0f, (float)startPos.y / 100.0f };
+	float endPt[3] = { (float)endPos.x / 100.0f, (float)endPos.z / 100.0f, (float)endPos.y / 100.0f };
 
 	float StartNearestPt[3];
 	float EndNearestPt[3];
 
-	// (A) 시작점 근처의 폴리곤 찾기
 	_navQuery->findNearestPoly(startPt, extents, &filter, &StartPolyRef, StartNearestPt);
-
-	// (B) 도착점 근처의 폴리곤 찾기
 	_navQuery->findNearestPoly(endPt, extents, &filter, &EndPolyRef, EndNearestPt);
 
 	if (!StartPolyRef || !EndPolyRef)
