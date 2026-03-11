@@ -65,8 +65,7 @@ void Field::EnterPlayer(weak_ptr<PlayerCharacter> player)
 		{
 			Protocol::SC_SPAWN_PLAYER packet;
 			Protocol::PlayerInfo* playerInfo = packet.add_info();
-			Protocol::ObjectInfo* objInfo = playerInfo->mutable_object_info();
-			player->GetObjectInfo(objInfo);
+			player->GetObjectInfo(playerInfo->mutable_object_info());
 
 			SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(packet);
 			self->BroadCast(sendBuffer, player);
@@ -74,21 +73,46 @@ void Field::EnterPlayer(weak_ptr<PlayerCharacter> player)
 
 		// 새로 들어온 플레이어에게 주변 유저 스폰
 		{
+			if(self->_players.empty()) return;
 			Protocol::SC_SPAWN_PLAYER packet;
+			vector<Protocol::SC_MOVE_PATH> movePackets;
+			movePackets.reserve(self->_players.size());
+			for (const shared_ptr<PlayerCharacter>& other : self->_players)
 			{
-				for (const auto& other : self->_players)
+				if (other == player) continue;
+				other->GetObjectInfo(packet.add_info()->mutable_object_info());
+				if(other->IsMoving())
 				{
-					if (other == player) continue;
-					other->GetObjectInfo(packet.add_info()->mutable_object_info());
+					Protocol::SC_MOVE_PATH movePacket;
+					movePacket.set_start_server_tick(other->GetMoveStartTime());
+					movePacket.set_object_id(other->GetId());
+					const auto& waypoints = other->GetWaypoints();
+					for(const auto& waypoint : waypoints)
+					{
+						auto* newWayPoint = movePacket.add_waypoints();
+						newWayPoint->set_x(waypoint.x);
+						newWayPoint->set_y(waypoint.y);
+						newWayPoint->set_z(waypoint.z);
+					}
+					movePackets.push_back(std::move(movePacket));
 				}
 			}
 
-			if (packet.info_size() > 0)
+			if (packet.info_size() == 0) return;
+			auto session = player->GetSession();
+			if (!session) return;
+
 			{
 				SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(packet);
-				auto session = player->GetSession();
-				if (session) session->Send(sendBuffer);
+				session->Send(sendBuffer);
 			}
+
+			for(auto& movePacket : movePackets)
+			{
+				SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(movePacket);
+				session->Send(sendBuffer);
+			}
+
 		}
 	});
 }

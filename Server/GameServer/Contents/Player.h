@@ -16,6 +16,8 @@ public:
 public:
 	void Init() override;
 	void SetMoveInfo(vector<Vector3> waypoints, uint64 startTime, float speed);
+	const vector<Vector3>& GetWaypoints() const { return _moveWaypoints; }
+	const uint64& GetMoveStartTime() const { return _moveStartTime; }
 
 	Vector3 GetCurrentPosition(uint64 now) const;
 public:
