@@ -36,34 +36,34 @@ private:
 	static constexpr uint64 INSTANCE_MASK = 0x0000FFFFFFFFFFFFULL;
 	static constexpr uint64 SUB_ID_MASK = 0x0FFFULL;
 
-	static inline uint64 MakeID(uint16 objectTag, uint64 instanceID)
+	static uint64 MakeID(uint16 objectTag, uint64 instanceID)
 	{
 		return (static_cast<uint64>(objectTag) << OBJECT_TAG_SHIFT) | (instanceID & INSTANCE_MASK);
 	}
 
 public:
-	static uint16 GetTag(uint64 objectId)
+	uint16 GetTag()
 	{
-		return static_cast<uint16>(objectId >> OBJECT_TAG_SHIFT);
+		return static_cast<uint16>(GetId() >> OBJECT_TAG_SHIFT);
 	}
 
-	static EObjectType GetType(uint64 objectId)
+	EObjectType GetType()
 	{
-		return static_cast<EObjectType>(objectId >> 60);
+		return static_cast<EObjectType>(GetId() >> 60);
 	}
 
-	static uint64 GetInstanceID(uint64 objectId)
+	uint64 GetInstanceID()
 	{
-		return (objectId & INSTANCE_MASK);
+		return (GetId() & INSTANCE_MASK);
 	}
 
-	static uint16 GetSubID(uint64 objectId)
+	uint16 GetSubID()
 	{
-		return static_cast<uint16>((objectId >> OBJECT_TAG_SHIFT) & SUB_ID_MASK);
+		return static_cast<uint16>((GetId() >> OBJECT_TAG_SHIFT) & SUB_ID_MASK);
 	}
 
 protected:
-	static inline uint16 MakeTag(EObjectType objectType, uint16 subId)
+	static uint16 MakeTag(EObjectType objectType, uint16 subId)
 	{
 		return (static_cast<uint16>(objectType) << OBJECT_TYPE_SHIFT) | (subId & SUB_ID_MASK);
 	}

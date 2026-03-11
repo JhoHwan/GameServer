@@ -18,7 +18,7 @@ void PlayerCharacter::Init()
 {
 	GameObject::Init();
 
-	LOG_DEBUG(Default, "Player[{}] Created", GetInstanceID(GetId()));
+	LOG_DEBUG(Default, "Player[{}] Created", GetInstanceID());
 
 	auto session = GetSession();
 	auto player = static_pointer_cast<PlayerCharacter>(shared_from_this());
