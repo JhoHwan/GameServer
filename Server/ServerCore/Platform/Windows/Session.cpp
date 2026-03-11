@@ -44,7 +44,7 @@ void Session::Disconnect(const char* cause)
 	if (_connected.exchange(false) == false)
 		return;
 
-	LOG_DEBUG("Disconnect : {}", cause);
+	LOG_DEBUG(Default, "Disconnect : {}", cause);
 
 	RegisterDisconnect();
 }

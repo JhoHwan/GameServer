@@ -377,13 +377,13 @@ class ObjectInfo final :
       ::Protocol::Vector3* pos);
   ::Protocol::Vector3* unsafe_arena_release_pos();
 
-  // int32 id = 1;
+  // uint64 id = 1;
   void clear_id();
-  int32_t id() const;
-  void set_id(int32_t value);
+  uint64_t id() const;
+  void set_id(uint64_t value);
   private:
-  int32_t _internal_id() const;
-  void _internal_set_id(int32_t value);
+  uint64_t _internal_id() const;
+  void _internal_set_id(uint64_t value);
   public:
 
   // float yaw = 3;
@@ -404,7 +404,7 @@ class ObjectInfo final :
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::Protocol::Vector3* pos_;
-    int32_t id_;
+    uint64_t id_;
     float yaw_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -643,22 +643,22 @@ inline void Vector3::set_z(float value) {
 
 // ObjectInfo
 
-// int32 id = 1;
+// uint64 id = 1;
 inline void ObjectInfo::clear_id() {
-  _impl_.id_ = 0;
+  _impl_.id_ = uint64_t{0u};
 }
-inline int32_t ObjectInfo::_internal_id() const {
+inline uint64_t ObjectInfo::_internal_id() const {
   return _impl_.id_;
 }
-inline int32_t ObjectInfo::id() const {
+inline uint64_t ObjectInfo::id() const {
   // @@protoc_insertion_point(field_get:Protocol.ObjectInfo.id)
   return _internal_id();
 }
-inline void ObjectInfo::_internal_set_id(int32_t value) {
+inline void ObjectInfo::_internal_set_id(uint64_t value) {
   
   _impl_.id_ = value;
 }
-inline void ObjectInfo::set_id(int32_t value) {
+inline void ObjectInfo::set_id(uint64_t value) {
   _internal_set_id(value);
   // @@protoc_insertion_point(field_set:Protocol.ObjectInfo.id)
 }

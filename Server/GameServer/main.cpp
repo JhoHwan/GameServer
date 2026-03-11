@@ -23,9 +23,6 @@ std::atomic<bool> GIsRunning{true};
 void WorkerMain(uint32 id, const NetCoreRef& netCore)
 {
 	LThreadId = id;
-
-	LOG_INFO("Start Worker {}", id);
-
     while (GIsRunning)
     {
         // IOCP(GQCSEx) 처리
@@ -94,18 +91,21 @@ int main()
 		}, 
 		100);
 
-	LOG_INFO("=======Server Start========");
+	LOG_INFO(Default, "=======Server Start========");
 	if(!service->Start())
 	{
-		LogManager::Instance().WriteLog(ELogLevel::Info, "Service Start Failed");
+		LOG_INFO(Default, "Service Start Failed");
 		return 0;
 	}
 
+	int32 workerCount = 4; //std::thread::hardware_concurrency();
+
     vector<thread> threads;
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < workerCount; i++)
     {
         threads.emplace_back(WorkerMain, i+1, iocpCore);
     }
+	LOG_INFO(Thread, "Worker Thread {} Start", workerCount);
 
 	while(true)
 	{
@@ -113,7 +113,7 @@ int main()
 		cin >> command;
 	    if (command == "quit")
 	    {
-			LOG_INFO("=======Server Stop========");
+			LOG_INFO(Default, "=======Server Stop========");
 
 		    service->CloseService();
 
@@ -128,7 +128,7 @@ int main()
 	    	break;
 	    }
 
-		LogManager::Instance().WriteLog(ELogLevel::Info, std::move(command));
+		LOG_INFO(Command, "{}", command);
 
 	}
 

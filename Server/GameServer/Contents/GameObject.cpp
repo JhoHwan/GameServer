@@ -5,9 +5,7 @@
 
 GameObject::GameObject() 
 {
-	static uint64 id = 0;
-	_id = id;
-	id += 1;
+
 }
 
 GameObject::~GameObject()

@@ -6,10 +6,10 @@
 
 #include "concurrentqueue.h"
 
-#define LOG_INFO(Format, ...) LogManager::Instance().WriteLog(ELogLevel::Info, std::format(Format __VA_OPT__(,) __VA_ARGS__));
-#define LOG_DEBUG(Format, ...) LogManager::Instance().WriteLog(ELogLevel::Debug, std::format(Format __VA_OPT__(,) __VA_ARGS__));
-#define LOG_WARN(Format, ...) LogManager::Instance().WriteLog(ELogLevel::Warning, std::format(Format __VA_OPT__(,) __VA_ARGS__));
-#define LOG_ERROR(Format, ...) LogManager::Instance().WriteLog(ELogLevel::Error, std::format(Format __VA_OPT__(,) __VA_ARGS__));
+#define LOG_INFO(Category, Format, ...) LogManager::Instance().WriteLog(ELogLevel::Info, #Category, std::format(Format __VA_OPT__(,) __VA_ARGS__));
+#define LOG_DEBUG(Category, Format, ...) LogManager::Instance().WriteLog(ELogLevel::Debug, #Category, std::format(Format __VA_OPT__(,) __VA_ARGS__));
+#define LOG_WARN(Category, Format, ...) LogManager::Instance().WriteLog(ELogLevel::Warning, #Category, std::format(Format __VA_OPT__(,) __VA_ARGS__));
+#define LOG_ERROR(Category, Format, ...) LogManager::Instance().WriteLog(ELogLevel::Error, #Category, std::format(Format __VA_OPT__(,) __VA_ARGS__));
 
 enum class ELogLevel : uint8
 {
@@ -23,6 +23,7 @@ enum class ELogLevel : uint8
 struct LogData
 {
     ELogLevel level;
+    std::string category;
     uint32 threadId;
     std::chrono::system_clock::time_point timestamp;
     std::string message;
@@ -37,7 +38,7 @@ public:
     bool Init(ELogLevel logLevel);
     void ChangeLogLevel(const ELogLevel logLevel) {_logLevel = logLevel;}
     void Stop();
-    void WriteLog(ELogLevel level, std::string message);
+    void WriteLog(ELogLevel level, std::string category, std::string message);
 
 
 private:

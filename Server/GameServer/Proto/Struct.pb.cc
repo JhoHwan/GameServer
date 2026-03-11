@@ -39,7 +39,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORIT
 PROTOBUF_CONSTEXPR ObjectInfo::ObjectInfo(
     ::_pbi::ConstantInitialized): _impl_{
     /*decltype(_impl_.pos_)*/nullptr
-  , /*decltype(_impl_.id_)*/0
+  , /*decltype(_impl_.id_)*/uint64_t{0u}
   , /*decltype(_impl_.yaw_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct ObjectInfoDefaultTypeInternal {
@@ -111,7 +111,7 @@ static const ::_pb::Message* const file_default_instances[] = {
 const char descriptor_table_protodef_Struct_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\014Struct.proto\022\010Protocol\"*\n\007Vector3\022\t\n\001x"
   "\030\001 \001(\002\022\t\n\001y\030\002 \001(\002\022\t\n\001z\030\003 \001(\002\"E\n\nObjectIn"
-  "fo\022\n\n\002id\030\001 \001(\005\022\036\n\003pos\030\002 \001(\0132\021.Protocol.V"
+  "fo\022\n\n\002id\030\001 \001(\004\022\036\n\003pos\030\002 \001(\0132\021.Protocol.V"
   "ector3\022\013\n\003yaw\030\003 \001(\002\"7\n\nPlayerInfo\022)\n\013obj"
   "ect_info\030\001 \001(\0132\024.Protocol.ObjectInfob\006pr"
   "oto3"
@@ -446,7 +446,7 @@ inline void ObjectInfo::SharedCtor(
   (void)is_message_owned;
   new (&_impl_) Impl_{
       decltype(_impl_.pos_){nullptr}
-    , decltype(_impl_.id_){0}
+    , decltype(_impl_.id_){uint64_t{0u}}
     , decltype(_impl_.yaw_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };
@@ -492,10 +492,10 @@ const char* ObjectInfo::_InternalParse(const char* ptr, ::_pbi::ParseContext* ct
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // int32 id = 1;
+      // uint64 id = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
-          _impl_.id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          _impl_.id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -545,10 +545,10 @@ uint8_t* ObjectInfo::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // int32 id = 1;
+  // uint64 id = 1;
   if (this->_internal_id() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_id(), target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(1, this->_internal_id(), target);
   }
 
   // .Protocol.Vector3 pos = 2;
@@ -591,9 +591,9 @@ size_t ObjectInfo::ByteSizeLong() const {
         *_impl_.pos_);
   }
 
-  // int32 id = 1;
+  // uint64 id = 1;
   if (this->_internal_id() != 0) {
-    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_id());
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_id());
   }
 
   // float yaw = 3;

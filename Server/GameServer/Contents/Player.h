@@ -10,10 +10,7 @@ class GameSession;
 class PlayerCharacter : public GameObject, public AsyncActor
 {
 public:
-	PlayerCharacter(weak_ptr<GameSession> session) : _sessionRef(std::move(session))
-	{
-		LOG_DEBUG("Player[{}] Created", ObjectId());
-	}
+	PlayerCharacter(weak_ptr<GameSession> session);
 	~PlayerCharacter() override;
 
 public:

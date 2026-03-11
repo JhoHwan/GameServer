@@ -44,7 +44,8 @@ class AsyncActor
 {
 public:
 	AsyncActor() : _jobQueue(make_shared<JobQueue>()) {}
-	~AsyncActor() = default;
+
+	virtual ~AsyncActor() = default;
 
 	template<typename T>
 	void DoAsync(T&& job)

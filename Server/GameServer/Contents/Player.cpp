@@ -3,14 +3,22 @@
 #include "GameSession.h"
 #include "LogManager.h"
 
+PlayerCharacter::PlayerCharacter(weak_ptr<GameSession> session) : _sessionRef(session)
+{
+	uint16 objectTag = MakeTag(EObjectType::Player, 1);
+	SetId(objectTag);
+}
+
 PlayerCharacter::~PlayerCharacter()
 {
-	LOG_DEBUG("PlayerCharacter::~PlayerCharacter()");
+	LOG_DEBUG(Default, "PlayerCharacter::~PlayerCharacter()");
 }
 
 void PlayerCharacter::Init()
 {
 	GameObject::Init();
+
+	LOG_DEBUG(Default, "Player[{}] Created", GetInstanceID(GetId()));
 
 	auto session = GetSession();
 	auto player = static_pointer_cast<PlayerCharacter>(shared_from_this());
@@ -54,7 +62,7 @@ void PlayerCharacter::SetMoveInfo(std::vector<Vector3> waypoints, uint64 startTi
 		if(moveToken != self->_moveStartTime) return;
 
 		auto arrivalPos = self->_moveWaypoints.back();
-		LOG_DEBUG("Player Arrive [{}, {}, {}]. {}", arrivalPos.x, arrivalPos.y, arrivalPos.z, GetTickCount64());
+		LOG_INFO(PathFind, "Player{} Arrive [{}, {}, {}]", self->GetId(), arrivalPos.x, arrivalPos.y, arrivalPos.z);
 
 		if(self->_isMoving)
 		{
@@ -63,7 +71,7 @@ void PlayerCharacter::SetMoveInfo(std::vector<Vector3> waypoints, uint64 startTi
 		}
 	});
 
-	LOG_DEBUG("Arrive at {} ({}ms)", accumulatedTime, accumulatedTime - _moveStartTime);
+	LOG_DEBUG(PathFind, "Arrive at {} ({}ms)", accumulatedTime, accumulatedTime - _moveStartTime);
 	LJobTimer.Reserve(accumulatedTime - _moveStartTime, GetJobQueue(), job);
 }
 
@@ -90,7 +98,7 @@ Vector3 PlayerCharacter::GetCurrentPosition(uint64 now) const
 
 			Vector3 diff = end - start;
 			Vector3 currentPos = start + (diff * ratio);
-			//LOG_DEBUG("Player Position Update [{}, {}, {}]", currentPos.x, currentPos.y, currentPos.z);
+			//LOG_DEBUG(Default, "Player Position Update [{}, {}, {}]", currentPos.x, currentPos.y, currentPos.z);
 			return currentPos;
 		}
 	}

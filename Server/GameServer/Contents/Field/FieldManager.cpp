@@ -49,7 +49,7 @@ void FieldManager::Create(int32 fieldId)
         _fields[fieldId]->Init();
     }
 
-    LOG_INFO("FieldManager : {} is Created", fieldId);
+    LOG_INFO(Default, "FieldManager : {} is Created", fieldId);
 }
 
 void FieldManager::Destroy(uint64 fieldId)

@@ -45,12 +45,13 @@ void LogManager::Stop()
     }
 }
 
-void LogManager::WriteLog(ELogLevel level, std::string message)
+void LogManager::WriteLog(ELogLevel level, std::string category, std::string message)
 {
     if(level < _logLevel) return;
 
     LogData data;
     data.level = level;
+    data.category = std::move(category);
     data.message = std::move(message);
     data.timestamp = std::chrono::system_clock::now();
     data.threadId = LThreadId;
@@ -86,10 +87,11 @@ void LogManager::ThreadMain(const std::stop_token& stopToken)
             char timeBuf[64];
             std::strftime(timeBuf, sizeof(timeBuf), "%Y-%m-%d %H:%M:%S", &timeInfo);
 
-            std::string logStr = std::format("[{}] [{}] [Thread: {}] {}\n",
+            std::string logStr = std::format("[{}] [{}] [Thread: {}] [{}] {}\n",
                 GetLogText(datas[i].level),
                 timeBuf,
                 datas[i].threadId,
+                datas[i].category,
                 datas[i].message);
 
             _file << logStr;

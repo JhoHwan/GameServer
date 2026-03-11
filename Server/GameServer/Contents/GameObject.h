@@ -5,7 +5,6 @@
 #include "Component.h"
 
 using GameObjectRef = std::weak_ptr<class GameObject>;
-using ObjectId = uint64;
 
 namespace Protocol
 {
@@ -13,6 +12,15 @@ namespace Protocol
 }
 
 class TransformComponent;
+
+enum class EObjectType : uint8
+{
+	None = 0,
+	Player = 1,
+	Monster = 2,
+	NPC = 3,
+	Projectile = 4,
+};
 
 template <typename T>
 concept ComponentType = std::is_base_of_v<Component, T>;
@@ -22,6 +30,44 @@ concept GameObjectType = std::is_base_of_v<GameObject, T>;
 
 class GameObject : public enable_shared_from_this<GameObject>
 {
+private:
+	static constexpr uint64 OBJECT_TAG_SHIFT = 48;
+	static constexpr uint64 OBJECT_TYPE_SHIFT = 12;
+	static constexpr uint64 INSTANCE_MASK = 0x0000FFFFFFFFFFFFULL;
+	static constexpr uint64 SUB_ID_MASK = 0x0FFFULL;
+
+	static inline uint64 MakeID(uint16 objectTag, uint64 instanceID)
+	{
+		return (static_cast<uint64>(objectTag) << OBJECT_TAG_SHIFT) | (instanceID & INSTANCE_MASK);
+	}
+
+public:
+	static uint16 GetTag(uint64 objectId)
+	{
+		return static_cast<uint16>(objectId >> OBJECT_TAG_SHIFT);
+	}
+
+	static EObjectType GetType(uint64 objectId)
+	{
+		return static_cast<EObjectType>(objectId >> 60);
+	}
+
+	static uint64 GetInstanceID(uint64 objectId)
+	{
+		return (objectId & INSTANCE_MASK);
+	}
+
+	static uint16 GetSubID(uint64 objectId)
+	{
+		return static_cast<uint16>((objectId >> OBJECT_TAG_SHIFT) & SUB_ID_MASK);
+	}
+
+protected:
+	static inline uint16 MakeTag(EObjectType objectType, uint16 subId)
+	{
+		return (static_cast<uint16>(objectType) << OBJECT_TYPE_SHIFT) | (subId & SUB_ID_MASK);
+	}
+
 protected:
 	GameObject();
 	virtual void Init();
@@ -30,10 +76,8 @@ public:
 	template <GameObjectType T, typename... Args>
 	static std::shared_ptr<T> Create(Args&&... args)
 	{
-		static atomic<uint64> objectId{0};
 		std::shared_ptr<T> newObject{ std::make_shared<T>(std::forward<Args>(args)...) };
 		newObject->Init();
-		newObject->SetId(objectId.fetch_add(1));
 
 		return newObject;
 	}
@@ -43,7 +87,7 @@ public:
 	virtual void Destroy() {}
 
 public:
-	ObjectId GetId() const { return _id; }
+	uint64 GetId() const { return _id; }
 	std::shared_ptr<TransformComponent> Transform() { return _transform; }
 	const std::shared_ptr<TransformComponent>& Transform() const { return _transform; }
 
@@ -58,11 +102,18 @@ public:
 
 	void GetObjectInfo(Protocol::ObjectInfo* info) const;
 
-private:
-	void SetId(ObjectId id) { _id = id; }
+protected:
+	void SetId(uint16 tag)
+	{
+		_id = MakeID(tag, _instanceIdGenerator.fetch_add(1));
+	}
+
 
 private:
-	ObjectId _id;
+	static inline atomic<uint64> _instanceIdGenerator{ 1 };
+
+private:
+	uint64 _id = 0;
 	std::unordered_map<std::type_index, std::shared_ptr<Component>> _components;
 
 	std::shared_ptr<TransformComponent> _transform;
@@ -71,7 +122,7 @@ private:
 };
 
 template<ComponentType T>
-inline shared_ptr<T> GameObject::GetComponent()
+shared_ptr<T> GameObject::GetComponent()
 {
 	if (_components.find(typeid(T)) == _components.end()) return nullptr;
 	shared_ptr<T> component = static_pointer_cast<T>(_components[typeid(T)]);
@@ -80,7 +131,7 @@ inline shared_ptr<T> GameObject::GetComponent()
 }
 
 template<ComponentType T, typename... Args>
-inline shared_ptr<T> GameObject::AddComponent(Args&&... args)
+shared_ptr<T> GameObject::AddComponent(Args&&... args)
 {
 	if (_components.find(typeid(T)) != _components.end()) return nullptr;
 	shared_ptr<T> component = make_shared<T>(
@@ -91,3 +142,5 @@ inline shared_ptr<T> GameObject::AddComponent(Args&&... args)
 	_components[typeid(T)] = component;
 	return component;
 }
+
+

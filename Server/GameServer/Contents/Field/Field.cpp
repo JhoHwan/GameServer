@@ -24,7 +24,8 @@ Field::Field(uint64 id, const FieldData* fieldData) : _navMesh(fieldData->NavMes
 
 Field::~Field()
 {
-	LOG_DEBUG("FieldInstance : {} is Destroyed", _id);
+	LOG_DEBUG(Default, "FieldInstance : {} is Destroyed", _id);
+	dtFreeNavMeshQuery(_navQuery);
 }
 
 void Field::Init()
@@ -121,7 +122,7 @@ void Field::PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Protocol::
 		if(playerRef == nullptr) return;
 		if(!self->_players.contains(playerRef))
 		{
-			LOG_ERROR("PlayerRequestMove Error");
+			LOG_ERROR(Default, "PlayerRequestMove Error");
 			return;
 		}
 
@@ -137,7 +138,7 @@ void Field::PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Protocol::
 
 		for (int i = 0; i < serverWaypoints.size(); i++)
 		{
-			LOG_DEBUG("[{}] : [{}, {}, {}]", i, serverWaypoints[i].x, serverWaypoints[i].y, serverWaypoints[i].z);
+			LOG_DEBUG(PathFind, "[{}] : [{}, {}, {}]", i, serverWaypoints[i].x, serverWaypoints[i].y, serverWaypoints[i].z);
 
 			auto* waypoint = pkt.add_waypoints();
 			waypoint->set_x(serverWaypoints[i].x);
@@ -178,7 +179,7 @@ void Field::LeavePlayer(shared_ptr<PlayerCharacter> player, shared_ptr<Field> ne
 
 void Field::UpdatePlayerPosition()
 {
-	//LOG_DEBUG("[FieldInstance] UpdatePlayerPosition");
+	//LOG_DEBUG(FieldInstance, "UpdatePlayerPosition");
 
 	uint64 now = GetTickCount64();
 	for(auto& player : _players)
@@ -223,7 +224,7 @@ void Field::FindPath(const Vector3& startPos, const Vector3& endPos, OUT std::ve
 
 	if (!StartPolyRef || !EndPolyRef)
 	{
-		LOG_WARN("[Path] Failed to find start or end polygon on NavMesh!");
+		LOG_DEBUG(PathFind, "Failed to find start or end polygon on NavMesh!");
 		return;
 	}
 
@@ -248,15 +249,15 @@ void Field::FindPath(const Vector3& startPos, const Vector3& endPos, OUT std::ve
 	
 	if(straightPathCount > 0)
 	{
-		LOG_DEBUG("[Path] Found Straight Path! Points: {}", straightPathCount);
+		LOG_DEBUG(PathFind, "Found Straight Path! Points: {}", straightPathCount);
 		for (int i = 0; i < straightPathCount; ++i)
 		{
 			// Detour: X, Y, Z (m) -> Engine: X, Z, Y (cm)
-			pathResult.push_back(Vector3(straightPath[i*3] * 100.0f, straightPath[i*3+2] * 100.0f, straightPath[i*3+1] * 100.0f));
+			pathResult.emplace_back(straightPath[i*3] * 100.0f, straightPath[i*3+2] * 100.0f, straightPath[i*3+1] * 100.0f);
 		}
 	}
 
 	auto end = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-	LOG_DEBUG("[Path] Execution Time : {}us", duration);
+	LOG_DEBUG(PathFind, "Execution Time : {}us", duration);
 }

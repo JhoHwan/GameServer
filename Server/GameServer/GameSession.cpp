@@ -18,7 +18,7 @@ void GameSession::OnRecvPacket(BYTE* buffer, int32 len)
 
 void GameSession::OnConnected()
 {
-	LOG_INFO("Client Connected : {}", GetAddress().GetIpAddress());
+	LOG_INFO(Default, "Client Connected : {}", GetAddress().GetIpAddress());
 	SetTimeOut(5000, "Login Request");
 }
 
@@ -26,7 +26,7 @@ void GameSession::OnDisconnected()
 {
 	PacketSession::OnDisconnected();
 
-	LOG_INFO("Client DisConnected : {}", GetAddress().GetIpAddress());
+	LOG_INFO(Default, "Client DisConnected : {}", GetAddress().GetIpAddress());
 
 	if(_playerRef)
 	{
@@ -45,7 +45,7 @@ void GameSession::SetTimeOut(uint64 time, const string& log)
 		{
 			SessionRef session = self.lock();
 			if (!session || _timeOutToken.load() != token) return;
-			cout << "[Timeout] " << log << " Timeout!" << endl;
+			LOG_WARN(Timeout, "{} Timeout!", log);
 			session->Disconnect("Time Out");
 		});
 	LJobTimer.Reserve(time, GetJobQueue(), job);

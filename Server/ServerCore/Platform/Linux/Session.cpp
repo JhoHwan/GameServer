@@ -43,7 +43,7 @@ void Session::Disconnect(const char* cause)
 		return;
 
 	// TEMP
-	LOG_DEBUG("Disconnect : {}", cause);
+	LOG_DEBUG(Default, "Disconnect : {}", cause);
 
 	RegisterDisconnect();
 }

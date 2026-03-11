@@ -52,16 +52,18 @@ bool Handle_CS_FIELD_LOADING_COMPLETE(SessionRef& session, Protocol::CS_FIELD_LO
 bool Handle_CS_REQUEST_MOVE(SessionRef& session, Protocol::CS_REQUEST_MOVE& pkt)
 {
     shared_ptr<GameSession> gSession = static_pointer_cast<GameSession>(session);
-    LOG_INFO("Player{} Request Move : [{}, {}, {}]", 0, pkt.pos().x(), pkt.pos().y(), pkt.pos().z());
+    auto player = gSession->GetPlayer();
+    if (player == nullptr) return false;
 
-    gSession->GetPlayer()->GetField()->PlayerRequestMove(gSession->GetPlayer(), pkt.pos());
+    LOG_INFO(PathFind, "Player{} Request Move : [{}, {}, {}]", player->GetId(), pkt.pos().x(), pkt.pos().y(), pkt.pos().z());
+
+    player->GetField()->PlayerRequestMove(player, pkt.pos());
 
     return true;
 }
 
 bool Handle_CS_TIME_SYNC(SessionRef& session, Protocol::CS_TIME_SYNC& pkt)
 {
-    LOG_DEBUG("Client Request Time Sync");
     shared_ptr<GameSession> gameSession = static_pointer_cast<GameSession>(session);
     gameSession->CancelTimeOut();
     gameSession->SetTimeOut(20000, "HeartBeat");
