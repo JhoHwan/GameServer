@@ -1452,27 +1452,14 @@ class SC_DESPAWN_PLAYER final :
   enum : int {
     kPlayerIdFieldNumber = 1,
   };
-  // repeated uint64 player_id = 1;
-  int player_id_size() const;
-  private:
-  int _internal_player_id_size() const;
-  public:
+  // uint64 player_id = 1;
   void clear_player_id();
+  uint64_t player_id() const;
+  void set_player_id(uint64_t value);
   private:
-  uint64_t _internal_player_id(int index) const;
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
-      _internal_player_id() const;
-  void _internal_add_player_id(uint64_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-      _internal_mutable_player_id();
+  uint64_t _internal_player_id() const;
+  void _internal_set_player_id(uint64_t value);
   public:
-  uint64_t player_id(int index) const;
-  void set_player_id(int index, uint64_t value);
-  void add_player_id(uint64_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
-      player_id() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-      mutable_player_id();
 
   // @@protoc_insertion_point(class_scope:Protocol.SC_DESPAWN_PLAYER)
  private:
@@ -1482,8 +1469,7 @@ class SC_DESPAWN_PLAYER final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t > player_id_;
-    mutable std::atomic<int> _player_id_cached_byte_size_;
+    uint64_t player_id_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -2457,51 +2443,24 @@ SC_SPAWN_PLAYER::info() const {
 
 // SC_DESPAWN_PLAYER
 
-// repeated uint64 player_id = 1;
-inline int SC_DESPAWN_PLAYER::_internal_player_id_size() const {
-  return _impl_.player_id_.size();
-}
-inline int SC_DESPAWN_PLAYER::player_id_size() const {
-  return _internal_player_id_size();
-}
+// uint64 player_id = 1;
 inline void SC_DESPAWN_PLAYER::clear_player_id() {
-  _impl_.player_id_.Clear();
+  _impl_.player_id_ = uint64_t{0u};
 }
-inline uint64_t SC_DESPAWN_PLAYER::_internal_player_id(int index) const {
-  return _impl_.player_id_.Get(index);
-}
-inline uint64_t SC_DESPAWN_PLAYER::player_id(int index) const {
-  // @@protoc_insertion_point(field_get:Protocol.SC_DESPAWN_PLAYER.player_id)
-  return _internal_player_id(index);
-}
-inline void SC_DESPAWN_PLAYER::set_player_id(int index, uint64_t value) {
-  _impl_.player_id_.Set(index, value);
-  // @@protoc_insertion_point(field_set:Protocol.SC_DESPAWN_PLAYER.player_id)
-}
-inline void SC_DESPAWN_PLAYER::_internal_add_player_id(uint64_t value) {
-  _impl_.player_id_.Add(value);
-}
-inline void SC_DESPAWN_PLAYER::add_player_id(uint64_t value) {
-  _internal_add_player_id(value);
-  // @@protoc_insertion_point(field_add:Protocol.SC_DESPAWN_PLAYER.player_id)
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
-SC_DESPAWN_PLAYER::_internal_player_id() const {
+inline uint64_t SC_DESPAWN_PLAYER::_internal_player_id() const {
   return _impl_.player_id_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >&
-SC_DESPAWN_PLAYER::player_id() const {
-  // @@protoc_insertion_point(field_list:Protocol.SC_DESPAWN_PLAYER.player_id)
+inline uint64_t SC_DESPAWN_PLAYER::player_id() const {
+  // @@protoc_insertion_point(field_get:Protocol.SC_DESPAWN_PLAYER.player_id)
   return _internal_player_id();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-SC_DESPAWN_PLAYER::_internal_mutable_player_id() {
-  return &_impl_.player_id_;
+inline void SC_DESPAWN_PLAYER::_internal_set_player_id(uint64_t value) {
+  
+  _impl_.player_id_ = value;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< uint64_t >*
-SC_DESPAWN_PLAYER::mutable_player_id() {
-  // @@protoc_insertion_point(field_mutable_list:Protocol.SC_DESPAWN_PLAYER.player_id)
-  return _internal_mutable_player_id();
+inline void SC_DESPAWN_PLAYER::set_player_id(uint64_t value) {
+  _internal_set_player_id(value);
+  // @@protoc_insertion_point(field_set:Protocol.SC_DESPAWN_PLAYER.player_id)
 }
 
 // -------------------------------------------------------------------

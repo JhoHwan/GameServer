@@ -48,7 +48,7 @@ message SC_SPAWN_PLAYER
 
 message SC_DESPAWN_PLAYER
 {
-    repeated uint64 player_id = 1;
+    uint64 player_id = 1;
 }
 
 message CS_REQUEST_MOVE

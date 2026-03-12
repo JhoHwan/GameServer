@@ -42,12 +42,13 @@ void Field::Init()
 
 void Field::EnterPlayer(weak_ptr<PlayerCharacter> player)
 {
-	DestroyToken.fetch_add(1);
+	_destroyToken.fetch_add(1);
 	DoAsync([self = shared_from_this(), playerWeak = std::move(player)]()
 	{
 		auto player = playerWeak.lock();
 		if(!player) return;
 
+		self->_currentPlayerCount.fetch_add(1);
 		self->_players.insert(player);
 
 		player->Transform()->SetPos( self->_fieldData->PlayerStarts()[0]);
@@ -182,15 +183,20 @@ void Field::LeavePlayer(shared_ptr<PlayerCharacter> player, shared_ptr<Field> ne
 {
 	DoAsync([self = shared_from_this(), player = std::move(player), nextField = std::move(nextField)]() {
 		player->SetField(nullptr);
-		self->_players.erase(player);
 
-		// TODO : 디스폰 패킷 전송
+		Protocol::SC_DESPAWN_PLAYER pkt;
+		pkt.set_player_id(player->GetId());
+		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
+		self->BroadCast(sendBuffer);
+
+		self->_players.erase(player);
+		self->_currentPlayerCount.fetch_sub(1);
 
 		if(self->_players.empty())
 		{
-			JobRef job = make_shared<Job>([self, fieldId = self->_id, Token = self->DestroyToken.load()]()
+			JobRef job = make_shared<Job>([self, fieldId = self->_id, Token = self->_destroyToken.load()]()
 			{
-				if(self->DestroyToken.load() != Token) return;
+				if(self->_destroyToken.load() != Token) return;
 				GFieldManager.Destroy(fieldId);
 			});
 			LJobTimer.Reserve(10000, self->GetJobQueue(), job);

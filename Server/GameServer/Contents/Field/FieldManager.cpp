@@ -29,49 +29,88 @@ void FieldManager::Load()
         file >> json;
 
         auto fieldData = make_shared<FieldData>(json);
-        auto fieldId = fieldData->FieldId();
+        uint16 fieldId = fieldData->FieldId();
         _fieldDatas[fieldId] = std::move(fieldData);
     }
 }
 
-void FieldManager::Create(int32 fieldId)
+shared_ptr<Field> FieldManager::Create(uint16 mapid)
 {
-    static int32 instance = 0;
+    shared_ptr<Field> field = nullptr;
+    uint16 instanceID = _instanceIDGenerator.fetch_add(1);
+    uint64 fieldId = MakeFieldID(mapid, instanceID);
     {
         WRITE_LOCK;
-        auto fieldIt = _fieldDatas.find(fieldId);
-        if (fieldIt == _fieldDatas.end() || fieldIt->second == nullptr) return;
+        auto fieldIt = _fieldDatas.find(mapid);
+        if (fieldIt == _fieldDatas.end() || fieldIt->second == nullptr) return nullptr;
         auto fieldData = fieldIt->second;
 
-        //uint64 id = (fieldId << 32) | instance;
-
-        _fields[fieldId] = make_shared<Field>(fieldId, fieldData.get());
-        _fields[fieldId]->Init();
+        field = make_shared<Field>(fieldId, fieldData.get());
+        field->Init();
+        _fields[mapid].insert(field);
+        _fieldIdInstanceMap[fieldId] = field;
     }
 
     LOG_INFO(Default, "FieldManager : {} is Created", fieldId);
+    return field;
 }
 
 void FieldManager::Destroy(uint64 fieldId)
 {
     WRITE_LOCK;
-    _fields.erase(fieldId);
+    auto it = _fieldIdInstanceMap.find(fieldId);
+    if(it == _fieldIdInstanceMap.end())
+    {
+        return;
+    }
+
+    shared_ptr<Field> field = it->second;
+    _fieldIdInstanceMap.erase(fieldId);
+
+    uint16 mapId = field->GetMapID();
+
+    auto fieldIt = _fields.find(mapId);
+    if(fieldIt == _fields.end())
+    {
+        return;
+    }
+
+    _fields[mapId].erase(field);
+    if(_fields[mapId].empty())
+    {
+        _fields.erase(mapId);
+    }
 }
 
-shared_ptr<Field> FieldManager::GetField(uint16 fieldId)
+shared_ptr<Field> FieldManager::GetField(uint16 mapId)
 {
     shared_ptr<Field> field = nullptr;
     {
         READ_LOCK;
-        auto fieldIt = _fields.find(fieldId);
-        field = fieldIt == _fields.end() ? nullptr : fieldIt->second;
+        auto fieldIt = _fields.find(mapId);
+        if(fieldIt != _fields.end())
+        {
+            auto fields = fieldIt->second;
+            for(const auto& f : fields)
+            {
+                if(f->CanEnterField())
+                {
+                    field = f;
+                    break;
+                }
+            }
+        }
     }
 
     if (field == nullptr)
     {
-        Create(fieldId);
+        field = Create(mapId);
     }
 
-    field = _fields[fieldId];
     return field;
+}
+
+uint64 FieldManager::MakeFieldID(uint16 mapId, uint64 instanceId)
+{
+    return static_cast<uint64>(mapId) << 48 | instanceId;
 }

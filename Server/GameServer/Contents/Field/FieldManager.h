@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "Util/Vector3.h"
 #include <nlohmann/json_fwd.hpp>
 #include "FieldData.h"
 
@@ -9,17 +8,25 @@ extern FieldManager& GFieldManager;
 
 class FieldManager : public Singleton<FieldManager>
 {
+    friend class Field;
 public:
     void Init();
+    shared_ptr<class Field> GetField(uint16 mapId);
+
+private:
     void Load();
 
-    void Create(int32 fieldId);
+    shared_ptr<Field> Create(uint16 mapId);
     void Destroy(uint64 fieldId);
 
-    shared_ptr<class Field> GetField(uint16 fieldId);
+    static uint64 MakeFieldID(uint16 mapId, uint64 instanceId);
 
 private:
     USE_LOCK;
-    unordered_map<uint64, shared_ptr<Field>> _fields;
-    unordered_map<int32, shared_ptr<FieldData>> _fieldDatas;
+    atomic<uint32> _instanceIDGenerator {1};
+
+    unordered_map<uint64, shared_ptr<Field>> _fieldIdInstanceMap;
+    unordered_map<uint16, unordered_set<shared_ptr<Field>>> _fields;
+
+    unordered_map<uint16, shared_ptr<FieldData>> _fieldDatas;
 };

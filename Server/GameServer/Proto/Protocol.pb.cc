@@ -129,8 +129,7 @@ struct SC_SPAWN_PLAYERDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 SC_SPAWN_PLAYERDefaultTypeInternal _SC_SPAWN_PLAYER_default_instance_;
 PROTOBUF_CONSTEXPR SC_DESPAWN_PLAYER::SC_DESPAWN_PLAYER(
     ::_pbi::ConstantInitialized): _impl_{
-    /*decltype(_impl_.player_id_)*/{}
-  , /*decltype(_impl_._player_id_cached_byte_size_)*/{0}
+    /*decltype(_impl_.player_id_)*/uint64_t{0u}
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct SC_DESPAWN_PLAYERDefaultTypeInternal {
   PROTOBUF_CONSTEXPR SC_DESPAWN_PLAYERDefaultTypeInternal()
@@ -344,7 +343,7 @@ const char descriptor_table_protodef_Protocol_2eproto[] PROTOBUF_SECTION_VARIABL
   "\030\001 \001(\0132\024.Protocol.PlayerInfo\"5\n\017SC_SPAWN"
   "_PLAYER\022\"\n\004info\030\001 \003(\0132\024.Protocol.PlayerI"
   "nfo\"&\n\021SC_DESPAWN_PLAYER\022\021\n\tplayer_id\030\001 "
-  "\003(\004\"1\n\017CS_REQUEST_MOVE\022\036\n\003pos\030\001 \001(\0132\021.Pr"
+  "\001(\004\"1\n\017CS_REQUEST_MOVE\022\036\n\003pos\030\001 \001(\0132\021.Pr"
   "otocol.Vector3\"b\n\014SC_MOVE_PATH\022\021\n\tobject"
   "_id\030\001 \001(\004\022\031\n\021start_server_tick\030\002 \001(\004\022$\n\t"
   "waypoints\030\003 \003(\0132\021.Protocol.Vector3\"#\n\014CS"
@@ -1909,11 +1908,11 @@ SC_DESPAWN_PLAYER::SC_DESPAWN_PLAYER(const SC_DESPAWN_PLAYER& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   SC_DESPAWN_PLAYER* const _this = this; (void)_this;
   new (&_impl_) Impl_{
-      decltype(_impl_.player_id_){from._impl_.player_id_}
-    , /*decltype(_impl_._player_id_cached_byte_size_)*/{0}
+      decltype(_impl_.player_id_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _this->_impl_.player_id_ = from._impl_.player_id_;
   // @@protoc_insertion_point(copy_constructor:Protocol.SC_DESPAWN_PLAYER)
 }
 
@@ -1922,8 +1921,7 @@ inline void SC_DESPAWN_PLAYER::SharedCtor(
   (void)arena;
   (void)is_message_owned;
   new (&_impl_) Impl_{
-      decltype(_impl_.player_id_){arena}
-    , /*decltype(_impl_._player_id_cached_byte_size_)*/{0}
+      decltype(_impl_.player_id_){uint64_t{0u}}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -1939,7 +1937,6 @@ SC_DESPAWN_PLAYER::~SC_DESPAWN_PLAYER() {
 
 inline void SC_DESPAWN_PLAYER::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  _impl_.player_id_.~RepeatedField();
 }
 
 void SC_DESPAWN_PLAYER::SetCachedSize(int size) const {
@@ -1952,7 +1949,7 @@ void SC_DESPAWN_PLAYER::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.player_id_.Clear();
+  _impl_.player_id_ = uint64_t{0u};
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -1962,13 +1959,10 @@ const char* SC_DESPAWN_PLAYER::_InternalParse(const char* ptr, ::_pbi::ParseCont
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // repeated uint64 player_id = 1;
+      // uint64 player_id = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt64Parser(_internal_mutable_player_id(), ptr, ctx);
-          CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 8) {
-          _internal_add_player_id(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr));
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.player_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -2002,13 +1996,10 @@ uint8_t* SC_DESPAWN_PLAYER::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // repeated uint64 player_id = 1;
-  {
-    int byte_size = _impl_._player_id_cached_byte_size_.load(std::memory_order_relaxed);
-    if (byte_size > 0) {
-      target = stream->WriteUInt64Packed(
-          1, _internal_player_id(), byte_size, target);
-    }
+  // uint64 player_id = 1;
+  if (this->_internal_player_id() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(1, this->_internal_player_id(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2027,18 +2018,9 @@ size_t SC_DESPAWN_PLAYER::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated uint64 player_id = 1;
-  {
-    size_t data_size = ::_pbi::WireFormatLite::
-      UInt64Size(this->_impl_.player_id_);
-    if (data_size > 0) {
-      total_size += 1 +
-        ::_pbi::WireFormatLite::Int32Size(static_cast<int32_t>(data_size));
-    }
-    int cached_size = ::_pbi::ToCachedSize(data_size);
-    _impl_._player_id_cached_byte_size_.store(cached_size,
-                                    std::memory_order_relaxed);
-    total_size += data_size;
+  // uint64 player_id = 1;
+  if (this->_internal_player_id() != 0) {
+    total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(this->_internal_player_id());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
@@ -2059,7 +2041,9 @@ void SC_DESPAWN_PLAYER::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, cons
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  _this->_impl_.player_id_.MergeFrom(from._impl_.player_id_);
+  if (from._internal_player_id() != 0) {
+    _this->_internal_set_player_id(from._internal_player_id());
+  }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -2077,7 +2061,7 @@ bool SC_DESPAWN_PLAYER::IsInitialized() const {
 void SC_DESPAWN_PLAYER::InternalSwap(SC_DESPAWN_PLAYER* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  _impl_.player_id_.InternalSwap(&other->_impl_.player_id_);
+  swap(_impl_.player_id_, other->_impl_.player_id_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata SC_DESPAWN_PLAYER::GetMetadata() const {

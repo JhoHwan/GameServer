@@ -62,7 +62,7 @@ void PlayerCharacter::SetMoveInfo(std::vector<Vector3> waypoints, uint64 startTi
 		if(moveToken != self->_moveStartTime) return;
 
 		auto arrivalPos = self->_moveWaypoints.back();
-		LOG_INFO(PathFind, "Player{} Arrive [{}, {}, {}]", self->GetId(), arrivalPos.x, arrivalPos.y, arrivalPos.z);
+		LOG_INFO(PathFind, "Player {}{} Arrive [{}, {}, {}]", self->GetSubID(), self->GetInstanceID(), arrivalPos.x, arrivalPos.y, arrivalPos.z);
 
 		if(self->_isMoving)
 		{
@@ -71,7 +71,7 @@ void PlayerCharacter::SetMoveInfo(std::vector<Vector3> waypoints, uint64 startTi
 		}
 	});
 
-	LOG_DEBUG(PathFind, "Arrive at {} ({}ms)", accumulatedTime, accumulatedTime - _moveStartTime);
+	//LOG_DEBUG(PathFind, "Arrive at {} ({}ms)", accumulatedTime, accumulatedTime - _moveStartTime);
 	LJobTimer.Reserve(accumulatedTime - _moveStartTime, GetJobQueue(), job);
 }
 

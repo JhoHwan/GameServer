@@ -16,7 +16,7 @@ public:
 
 	Field(uint64 id, const FieldData* fieldData);
 
-	~Field();
+	~Field() override;
 
 	void Init();
 
@@ -29,13 +29,31 @@ public:
 
 	void UpdatePlayerPosition();
 
+public:
+	uint16 GetMapID() const
+	{
+		return static_cast<uint16>(_id >> 48);
+	}
+
+	uint64 GetID() const { return _id; }
+	uint64 GetInstanceID() const
+	{
+		return (_id & 0x0000FFFFFFFFFFFFULL);
+	}
+
+	uint32 GetPlayerCount() const {return _currentPlayerCount.load(); }
+	bool CanEnterField() const {return GetPlayerCount() < MAX_PLAYERS; }
+
 private:
 	void FindPath(const Vector3& pos, const Vector3& endPos, OUT std::vector<Vector3>& result);
 
 private:
 	std::unordered_set<shared_ptr<PlayerCharacter>> _players;
 
-	atomic<uint64> DestroyToken{0};
+	const uint32 MAX_PLAYERS = 32;
+
+	atomic<uint32> _currentPlayerCount {0};
+	atomic<uint64> _destroyToken{0};
 
 	uint64 _id;
 	dtNavMesh* _navMesh;

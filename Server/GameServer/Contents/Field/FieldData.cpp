@@ -8,7 +8,7 @@ namespace fs = std::filesystem;
 
 FieldData::FieldData(nlohmann::json j)
 {
-    _fieldId = j["FieldId"].get<int32>();
+    _fieldId = j["FieldId"].get<uint16>();
     _mapName = j["MapName"].get<std::string>();
 
     if(j.contains("PlayerStart"))
