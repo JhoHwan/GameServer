@@ -10,54 +10,57 @@ set(PROTO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Proto")
 set(PACKET_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Packet")
 
 # 2. 실행할 도구들 경로 지정
+find_package(Python3 REQUIRED)
+set(PYTHON_EXE Python3::Interpreter)
 
 if (WIN32)
     set(PROTOC_EXE "${CMAKE_CURRENT_SOURCE_DIR}/../../ThirdParty/Protobuf/protoc.exe")
     set(PACKET_GEN_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/../PacketGenerator/PacketGenerator.py")
-    set(CLIENT_GEN_BAT "${CMAKE_CURRENT_SOURCE_DIR}/../PacketGenerator/PacketGen.bat")
+    set(CLIENT_GEN_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/../PacketGenerator/PacketGen.bat")
 else()
     set(PROTOC_EXE "${CMAKE_CURRENT_SOURCE_DIR}/../../ThirdParty/Protobuf/protoc")
     set(PACKET_GEN_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/../PacketGenerator/PacketGenerator.py")
-    set(CLIENT_GEN_BAT "${CMAKE_CURRENT_SOURCE_DIR}/../PacketGenerator/PacketGen.bat")
+    set(CLIENT_GEN_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/../PacketGenerator/PacketGen.sh")
 endif ()
 
-if(WIN32)
-# 3. 사용자 지정 빌드 명령 (VS Custom Build Tool과 완벽 동일)
-add_custom_command(
-    # 이 명령어를 통해 만들어지는 결과물 (이게 있어야 CMake가 의존성을 파악해)
-    OUTPUT "${PROTO_DIR}/Protocol.pb.cc" "${PROTO_DIR}/Protocol.pb.h" "${PROTO_DIR}/Struct.pb.cc" "${PROTO_DIR}/Struct.pb.h"
-    
-    # (1) Protoc 컴파일러 실행
-    COMMAND ${PROTOC_EXE} -I="${PROTO_DIR}" --cpp_out="${PROTO_DIR}" "${PROTO_FILE}" "${STRUCT_FILE}"
-    
-    # (2) 파이썬 패킷 제너레이터 실행
-    COMMAND python "${PACKET_GEN_SCRIPT}" --path "${PROTO_FILE}" --output ServerPacketHandler --out_path "${PACKET_DIR}" --process S
-    
-    # (3) 클라이언트 패킷 생성 및 이동 배치파일 실행 (MP2/Network 폴더 대상)
-    COMMAND "${CLIENT_GEN_BAT}"
-    
-    # 이 파일들이 수정되었을 때만 위 명령어들을 다시 실행함!
-    DEPENDS "${PROTO_FILE}" "${STRUCT_FILE}"
-    
-    # 빌드 창에 띄울 메시지
-    COMMENT "Generating Protocol, Struct & PacketHandler..."
+# 3. 사용자 지정 빌드 명령 (윈도우/리눅스 공통)
+set(PROTO_OUTPUTS 
+    "${PROTO_DIR}/Protocol.pb.cc" "${PROTO_DIR}/Protocol.pb.h" 
+    "${PROTO_DIR}/Struct.pb.cc" "${PROTO_DIR}/Struct.pb.h"
 )
-endif ()
 
-if (WIN32)
-    # 윈도우는 Debug/Release 분기까지 쳐주면 더 완벽함
-    set(PROTOBUF_LIB "${CMAKE_CURRENT_SOURCE_DIR}/../../ThirdParty/Protobuf/Lib/libprotobufd.lib")
-else()
-    # 리눅스는 아까 빌드한 .a 파일
-    set(PROTOBUF_LIB "${CMAKE_CURRENT_SOURCE_DIR}/../../ThirdParty/Protobuf/Lib/libprotobuf.a")
-endif()
+# (1) Protoc 컴파일러 실행 (공통)
+add_custom_command(
+    OUTPUT ${PROTO_OUTPUTS}
+    COMMAND ${PROTOC_EXE} -I="${PROTO_DIR}" --cpp_out="${PROTO_DIR}" "${PROTO_FILE}" "${STRUCT_FILE}"
+    DEPENDS "${PROTO_FILE}" "${STRUCT_FILE}"
+    COMMENT "Generating Protocol & Struct..."
+)
 
+# (2) 파이썬 패킷 제너레이터 실행 (공통)
+add_custom_command(
+    OUTPUT "${PACKET_DIR}/ServerPacketHandler.h"
+    COMMAND ${PYTHON_EXE} "${PACKET_GEN_SCRIPT}" --path "${PROTO_FILE}" --output ServerPacketHandler --out_path "${PACKET_DIR}" --process S
+    DEPENDS "${PROTO_FILE}" "${STRUCT_FILE}" "${PACKET_GEN_SCRIPT}"
+    COMMENT "Generating ServerPacketHandler..."
+)
 
-add_executable(GameServer ${GAME_SOURCES})
+add_executable(GameServer 
+    ${GAME_SOURCES}
+    ${PROTO_OUTPUTS}
+    "${PACKET_DIR}/ServerPacketHandler.h"
+)
 
+# (3) 클라이언트 패킷 생성 스크립트 실행 (POST_BUILD)
+# add_executable 이후에 위치해야 합니다.
+add_custom_command(
+    TARGET GameServer POST_BUILD
+    COMMAND "${CLIENT_GEN_SCRIPT}"
+    COMMENT "Running Client Packet Generator..."
+)
 
 # GameServer 전용 pch.h 설정
-#target_precompile_headers(GameServer PRIVATE pch.h)
+target_precompile_headers(GameServer PRIVATE pch.h)
 
 # ServerCore 조립하기! 
 target_link_libraries(GameServer PRIVATE ServerCore)
@@ -70,8 +73,15 @@ target_include_directories(GameServer PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Detour/Include
 )
 
-# Protobuf 정적 라이브러리 파일(.lib) 연결
-target_link_libraries(GameServer PRIVATE ${PROTOBUF_LIB})
+# Protobuf 정적 라이브러리 경로 재설정 (정확한 링크를 위해 사용 직전 정의)
+if (WIN32)
+    set(PROTOBUF_LIB "${CMAKE_CURRENT_SOURCE_DIR}/../../ThirdParty/Protobuf/Lib/libprotobufd.lib")
+    target_link_libraries(GameServer PRIVATE ${PROTOBUF_LIB})
+else()
+    set(PROTOBUF_LIB "${CMAKE_CURRENT_SOURCE_DIR}/../../ThirdParty/Protobuf/Lib/libprotobuf.a")
+    # 리눅스에서는 정적 라이브러리를 먼저 쓰고, 그 뒤에 시스템 라이브러리(pthread 등)를 씀
+    target_link_libraries(GameServer PRIVATE ${PROTOBUF_LIB} pthread)
+endif()
 
 # 1. Resources 폴더 안의 모든 파일 목록을 싹 긁어옴
 # CONFIGURE_DEPENDS 옵션: 파일이 새로 생기거나 삭제되면 CMake가 알아서 재구성(Re-configure)되게 만듦

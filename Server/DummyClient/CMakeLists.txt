@@ -12,5 +12,8 @@ file(GLOB_RECURSE SRC_FILES
 
 add_executable(DummyClient ${SRC_FILES})
 
+# DummyClient 전용 pch.h 설정 (WSL/GCC 호환성)
+target_precompile_headers(DummyClient PRIVATE pch.h)
+
 # ServerCore 라이브러리 링크 및 Include 디렉토리 설정
 target_link_libraries(DummyClient PRIVATE ServerCore)

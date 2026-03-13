@@ -32,7 +32,8 @@ target_include_directories(ServerCore PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/${PLATFORM_INCLUDE_DIR}
 )
 
-target_precompile_headers(ServerCore PUBLIC Main/pch.h)
+# WSL/GCC 환경 호환성을 위해 PRIVATE으로 변경 (PUBLIC 상속 시 경로 문제 발생)
+target_precompile_headers(ServerCore PRIVATE Main/pch.h)
 
 if(WIN32)
     target_link_libraries(ServerCore PUBLIC ws2_32 mswsock)
