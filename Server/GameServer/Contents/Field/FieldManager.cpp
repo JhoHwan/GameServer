@@ -14,10 +14,10 @@ FieldManager& GFieldManager = FieldManager::Instance();
 
 void FieldManager::Init()
 {
-    Load();
+    LoadFieldDatas();
 }
 
-void FieldManager::Load()
+void FieldManager::LoadFieldDatas()
 {
     fs::path path = std::filesystem::current_path() / "Resources" / "Fields";
     for (const auto& entry : std::filesystem::directory_iterator(path))
@@ -28,9 +28,15 @@ void FieldManager::Load()
         nlohmann::json json;
         file >> json;
 
-        auto fieldData = make_shared<FieldData>(json);
-        uint16 fieldId = fieldData->FieldId();
-        _fieldDatas[fieldId] = std::move(fieldData);
+        FieldData fieldData{json};
+        uint16 fieldId = fieldData.FieldId();
+        if(_fieldDatas.find(fieldId) != _fieldDatas.end())
+        {
+            LOG_ERROR(FieldManager, "Duplicate IDs exist in the field data.")
+            continue;
+        }
+
+        _fieldDatas.emplace(fieldId, fieldData);
     }
 }
 
@@ -42,10 +48,10 @@ shared_ptr<Field> FieldManager::Create(uint16 mapid)
     {
         WRITE_LOCK;
         auto fieldIt = _fieldDatas.find(mapid);
-        if (fieldIt == _fieldDatas.end() || fieldIt->second == nullptr) return nullptr;
+        if (fieldIt == _fieldDatas.end()) return nullptr;
         auto fieldData = fieldIt->second;
 
-        field = make_shared<Field>(fieldId, fieldData.get());
+        field = make_shared<Field>(fieldId, &fieldData);
         field->Init();
         _fields[mapid].insert(field);
         _fieldIdInstanceMap[fieldId] = field;

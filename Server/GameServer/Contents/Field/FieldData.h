@@ -1,6 +1,6 @@
 #pragma once
 
-#include "nlohmann/json.hpp"
+#include "nlohmann/json_fwd.hpp"
 #include "Util/Vector3.h"
 
 class dtNavMesh;
@@ -8,7 +8,7 @@ class dtNavMesh;
 class FieldData
 {
 public:
-    FieldData(nlohmann::json j);
+    FieldData(const nlohmann::json& j);
     ~FieldData();
 
     uint16 FieldId() const { return _fieldId; }

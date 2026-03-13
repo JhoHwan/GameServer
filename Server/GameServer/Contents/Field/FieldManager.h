@@ -14,7 +14,7 @@ public:
     shared_ptr<class Field> GetField(uint16 mapId);
 
 private:
-    void Load();
+    void LoadFieldDatas();
 
     shared_ptr<Field> Create(uint16 mapId);
     void Destroy(uint64 fieldId);
@@ -28,5 +28,5 @@ private:
     unordered_map<uint64, shared_ptr<Field>> _fieldIdInstanceMap;
     unordered_map<uint16, unordered_set<shared_ptr<Field>>> _fields;
 
-    unordered_map<uint16, shared_ptr<FieldData>> _fieldDatas;
+    unordered_map<uint16, FieldData> _fieldDatas;
 };

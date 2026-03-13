@@ -6,7 +6,7 @@
 
 namespace fs = std::filesystem;
 
-FieldData::FieldData(nlohmann::json j)
+FieldData::FieldData(const nlohmann::json& j)
 {
     _fieldId = j["FieldId"].get<uint16>();
     _mapName = j["MapName"].get<std::string>();
