@@ -146,25 +146,35 @@ void Field::BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerCharacter
 
 void Field::PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Protocol::Vector3& dest)
 {
-	DoAsync([self = shared_from_this(), player = std::move(player), dest]()
+	constexpr int32 MOVE_REQUEST_MIN_INTERVAL = 2000;
+	constexpr float MOVE_REQUEST_MIN_DIST = 300.0f;
+	DoAsync([self = shared_from_this(), playerRef = std::move(player), dest]()
 	{
-		auto playerRef = player.lock();
-		if(playerRef == nullptr) return;
-		if(!self->_players.contains(playerRef))
+		auto player = playerRef.lock();
+		if(player == nullptr) return;
+		if(!self->_players.contains(player))
 		{
 			LOG_ERROR(Default, "PlayerRequestMove Error");
 			return;
 		}
 
-		Vector3 startPos = playerRef->GetCurrentPosition(GetTickCount64());
+		auto now = GetTickCount64();
+
+		auto& time = player->GetMoveStartTime();
+		if(now - time < MOVE_REQUEST_MIN_INTERVAL)
+		{
+			if(Vector3::Dist2D(dest, player->GetCurrentPosition(now)) <= MOVE_REQUEST_MIN_DIST) return;
+		}
+
+		Vector3 startPos = player->GetCurrentPosition(now);
 		Vector3 endPos(dest);
 
 		std::vector<Vector3> serverWaypoints;
 		self->FindPath(startPos, endPos, serverWaypoints);
 
 		Protocol::SC_MOVE_PATH pkt;
-		pkt.set_start_server_tick(GetTickCount64());
-		pkt.set_object_id(playerRef->GetId());
+		pkt.set_start_server_tick(now);
+		pkt.set_object_id(player->GetId());
 
 		for (int i = 0; i < serverWaypoints.size(); i++)
 		{
@@ -177,7 +187,7 @@ void Field::PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Protocol::
 
 			serverWaypoints[i] = Vector3(*waypoint); // Ensure serverWaypoints matches exact packet format if needed, but they are already identical.
 		}
-		playerRef->SetMoveInfo(std::move(serverWaypoints), GetTickCount64(), 500.0f);
+		player->SetMoveInfo(std::move(serverWaypoints), now, 500.0f);
 
 		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
 		self->BroadCast(sendBuffer);
