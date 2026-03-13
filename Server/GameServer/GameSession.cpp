@@ -24,7 +24,7 @@ void GameSession::OnRecvPacket(BYTE* buffer, int32 len)
 void GameSession::OnConnected()
 {
 	LOG_INFO(Default, "Client Connected : {}", GetAddress().GetIpAddress());
-	SetTimeOut(5000, "Login Request");
+	SetTimeOut(10000, "Login Request");
 }
 
 void GameSession::OnDisconnected()

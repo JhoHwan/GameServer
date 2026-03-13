@@ -98,7 +98,7 @@ int main()
 	cout << "Stress Test Started (" << sessionCount << " Dummies with JobQueue)..." << endl;
 
     vector<thread> threads;
-	for (int32 i = 0; i < 4; i++) // 워커 쓰레드 4개
+	for (int32 i = 0; i < 8; i++) // 워커 쓰레드 4개
 	{
 		threads.emplace_back(WorkerMain, i + 1, core);
 	}
@@ -117,7 +117,6 @@ int main()
 		cin >> command;
 		if (command == "quit")
 		{
-			service->CloseService();
 			GIsRunning = false;
 			break;
 		}
