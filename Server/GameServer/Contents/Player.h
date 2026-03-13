@@ -21,8 +21,8 @@ public:
 	const vector<Vector3>& GetWaypoints() const { return _moveWaypoints; }
 
 	const uint64& GetMoveStartTime() const { return _moveStartTime; }
-
 	Vector3 GetCurrentPosition(uint64 now) const;
+	Vector3 GetDestinationPosition() const { return _moveWaypoints.back(); }
 
 	uint16 GetLoadingMapId() const { return _loadingMapId; }
 	const Vector3& GetPendingSpawnPos() const { return _pendingSpawnPos; }

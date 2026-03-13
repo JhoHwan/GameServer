@@ -146,7 +146,7 @@ void Field::BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerCharacter
 
 void Field::PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Protocol::Vector3& dest)
 {
-	constexpr int32 MOVE_REQUEST_MIN_INTERVAL = 2000;
+	constexpr int32 MOVE_REQUEST_MIN_INTERVAL = 500;
 	constexpr float MOVE_REQUEST_MIN_DIST = 300.0f;
 	DoAsync([self = shared_from_this(), playerRef = std::move(player), dest]()
 	{
@@ -159,11 +159,15 @@ void Field::PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Protocol::
 		}
 
 		auto now = GetTickCount64();
-
 		auto& time = player->GetMoveStartTime();
-		if(now - time < MOVE_REQUEST_MIN_INTERVAL)
+		if(player->IsMoving() && now - time < MOVE_REQUEST_MIN_INTERVAL)
 		{
-			if(Vector3::Dist2D(dest, player->GetCurrentPosition(now)) <= MOVE_REQUEST_MIN_DIST) return;
+			LOG_DEBUG(Default, "MOVE_REQUEST_MIN_INTERVAL ");
+			if(Vector3::Dist2D(dest, player->GetDestinationPosition()) <= MOVE_REQUEST_MIN_DIST)
+			{
+				LOG_DEBUG(Default, "MOVE_REQUEST_MIN_DIST ");
+				return;
+			}
 		}
 
 		Vector3 startPos = player->GetCurrentPosition(now);
