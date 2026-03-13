@@ -22,14 +22,9 @@ void Session::Send(SendBufferRef sendBuffer)
 	if (IsConnected() == false)
 		return;
 
-	bool registerSend = false;
-
 	_sendQueue.enqueue(std::move(sendBuffer));
-	if (_sendRegistered.exchange(true) == false)
-		registerSend = true;
-	
-	if (registerSend)
-		RegisterSend();
+
+	RegisterSend();
 }
 
 bool Session::Connect()
@@ -42,8 +37,7 @@ void Session::Disconnect(const char* cause)
 	if (_connected.exchange(false) == false)
 		return;
 
-	// TEMP
-	LOG_DEBUG(Default, "Disconnect : {}", cause);
+	LOG_WARN(Network, "Session Disconnected (Handle: {}). Reason: {}", (uint64)_socket, cause);
 
 	RegisterDisconnect();
 }
@@ -72,7 +66,10 @@ void Session::Dispatch(NetEvent* netEvent, const int32 numOfBytes)
 
 	if(flags & (EPOLLOUT))
 	{
-		if(IsConnected()) FlushSend();
+		if(IsConnected())
+		{
+			RegisterSend();
+		}
 		else ProcessConnect();
 	}
 
@@ -155,6 +152,8 @@ void Session::FlushSend()
 		int32 iovCount = 0;
 		size_t totalBytes = 0;
 
+
+
 		auto it = _pendingSendQueue.begin();
 		while (it != _pendingSendQueue.end() && iovCount < MAX_IOV)
 		{
@@ -169,10 +168,20 @@ void Session::FlushSend()
 			++it;
 		}
 
-		ssize_t sentBytes = ::writev(_socket, iovs, iovCount);
+		struct msghdr msg {};
+		msg.msg_iov = iovs;
+		msg.msg_iovlen = iovCount;
+		ssize_t sentBytes = ::sendmsg(_socket, &msg, MSG_NOSIGNAL);
 		if(sentBytes == -1)
 		{
-			if(errno == EAGAIN || errno == EWOULDBLOCK) break;
+			if(errno == EAGAIN || errno == EWOULDBLOCK)
+			{
+				_sendRegistered.store(false);
+
+				GetService()->GetNetCore()->Update(shared_from_this(), EPOLLIN | EPOLLOUT);
+				break;
+			}
+
 			Disconnect("Writev Error");
 			return;
 		}
@@ -199,8 +208,23 @@ void Session::FlushSend()
 			}
 		}
 
-		if(_pendingSendQueue.empty() || sentBytes < totalBytes) break;
+		if(_pendingSendQueue.empty())
+		{
+			_sendRegistered.store(false);
+
+			if (_sendQueue.size_approx() > 0)
+			{
+				if (_sendRegistered.exchange(true) == false)
+					continue;
+			}
+			else
+			{
+				GetService()->GetNetCore()->Update(shared_from_this(), EPOLLIN);
+			}
+			break;
+		}
 	}
+
 	if(totalSentBytes > 0)
 		OnSend(totalSentBytes);
 }
@@ -210,9 +234,10 @@ void Session::RegisterSend()
 	if (IsConnected() == false)
 		return;
 
+	if (_sendRegistered.exchange(true) == true)
+		return;
+
 	FlushSend();
-	if(_sendRegistered.load())
-		GetService()->GetNetCore()->Update(shared_from_this(), EPOLLIN | EPOLLOUT);
 }
 
 void Session::ProcessConnect()
@@ -228,18 +253,23 @@ void Session::ProcessConnect()
 
 void Session::ProcessDisconnect()
 {
+	_connected.store(false);
+
 	OnDisconnected();
 
 	GetService()->GetNetCore()->UnRegister(shared_from_this());
 	SocketUtils::Close(_socket);
 
 	GetService()->ReleaseSession(GetSessionRef());
-	
-	_epollRef.reset();
 }
 
 void Session::ProcessRecv(int32 numOfBytes)
 {
+	if(!IsConnected()) return;
+
+	if (_isReceiving.exchange(true) == true)
+		return;
+
 	while (true)
 	{
 		ssize_t recvBytes = recv(_socket, _recvBuffer.WritePos(), _recvBuffer.FreeSize(), 0);
@@ -268,6 +298,7 @@ void Session::ProcessRecv(int32 numOfBytes)
 	int32 processLen = OnRecv(_recvBuffer.ReadPos(), dataSize);
 	if (processLen < 0 || dataSize < processLen || _recvBuffer.OnRead(processLen) == false)
 	{
+		LOG_ERROR(Network, "OnRead Overflow Deteced! DataSize: {}, ProcessLen: {}", dataSize, processLen);
 		Disconnect("OnRead Overflow");
 		return;
 	}
@@ -275,6 +306,8 @@ void Session::ProcessRecv(int32 numOfBytes)
 	_recvBuffer.Clean();
 
 	RegisterRecv();
+
+	_isReceiving.store(false);
 }
 
 void Session::ProcessSend(int32 numOfBytes)

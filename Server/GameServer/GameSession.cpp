@@ -10,10 +10,13 @@ GameSession::GameSession() : _jobQueue(make_shared<JobQueue>()), _timeOutToken(0
 {
 }
 
+GameSession::~GameSession()
+{
+	LOG_INFO(Default, "GameSession::~GameSession()");
+}
+
 void GameSession::OnRecvPacket(BYTE* buffer, int32 len)
 {
-	SetTimeOut(20000, "Active Session");
-
 	auto sessionRef = GetSessionRef();
 	ServerPacketHandler::HandlePacket(sessionRef, buffer, len);
 }
@@ -28,7 +31,7 @@ void GameSession::OnDisconnected()
 {
 	PacketSession::OnDisconnected();
 
-	LOG_INFO(Default, "Client DisConnected : {}", GetAddress().GetIpAddress());
+	LOG_WARN(Default, "Client DisConnected : {}", GetAddress().GetIpAddress());
 
 	if(_playerRef)
 	{
@@ -42,13 +45,18 @@ void GameSession::OnDisconnected()
 
 void GameSession::SetTimeOut(uint64 time, const string& log)
 {
-	uint32 token = ++_timeOutToken;
+	uint64 token = _timeOutToken.fetch_add(1)+1;
 
 	weak_ptr<GameSession> self = static_pointer_cast<GameSession>(GetSessionRef());
 	JobRef job = make_shared<Job>([self, log, token]
 		{
 			shared_ptr<GameSession> session = self.lock();
-			if (!session || session->_timeOutToken.load() != token) return;
+			if(!session) return;
+
+			auto curToken = session->_timeOutToken.load();
+			if (curToken != token) return;
+
+
 			LOG_WARN(Timeout, "{} Timeout!", log);
 			session->Disconnect("Time Out");
 		});

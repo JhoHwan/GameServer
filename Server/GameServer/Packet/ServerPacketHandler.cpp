@@ -16,7 +16,6 @@ bool Handle_INVALID(SessionRef& session, BYTE* buffer, int32 len)
 bool Handle_CS_REQ_ENTER_GAME(SessionRef& session, Protocol::CS_REQ_ENTER_GAME& pkt)
 {
     shared_ptr<GameSession> gSession = static_pointer_cast<GameSession>(session);
-    gSession->CancelTimeOut();
 
     GameManager::Instance().ProcessEnterGame(gSession);
     return true;
@@ -78,7 +77,6 @@ bool Handle_CS_REQUEST_MOVE(SessionRef& session, Protocol::CS_REQUEST_MOVE& pkt)
 bool Handle_CS_TIME_SYNC(SessionRef& session, Protocol::CS_TIME_SYNC& pkt)
 {
     shared_ptr<GameSession> gameSession = static_pointer_cast<GameSession>(session);
-    gameSession->CancelTimeOut();
     gameSession->SetTimeOut(20000, "HeartBeat");
 
     Protocol::SC_TIME_SYNC res;

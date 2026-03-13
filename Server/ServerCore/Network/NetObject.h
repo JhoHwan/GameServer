@@ -14,7 +14,5 @@ protected:
 #ifndef _WIN32
     friend class NetCore;
     uint32 _nativeFlags = 0;
-
-    NetObjectRef _epollRef;
 #endif
 };

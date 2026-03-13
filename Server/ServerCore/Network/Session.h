@@ -40,7 +40,7 @@ public:
 	NetAddress			GetAddress() const { return _netAddress; }
 	void				SetSocket(const SOCKET& socket) { _socket = socket; }
 	SOCKET				GetSocket() const { return _socket; }
-	bool				IsConnected() { return _connected; }
+	bool				IsConnected() { return _connected.load(); }
 	SessionRef			GetSessionRef() { return static_pointer_cast<Session>(shared_from_this()); }
 
 private:
@@ -97,6 +97,7 @@ private:
 #else
 	int32 _sendOffset = 0;
 	deque<SendBufferRef> _pendingSendQueue;
+	atomic_bool _isReceiving;
 #endif
 };
 

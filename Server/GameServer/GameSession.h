@@ -6,7 +6,7 @@ class GameSession : public PacketSession
 {
 public:
     GameSession();
-    ~GameSession() override = default;
+    ~GameSession() override;
 protected:
     void OnRecvPacket(BYTE* buffer, int32 len) override;
     void OnConnected() override;

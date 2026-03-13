@@ -16,11 +16,11 @@ using uint32 = uint32_t;
 using uint64 = uint64_t;
 
 #ifndef _WIN32
-    using SOCKET = int;
+    using SOCKET = int32;
     constexpr int INVALID_SOCKET = -1;
     constexpr int INVALID_HANDLE_VALUE = -1;
     constexpr int SOCKET_ERROR = -1;
-    using HANDLE = int;
+    using HANDLE = int32;
     constexpr int INFINITE = -1;
     using LINGER = struct linger;
 

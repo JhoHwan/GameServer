@@ -1,4 +1,5 @@
 #include "SocketUtils.h"
+#include <csignal>
 
 /*----------------
 	SocketUtils
@@ -21,6 +22,8 @@ void SocketUtils::Init()
 	ASSERT_CRASH(BindWindowsFunction(dummySocket, WSAID_DISCONNECTEX, reinterpret_cast<void**>(&DisconnectEx)));
 	ASSERT_CRASH(BindWindowsFunction(dummySocket, WSAID_ACCEPTEX, reinterpret_cast<void**>(&AcceptEx)));
 	Close(dummySocket);
+#else
+	::signal(SIGPIPE, SIG_IGN);
 #endif
 }
 

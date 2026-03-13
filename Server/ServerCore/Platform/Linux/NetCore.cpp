@@ -22,10 +22,14 @@ NetCore::~NetCore()
 
 bool NetCore::Register(const NetObjectRef& netObject)
 {
-    const auto socket = netObject->GetHandle();
+    const HANDLE socket = netObject->GetHandle();
+    auto gen = _registry[socket].gen.fetch_add(1)+1;
+    _registry[socket].netObject.store(netObject);
+    uint64 ticket =  (static_cast<uint64>(gen) << 32) | socket;
+
     epoll_event event{};
     event.events = netObject->_nativeFlags;
-    event.data.ptr = netObject.get();
+    event.data.u64 = ticket;
 
     if (epoll_ctl(_handle, EPOLL_CTL_ADD, socket, &event) == -1)
     {
@@ -33,13 +37,14 @@ bool NetCore::Register(const NetObjectRef& netObject)
         return false;
     }
 
-    netObject->_epollRef = netObject;
     return true;
 }
 
 void NetCore::UnRegister(const NetObjectRef& netObject)
 {
-    const auto socket = netObject->GetHandle();
+    const HANDLE socket = netObject->GetHandle();
+    _registry[socket].netObject.store(nullptr);
+
     if(socket != INVALID_SOCKET)
         epoll_ctl(_handle, EPOLL_CTL_DEL, socket, nullptr);
 }
@@ -63,11 +68,20 @@ bool NetCore::Dispatch(const int32 timeoutMs)
 
     for (int i = 0; i < numEvents; ++i)
     {
-        auto* netObject = static_cast<NetObject*>(events[i].data.ptr);
+        uint64 ticket = events[i].data.u64;
+        uint32 fd = static_cast<uint32>(ticket & 0xFFFFFFFF);
+        uint32 gen = static_cast<uint32>(ticket >> 32);
+
+        NetObjectRef netObject = nullptr;
+        if(_registry[fd].gen.load() == gen)
+        {
+            netObject = _registry[fd].netObject.load();
+        }
+
+        if(!netObject) return false;
 
         NetEvent netEvent{};
         netEvent.eventFlags = events[i].events;
-
         netObject->Dispatch(&netEvent, 0);
     }
 
@@ -80,8 +94,11 @@ bool NetCore::Update(const NetObjectRef& netObject, uint32 eventFlags)
     if(socket == INVALID_SOCKET) return false;
     epoll_event event{};
 
+    uint32 gen = _registry[socket].gen.load();
+    uint64 ticket = (static_cast<uint64>(gen) << 32) | socket;
+
     event.events = eventFlags | EPOLLET | EPOLLONESHOT;
-    event.data.ptr = netObject.get();
+    event.data.u64 = ticket;
 
     if (epoll_ctl(_handle, EPOLL_CTL_MOD, socket, &event) == -1)
     {

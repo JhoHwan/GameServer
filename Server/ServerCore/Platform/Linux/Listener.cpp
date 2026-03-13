@@ -58,8 +58,6 @@ void Listener::CloseSocket()
 	_service->GetNetCore()->UnRegister(shared_from_this());
 	SocketUtils::Close(_socket);
 	_socket = INVALID_SOCKET;
-
-	_epollRef.reset();
 }
 
 HANDLE Listener::GetHandle()

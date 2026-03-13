@@ -127,7 +127,7 @@ void Field::BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerCharacter
 {
 	DoAsync([self = shared_from_this(), sendBuffer = std::move(sendBuffer), except]()
 	{
-		vector<SessionRef> sessions;
+		vector<weak_ptr<Session>> sessions;
 		sessions.reserve(self->_players.size());
 
 		for (auto& player : self->_players)
@@ -137,9 +137,10 @@ void Field::BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerCharacter
 			if (session) sessions.push_back(session);
 		}
 
-		for (auto& session : sessions)
+		for (auto sessionRef : sessions)
 		{
-			session->Send(sendBuffer);
+			if(auto session = sessionRef.lock())
+				session->Send(sendBuffer);
 		}
 	});
 }

@@ -14,4 +14,12 @@ public:
 
 private:
 	HANDLE _handle = INVALID_HANDLE_VALUE;
+#ifndef _WIN32
+	struct SessionSlot
+	{
+		atomic<NetObjectRef> netObject = nullptr;
+		atomic<uint32> gen {0};
+	};
+	SessionSlot _registry[65536]{};
+#endif
 };

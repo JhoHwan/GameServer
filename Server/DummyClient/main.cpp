@@ -1,91 +1,129 @@
 #include "pch.h"
 #include <iostream>
 #include <atomic>
+#include <thread>
+#include <vector>
 
 #include "NetCore.h"
 #include "Service.h"
 #include "Session.h"
+#include "DummySession.h"
+#include "Packet/ClientPacketHandler.h"
 
 using namespace std;
 
 atomic<bool> GIsRunning = true;
+atomic<int32> GConnectedCount = 0;
 
-class DummySession : public Session
+void WorkerMain(uint32 id, const NetCoreRef& netCore)
 {
-public:
-	virtual void OnConnected() override
-	{
-		cout << "Connected To Server!" << endl;
-	}
+	LThreadId = id;
+    while (GIsRunning)
+    {
+        // Epoll 완료 처리
+        netCore->Dispatch(5);
 
-	virtual int32 OnRecv(BYTE* buffer, int32 len) override
-	{
-		return len;
-	}
+        {
+            auto now = GetTickCount64();
+            LJobTimer.Distribute(now);
+        }
 
-	virtual void OnSend(int32 len) override 
-	{ 
-	}
+        // Job 처리 (최대 10ms씩 끊어서 수행)
+        auto start = chrono::steady_clock::now();
 
-	virtual void OnDisconnected() override 
-	{ 
-		cout << "Disconnected!" << endl;
-	}
-};
+        while (!LJobQueue.empty())
+        {
+            auto now = chrono::steady_clock::now();
+            auto duration = chrono::duration_cast<chrono::milliseconds>(now - start).count();
+            if (duration >= 10)
+            {
+                while (!LJobQueue.empty())
+                {
+                    GGlobalJobQueue.enqueue(LJobQueue.front());
+                    LJobQueue.pop();
+                }
+                break;
+            }
+
+            JobQueueRef jobQueue = LJobQueue.front();
+            LJobQueue.pop();
+
+            jobQueue->Execute(64);
+        }
+
+        while (true)
+        {
+            auto now = chrono::steady_clock::now();
+            auto duration = chrono::duration_cast<chrono::milliseconds>(now - start).count();
+            if (duration >= 10) break;
+
+            JobQueueRef jobQueue;
+            if (!GGlobalJobQueue.try_dequeue(jobQueue)) break;
+            if (!jobQueue) break;
+
+            jobQueue->Execute(64);
+        }
+    }
+}
 
 int main()
 {
-	this_thread::sleep_for(1s); // 서버가 켜질 시간 대기
+    ClientPacketHandler::Init();
+
+	this_thread::sleep_for(1s); 
+
+	int32 sessionCount = 0;
+	cout << "Enter Dummy Session Count: ";
+	cin >> sessionCount;
+
+	if (sessionCount <= 0)
+	{
+		cout << "Invalid Session Count" << endl;
+		return 0;
+	}
 
 	NetAddress address("127.0.0.1", 7777);
 	NetCoreRef core = make_shared<NetCore>();
 
-    // ClientService 생성: 100명의 더미 클라이언트가 동시에 접속을 시도하게 함
+    // 입력받은 수만큼 더미가 생성되도록 설정
 	ClientServiceRef service = make_shared<ClientService>(
 		address,
 		core,
 		[]() { return make_shared<DummySession>(); },
-		100 // maxSessionCount (더미 수)
+		sessionCount 
 	);
 
-	if (service->Start() == false)
-	{
-		cout << "Failed to start ClientService" << endl;
-		return 1;
-	}
+	if (service->Start() == false) return 1;
 
-	cout << "DummyClient started. Connecting to server..." << endl;
+	cout << "Stress Test Started (" << sessionCount << " Dummies with JobQueue)..." << endl;
 
-    // 워커 스레드 2개 가동
     vector<thread> threads;
-	for (int32 i = 0; i < 2; i++)
+	for (int32 i = 0; i < 4; i++) // 워커 쓰레드 4개
 	{
-		threads.emplace_back([=]()
-		{
-			while (GIsRunning)
-			{
-				service->GetNetCore()->Dispatch(10);
-			}
-		});
+		threads.emplace_back(WorkerMain, i + 1, core);
 	}
+
+    // 상태 보고용 쓰레드
+    threads.emplace_back([=]() {
+        while (GIsRunning) {
+            this_thread::sleep_for(2s);
+            cout << "Current Connected Dummies: " << GConnectedCount.load() << endl;
+        }
+    });
 
 	while (true)
 	{
-		wstring command;
-		wcin >> command;
-		if (command == L"quit")
+		string command;
+		cin >> command;
+		if (command == "quit")
 		{
 			service->CloseService();
-			this_thread::sleep_for(100ms);
 			GIsRunning = false;
 			break;
 		}
 	}
 
-	for (auto& t : threads)
-	{
-		t.join();
-	}
+	for (auto& t : threads) t.join();
 
     return 0;
 }

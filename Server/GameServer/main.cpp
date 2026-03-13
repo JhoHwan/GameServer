@@ -5,7 +5,7 @@
 #include <string>
 #include <atomic>
 #include <format>
-
+#include <csignal>
 #include "Service.h"
 #include "GameSession.h"
 
@@ -73,9 +73,8 @@ void WorkerMain(uint32 id, const NetCoreRef& netCore)
 
 int main()
 {
-
 	ServerPacketHandler::Init();
-	if(!LogManager::Instance().Init(ELogLevel::Debug))
+	if(!LogManager::Instance().Init(ELogLevel::Info))
 	{
 		cerr << "LogManager init Failed" << endl;
 		return 0;
