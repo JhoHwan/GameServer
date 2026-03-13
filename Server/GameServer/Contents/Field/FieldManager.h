@@ -13,6 +13,14 @@ public:
     void Init();
     shared_ptr<class Field> GetField(uint16 mapId);
 
+    const FieldData* GetFieldData(uint16 mapId)
+    {
+        READ_LOCK;
+        auto it = _fieldDatas.find(mapId);
+        if(it == _fieldDatas.end()) return nullptr;
+        return (it->second).get();
+    }
+
 private:
     void LoadFieldDatas();
 
@@ -28,5 +36,5 @@ private:
     unordered_map<uint64, shared_ptr<Field>> _fieldIdInstanceMap;
     unordered_map<uint16, unordered_set<shared_ptr<Field>>> _fields;
 
-    unordered_map<uint16, FieldData> _fieldDatas;
-};
+    unordered_map<uint16, unique_ptr<FieldData>> _fieldDatas;
+    };

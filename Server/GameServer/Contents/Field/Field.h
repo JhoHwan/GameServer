@@ -1,13 +1,14 @@
 ﻿#pragma once
-
-#include "FieldData.h"
-#include "Util/NavMeshLoader.h"
+#include "DetourNavMesh.h"
+#include "Protocol.pb.h"
 #include "Util/Vector3.h"
 
+class FieldData;
 class Field;
 class FieldManager;
 class PlayerCharacter;
 class dtNavMeshQuery;
+
 
 
 class Field : public AsyncActor, public std::enable_shared_from_this<Field>
@@ -20,12 +21,12 @@ public:
 
 	void Init();
 
-	void EnterPlayer(weak_ptr<PlayerCharacter> );
+	void EnterPlayer(weak_ptr<PlayerCharacter> player);
 	void BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerCharacter>& except = nullptr);
 
 	void PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Protocol::Vector3& pos);
 
-	void LeavePlayer(std::shared_ptr<PlayerCharacter> player, shared_ptr<Field> nextField = nullptr);
+	void LeavePlayer(std::shared_ptr<PlayerCharacter> player);
 
 	void UpdatePlayerPosition();
 
@@ -43,6 +44,8 @@ public:
 
 	uint32 GetPlayerCount() const {return _currentPlayerCount.load(); }
 	bool CanEnterField() const {return GetPlayerCount() < MAX_PLAYERS; }
+
+	void RequestUsePortal(const weak_ptr<PlayerCharacter>& playerRef, uint32 portalId);
 
 private:
 	void FindPath(const Vector3& pos, const Vector3& endPos, OUT std::vector<Vector3>& result);

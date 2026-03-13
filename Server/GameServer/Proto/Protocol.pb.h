@@ -61,6 +61,9 @@ extern CS_REQ_MOVE_FIELDDefaultTypeInternal _CS_REQ_MOVE_FIELD_default_instance_
 class CS_TIME_SYNC;
 struct CS_TIME_SYNCDefaultTypeInternal;
 extern CS_TIME_SYNCDefaultTypeInternal _CS_TIME_SYNC_default_instance_;
+class CS_USE_PORTAL;
+struct CS_USE_PORTALDefaultTypeInternal;
+extern CS_USE_PORTALDefaultTypeInternal _CS_USE_PORTAL_default_instance_;
 class SC_DESPAWN_PLAYER;
 struct SC_DESPAWN_PLAYERDefaultTypeInternal;
 extern SC_DESPAWN_PLAYERDefaultTypeInternal _SC_DESPAWN_PLAYER_default_instance_;
@@ -92,6 +95,7 @@ template<> ::Protocol::CS_REQUEST_MOVE* Arena::CreateMaybeMessage<::Protocol::CS
 template<> ::Protocol::CS_REQ_ENTER_GAME* Arena::CreateMaybeMessage<::Protocol::CS_REQ_ENTER_GAME>(Arena*);
 template<> ::Protocol::CS_REQ_MOVE_FIELD* Arena::CreateMaybeMessage<::Protocol::CS_REQ_MOVE_FIELD>(Arena*);
 template<> ::Protocol::CS_TIME_SYNC* Arena::CreateMaybeMessage<::Protocol::CS_TIME_SYNC>(Arena*);
+template<> ::Protocol::CS_USE_PORTAL* Arena::CreateMaybeMessage<::Protocol::CS_USE_PORTAL>(Arena*);
 template<> ::Protocol::SC_DESPAWN_PLAYER* Arena::CreateMaybeMessage<::Protocol::SC_DESPAWN_PLAYER>(Arena*);
 template<> ::Protocol::SC_ENTER_FIELD* Arena::CreateMaybeMessage<::Protocol::SC_ENTER_FIELD>(Arena*);
 template<> ::Protocol::SC_ENTER_GAME_RESULT* Arena::CreateMaybeMessage<::Protocol::SC_ENTER_GAME_RESULT>(Arena*);
@@ -571,6 +575,154 @@ class CS_REQ_MOVE_FIELD final :
 };
 // -------------------------------------------------------------------
 
+class CS_USE_PORTAL final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.CS_USE_PORTAL) */ {
+ public:
+  inline CS_USE_PORTAL() : CS_USE_PORTAL(nullptr) {}
+  ~CS_USE_PORTAL() override;
+  explicit PROTOBUF_CONSTEXPR CS_USE_PORTAL(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  CS_USE_PORTAL(const CS_USE_PORTAL& from);
+  CS_USE_PORTAL(CS_USE_PORTAL&& from) noexcept
+    : CS_USE_PORTAL() {
+    *this = ::std::move(from);
+  }
+
+  inline CS_USE_PORTAL& operator=(const CS_USE_PORTAL& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline CS_USE_PORTAL& operator=(CS_USE_PORTAL&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const CS_USE_PORTAL& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const CS_USE_PORTAL* internal_default_instance() {
+    return reinterpret_cast<const CS_USE_PORTAL*>(
+               &_CS_USE_PORTAL_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    3;
+
+  friend void swap(CS_USE_PORTAL& a, CS_USE_PORTAL& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(CS_USE_PORTAL* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(CS_USE_PORTAL* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  CS_USE_PORTAL* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<CS_USE_PORTAL>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const CS_USE_PORTAL& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const CS_USE_PORTAL& from) {
+    CS_USE_PORTAL::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(CS_USE_PORTAL* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Protocol.CS_USE_PORTAL";
+  }
+  protected:
+  explicit CS_USE_PORTAL(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kPortalIdFieldNumber = 1,
+  };
+  // uint32 portal_id = 1;
+  void clear_portal_id();
+  uint32_t portal_id() const;
+  void set_portal_id(uint32_t value);
+  private:
+  uint32_t _internal_portal_id() const;
+  void _internal_set_portal_id(uint32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Protocol.CS_USE_PORTAL)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    uint32_t portal_id_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_Protocol_2eproto;
+};
+// -------------------------------------------------------------------
+
 class SC_MOVE_FIELD_FAIL final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.SC_MOVE_FIELD_FAIL) */ {
  public:
@@ -619,7 +771,7 @@ class SC_MOVE_FIELD_FAIL final :
                &_SC_MOVE_FIELD_FAIL_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    3;
+    4;
 
   friend void swap(SC_MOVE_FIELD_FAIL& a, SC_MOVE_FIELD_FAIL& b) {
     a.Swap(&b);
@@ -767,7 +919,7 @@ class SC_START_FIELD_LOADING final :
                &_SC_START_FIELD_LOADING_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    4;
+    5;
 
   friend void swap(SC_START_FIELD_LOADING& a, SC_START_FIELD_LOADING& b) {
     a.Swap(&b);
@@ -915,7 +1067,7 @@ class CS_FIELD_LOADING_COMPLETE final :
                &_CS_FIELD_LOADING_COMPLETE_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    5;
+    6;
 
   friend void swap(CS_FIELD_LOADING_COMPLETE& a, CS_FIELD_LOADING_COMPLETE& b) {
     a.Swap(&b);
@@ -1063,7 +1215,7 @@ class SC_ENTER_FIELD final :
                &_SC_ENTER_FIELD_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    6;
+    7;
 
   friend void swap(SC_ENTER_FIELD& a, SC_ENTER_FIELD& b) {
     a.Swap(&b);
@@ -1220,7 +1372,7 @@ class SC_SPAWN_PLAYER final :
                &_SC_SPAWN_PLAYER_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    7;
+    8;
 
   friend void swap(SC_SPAWN_PLAYER& a, SC_SPAWN_PLAYER& b) {
     a.Swap(&b);
@@ -1377,7 +1529,7 @@ class SC_DESPAWN_PLAYER final :
                &_SC_DESPAWN_PLAYER_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    8;
+    9;
 
   friend void swap(SC_DESPAWN_PLAYER& a, SC_DESPAWN_PLAYER& b) {
     a.Swap(&b);
@@ -1525,7 +1677,7 @@ class CS_REQUEST_MOVE final :
                &_CS_REQUEST_MOVE_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    9;
+    10;
 
   friend void swap(CS_REQUEST_MOVE& a, CS_REQUEST_MOVE& b) {
     a.Swap(&b);
@@ -1682,7 +1834,7 @@ class SC_MOVE_PATH final :
                &_SC_MOVE_PATH_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    10;
+    11;
 
   friend void swap(SC_MOVE_PATH& a, SC_MOVE_PATH& b) {
     a.Swap(&b);
@@ -1861,7 +2013,7 @@ class CS_TIME_SYNC final :
                &_CS_TIME_SYNC_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    11;
+    12;
 
   friend void swap(CS_TIME_SYNC& a, CS_TIME_SYNC& b) {
     a.Swap(&b);
@@ -2009,7 +2161,7 @@ class SC_TIME_SYNC final :
                &_SC_TIME_SYNC_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    12;
+    13;
 
   friend void swap(SC_TIME_SYNC& a, SC_TIME_SYNC& b) {
     a.Swap(&b);
@@ -2235,6 +2387,30 @@ inline void CS_REQ_MOVE_FIELD::_internal_set_map_id(uint32_t value) {
 inline void CS_REQ_MOVE_FIELD::set_map_id(uint32_t value) {
   _internal_set_map_id(value);
   // @@protoc_insertion_point(field_set:Protocol.CS_REQ_MOVE_FIELD.map_id)
+}
+
+// -------------------------------------------------------------------
+
+// CS_USE_PORTAL
+
+// uint32 portal_id = 1;
+inline void CS_USE_PORTAL::clear_portal_id() {
+  _impl_.portal_id_ = 0u;
+}
+inline uint32_t CS_USE_PORTAL::_internal_portal_id() const {
+  return _impl_.portal_id_;
+}
+inline uint32_t CS_USE_PORTAL::portal_id() const {
+  // @@protoc_insertion_point(field_get:Protocol.CS_USE_PORTAL.portal_id)
+  return _internal_portal_id();
+}
+inline void CS_USE_PORTAL::_internal_set_portal_id(uint32_t value) {
+  
+  _impl_.portal_id_ = value;
+}
+inline void CS_USE_PORTAL::set_portal_id(uint32_t value) {
+  _internal_set_portal_id(value);
+  // @@protoc_insertion_point(field_set:Protocol.CS_USE_PORTAL.portal_id)
 }
 
 // -------------------------------------------------------------------
@@ -2704,6 +2880,8 @@ inline void SC_TIME_SYNC::set_server_tick(uint64_t value) {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

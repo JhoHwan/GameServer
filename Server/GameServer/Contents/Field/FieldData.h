@@ -3,6 +3,7 @@
 #include "nlohmann/json_fwd.hpp"
 #include "Util/Vector3.h"
 
+struct FieldPortalData;
 class dtNavMesh;
 
 class FieldData
@@ -11,16 +12,25 @@ public:
     FieldData(const nlohmann::json& j);
     ~FieldData();
 
-    uint16 FieldId() const { return _fieldId; }
-    dtNavMesh* NavMesh() const { return _navMesh; }
-    const std::vector<Vector3>& PlayerStarts() const { return _playerStarts; }
-    const std::vector<Vector3>& FieldsPortals() const { return _fieldsPortals; }
-    const std::string& MapName() const { return _mapName; }
-
-private:
-    uint16 _fieldId;
-    dtNavMesh* _navMesh;
-    std::string _mapName;
-    std::vector<Vector3> _playerStarts;
-    std::vector<Vector3> _fieldsPortals;
+    uint16 MapId;
+    dtNavMesh* NavMesh;
+    std::string MapName;
+    std::vector<Vector3> PlayerStarts;
+    std::vector<FieldPortalData> FieldsPortals;
 };
+
+struct FieldPortalData
+{
+    uint8 PortalId;
+    Vector3 Position;
+    uint16 TargetMapId;
+    uint8 TargetPortalId;
+};
+
+inline void from_json(const nlohmann::json& j, FieldPortalData& f)
+{
+    j.at("PortalId").get_to(f.PortalId);
+    j.at("Position").get_to(f.Position);
+    j.at("TargetMapId").get_to(f.TargetMapId);
+    j.at("TargetPortalId").get_to(f.TargetPortalId);
+}

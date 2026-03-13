@@ -8,11 +8,12 @@
 #include "Contents/Player.h"
 #include "GameSession.h"
 #include "LogManager.h"
+#include "Contents/GameManager.h"
 #include "Packet/ServerPacketHandler.h"
 #include "Detour/Include/DetourNavMeshQuery.h"
 
 
-Field::Field(uint64 id, const FieldData* fieldData) : _navMesh(fieldData->NavMesh()), _id(id), _fieldData(fieldData)
+Field::Field(uint64 id, const FieldData* fieldData) : _navMesh(fieldData->NavMesh), _id(id), _fieldData(fieldData)
 {
 	_navQuery = dtAllocNavMeshQuery();
 	dtStatus Status = _navQuery->init(_navMesh, 2048);
@@ -51,8 +52,12 @@ void Field::EnterPlayer(weak_ptr<PlayerCharacter> player)
 		self->_currentPlayerCount.fetch_add(1);
 		self->_players.insert(player);
 
-		player->Transform()->SetPos( self->_fieldData->PlayerStarts()[0]);
+		auto playerSpawnPos = player->GetPendingSpawnPos();
+
+		player->Transform()->SetPos(playerSpawnPos);
 		player->SetField(self);
+
+		player->SetLoadingInfo(0, Vector3::Zero());
 
 		{
 			Protocol::SC_ENTER_FIELD packet;
@@ -179,9 +184,9 @@ void Field::PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Protocol::
 	});
 }
 
-void Field::LeavePlayer(shared_ptr<PlayerCharacter> player, shared_ptr<Field> nextField)
+void Field::LeavePlayer(shared_ptr<PlayerCharacter> player)
 {
-	DoAsync([self = shared_from_this(), player = std::move(player), nextField = std::move(nextField)]() {
+	DoAsync([self = shared_from_this(), player = std::move(player)]() {
 		player->SetField(nullptr);
 
 		Protocol::SC_DESPAWN_PLAYER pkt;
@@ -189,7 +194,10 @@ void Field::LeavePlayer(shared_ptr<PlayerCharacter> player, shared_ptr<Field> ne
 		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
 		self->BroadCast(sendBuffer);
 
-		self->_players.erase(player);
+		if(self->_players.contains(player))
+		{
+			self->_players.erase(player);
+		}
 		self->_currentPlayerCount.fetch_sub(1);
 
 		if(self->_players.empty())
@@ -201,9 +209,6 @@ void Field::LeavePlayer(shared_ptr<PlayerCharacter> player, shared_ptr<Field> ne
 			});
 			LJobTimer.Reserve(10000, self->GetJobQueue(), job);
 		}
-
-		if(!nextField) return;
-		nextField->EnterPlayer(player);
 	});
 }
 
@@ -228,6 +233,26 @@ void Field::UpdatePlayerPosition()
 	});
 
 	LJobTimer.Reserve(500, GetJobQueue(), job);
+}
+
+void Field::RequestUsePortal(const weak_ptr<PlayerCharacter>& playerRef, uint32 portalId)
+{
+	DoAsync([self = shared_from_this(), playerRef = playerRef, portalId]()
+	{
+		shared_ptr<PlayerCharacter> player = playerRef.lock();
+		if(player == nullptr) return;
+		if(self->_fieldData->FieldsPortals.size() <= portalId) return;
+		LOG_DEBUG(Field, "[Player {}] Request Use Portal. Portal ID : {}", player->GetInstanceID(), portalId);
+
+		auto portalData = self->_fieldData->FieldsPortals[portalId];
+		Vector3 playerPos = player->GetCurrentPosition(GetTickCount64());
+		if(500.0f <= Vector3::Dist2D(portalData.Position, playerPos))
+		{
+			return;
+		}
+
+		GameManager::Instance().ProcessMoveField(player, portalData.TargetMapId, portalId);
+	});
 }
 
 void Field::FindPath(const Vector3& startPos, const Vector3& endPos, OUT std::vector<Vector3>& pathResult)

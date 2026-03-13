@@ -8,30 +8,30 @@ namespace fs = std::filesystem;
 
 FieldData::FieldData(const nlohmann::json& j)
 {
-    _fieldId = j["FieldId"].get<uint16>();
-    _mapName = j["MapName"].get<std::string>();
+    MapId = j["MapId"].get<uint16>();
+    MapName = j["MapName"].get<std::string>();
 
-    if(j.contains("PlayerStart"))
+    if(j.contains("PlayerStarts"))
     {
-        for (const auto& item : j["PlayerStart"])
+        for (const auto& item : j["PlayerStarts"])
         {
-            _playerStarts.push_back(item["Position"].get<Vector3>());
+            PlayerStarts.push_back(item["Position"].get<Vector3>());
         }
     }
 
-    if(j.contains("FieldPortal"))
+    if(j.contains("FieldPortals"))
     {
-        for (const auto& item : j["FieldPortal"])
+        for (const auto& item : j["FieldPortals"])
         {
-            _fieldsPortals.push_back(item["Position"].get<Vector3>());
+            FieldsPortals.push_back(item.get<FieldPortalData>());
         }
     }
 
-    fs::path path = fs::current_path() / "Resources" / "Fields" / "NavMesh" / (_mapName + ".bin");
-    _navMesh = NavMeshLoader::LoadNavMeshFromBin(path.string().c_str());
+    fs::path path = fs::current_path() / "Resources" / "Fields" / "NavMesh" / (MapName + ".bin");
+    NavMesh = NavMeshLoader::LoadNavMeshFromBin(path.string().c_str());
 }
 
 FieldData::~FieldData()
 {
-    dtFreeNavMesh(_navMesh);
+    dtFreeNavMesh(NavMesh);
 }

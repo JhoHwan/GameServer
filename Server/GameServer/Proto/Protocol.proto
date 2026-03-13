@@ -21,6 +21,11 @@ message CS_REQ_MOVE_FIELD
     uint32 map_id = 1;
 }
 
+message CS_USE_PORTAL
+{
+    uint32 portal_id = 1;
+}
+
 message SC_MOVE_FIELD_FAIL 
 { 
     int32 error_code = 1; 

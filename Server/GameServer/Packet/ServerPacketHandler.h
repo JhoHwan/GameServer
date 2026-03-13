@@ -18,22 +18,24 @@ enum : uint16
 	PKT_CS_REQ_ENTER_GAME = 1000,
 	PKT_SC_ENTER_GAME_RESULT = 1001,
 	PKT_CS_REQ_MOVE_FIELD = 1002,
-	PKT_SC_MOVE_FIELD_FAIL = 1003,
-	PKT_SC_START_FIELD_LOADING = 1004,
-	PKT_CS_FIELD_LOADING_COMPLETE = 1005,
-	PKT_SC_ENTER_FIELD = 1006,
-	PKT_SC_SPAWN_PLAYER = 1007,
-	PKT_SC_DESPAWN_PLAYER = 1008,
-	PKT_CS_REQUEST_MOVE = 1009,
-	PKT_SC_MOVE_PATH = 1010,
-	PKT_CS_TIME_SYNC = 1011,
-	PKT_SC_TIME_SYNC = 1012,
+	PKT_CS_USE_PORTAL = 1003,
+	PKT_SC_MOVE_FIELD_FAIL = 1004,
+	PKT_SC_START_FIELD_LOADING = 1005,
+	PKT_CS_FIELD_LOADING_COMPLETE = 1006,
+	PKT_SC_ENTER_FIELD = 1007,
+	PKT_SC_SPAWN_PLAYER = 1008,
+	PKT_SC_DESPAWN_PLAYER = 1009,
+	PKT_CS_REQUEST_MOVE = 1010,
+	PKT_SC_MOVE_PATH = 1011,
+	PKT_CS_TIME_SYNC = 1012,
+	PKT_SC_TIME_SYNC = 1013,
 };
 
 // Custom Handlers
 bool Handle_INVALID(SessionRef& session, BYTE* buffer, int32 len);
 bool Handle_CS_REQ_ENTER_GAME(SessionRef& session, Protocol::CS_REQ_ENTER_GAME& pkt);
 bool Handle_CS_REQ_MOVE_FIELD(SessionRef& session, Protocol::CS_REQ_MOVE_FIELD& pkt);
+bool Handle_CS_USE_PORTAL(SessionRef& session, Protocol::CS_USE_PORTAL& pkt);
 bool Handle_CS_FIELD_LOADING_COMPLETE(SessionRef& session, Protocol::CS_FIELD_LOADING_COMPLETE& pkt);
 bool Handle_CS_REQUEST_MOVE(SessionRef& session, Protocol::CS_REQUEST_MOVE& pkt);
 bool Handle_CS_TIME_SYNC(SessionRef& session, Protocol::CS_TIME_SYNC& pkt);
@@ -47,6 +49,7 @@ public:
 			GPacketHandler[i] = Handle_INVALID;
 		GPacketHandler[PKT_CS_REQ_ENTER_GAME] = [](SessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::CS_REQ_ENTER_GAME>(Handle_CS_REQ_ENTER_GAME, session, buffer, len); };
 		GPacketHandler[PKT_CS_REQ_MOVE_FIELD] = [](SessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::CS_REQ_MOVE_FIELD>(Handle_CS_REQ_MOVE_FIELD, session, buffer, len); };
+		GPacketHandler[PKT_CS_USE_PORTAL] = [](SessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::CS_USE_PORTAL>(Handle_CS_USE_PORTAL, session, buffer, len); };
 		GPacketHandler[PKT_CS_FIELD_LOADING_COMPLETE] = [](SessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::CS_FIELD_LOADING_COMPLETE>(Handle_CS_FIELD_LOADING_COMPLETE, session, buffer, len); };
 		GPacketHandler[PKT_CS_REQUEST_MOVE] = [](SessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::CS_REQUEST_MOVE>(Handle_CS_REQUEST_MOVE, session, buffer, len); };
 		GPacketHandler[PKT_CS_TIME_SYNC] = [](SessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::CS_TIME_SYNC>(Handle_CS_TIME_SYNC, session, buffer, len); };

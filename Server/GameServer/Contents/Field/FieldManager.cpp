@@ -28,15 +28,15 @@ void FieldManager::LoadFieldDatas()
         nlohmann::json json;
         file >> json;
 
-        FieldData fieldData{json};
-        uint16 fieldId = fieldData.FieldId();
-        if(_fieldDatas.find(fieldId) != _fieldDatas.end())
+        unique_ptr<FieldData> fieldData = std::make_unique<FieldData>(json);
+        uint16 mapId = fieldData->MapId;
+        if(_fieldDatas.contains(mapId))
         {
             LOG_ERROR(FieldManager, "Duplicate IDs exist in the field data.")
             continue;
         }
 
-        _fieldDatas.emplace(fieldId, fieldData);
+        _fieldDatas.emplace(mapId, std::move(fieldData));
     }
 }
 
@@ -49,9 +49,9 @@ shared_ptr<Field> FieldManager::Create(uint16 mapid)
         WRITE_LOCK;
         auto fieldIt = _fieldDatas.find(mapid);
         if (fieldIt == _fieldDatas.end()) return nullptr;
-        auto fieldData = fieldIt->second;
+        const FieldData* const fieldData = fieldIt->second.get();
 
-        field = make_shared<Field>(fieldId, &fieldData);
+        field = make_shared<Field>(fieldId, fieldData);
         field->Init();
         _fields[mapid].insert(field);
         _fieldIdInstanceMap[fieldId] = field;

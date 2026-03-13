@@ -1,24 +1,27 @@
 {
-	"FieldId": 0,
+	"MapId": 1000,
 	"MapName": "Test_Map_0",
-	"PlayerStart": [
+	"PlayerStarts": [
 		{
 			"Position":
 			{
 				"X": -1710,
-				"Y": 1710,
-				"Z": 292.25009999999747
+				"Y": -1710,
+				"Z": 292.25009999999997
 			}
 		}
 	],
-	"FieldPortal": [
+	"FieldPortals": [
 		{
 			"Position":
 			{
 				"X": 1700,
-				"Y": 1720,
-				"Z": 300.25009999999747
-			}
+				"Y": 1700,
+				"Z": 200
+			},
+			"PortalId": 0,
+			"TargetMapId": 1001,
+			"TargetPortalId": 0
 		}
 	]
 }

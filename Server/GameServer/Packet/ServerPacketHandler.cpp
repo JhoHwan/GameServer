@@ -29,6 +29,20 @@ bool Handle_CS_REQ_MOVE_FIELD(SessionRef& session, Protocol::CS_REQ_MOVE_FIELD& 
     return true;
 }
 
+bool Handle_CS_USE_PORTAL(SessionRef& session, Protocol::CS_USE_PORTAL& pkt)
+{
+    shared_ptr<GameSession> gSession = static_pointer_cast<GameSession>(session);
+    auto player = gSession->GetPlayer();
+    if (player == nullptr) return true;
+
+    auto field = player->GetField();
+    if(field == nullptr) return true;
+
+    field->RequestUsePortal(player, pkt.portal_id());
+
+    return true;
+}
+
 bool Handle_CS_FIELD_LOADING_COMPLETE(SessionRef& session, Protocol::CS_FIELD_LOADING_COMPLETE& pkt)
 {
     shared_ptr<GameSession> gSession = static_pointer_cast<GameSession>(session);
@@ -42,8 +56,7 @@ bool Handle_CS_FIELD_LOADING_COMPLETE(SessionRef& session, Protocol::CS_FIELD_LO
         return false;
     }
 
-    // TODO : 하드 코딩 됨
-    auto field = GFieldManager.GetField(0);
+    auto field = GFieldManager.GetField(player->GetLoadingMapId());
     if(field) field->EnterPlayer(player);
 
     return true;
@@ -57,7 +70,9 @@ bool Handle_CS_REQUEST_MOVE(SessionRef& session, Protocol::CS_REQUEST_MOVE& pkt)
 
     LOG_INFO(PathFind, "Player{} Request Move : [{}, {}, {}]", player->GetId(), pkt.pos().x(), pkt.pos().y(), pkt.pos().z());
 
-    player->GetField()->PlayerRequestMove(player, pkt.pos());
+    auto field = player->GetField();
+    if(field == nullptr) return true;
+    field->PlayerRequestMove(player, pkt.pos());
 
     return true;
 }

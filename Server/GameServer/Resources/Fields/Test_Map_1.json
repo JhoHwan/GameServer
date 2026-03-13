@@ -1,0 +1,27 @@
+{
+	"MapId": 1001,
+	"MapName": "Test_Map_1",
+	"PlayerStarts": [
+		{
+			"Position":
+			{
+				"X": 6168.71826171875,
+				"Y": -181.93226623535156,
+				"Z": 191.999755859375
+			}
+		}
+	],
+	"FieldPortals": [
+		{
+			"Position":
+			{
+				"X": 12310,
+				"Y": -3210,
+				"Z": 307.57044300000001
+			},
+			"PortalId": 0,
+			"TargetMapId": 1000,
+			"TargetPortalId": 0
+		}
+	]
+}
