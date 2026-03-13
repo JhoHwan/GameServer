@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <nlohmann/json_fwd.hpp>
 #include "FieldData.h"
 

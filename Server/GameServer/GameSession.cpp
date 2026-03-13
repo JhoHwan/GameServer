@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "GameSession.h"
 
 #include "LogManager.h"
@@ -12,6 +12,8 @@ GameSession::GameSession() : _jobQueue(make_shared<JobQueue>()), _timeOutToken(0
 
 void GameSession::OnRecvPacket(BYTE* buffer, int32 len)
 {
+	SetTimeOut(20000, "Active Session");
+
 	auto sessionRef = GetSessionRef();
 	ServerPacketHandler::HandlePacket(sessionRef, buffer, len);
 }
@@ -40,11 +42,13 @@ void GameSession::OnDisconnected()
 
 void GameSession::SetTimeOut(uint64 time, const string& log)
 {
-	weak_ptr<Session> self = GetSessionRef();
-	JobRef job = make_shared<Job>([this, self, log, token = _timeOutToken.load()]
+	uint32 token = ++_timeOutToken;
+
+	weak_ptr<GameSession> self = static_pointer_cast<GameSession>(GetSessionRef());
+	JobRef job = make_shared<Job>([self, log, token]
 		{
-			SessionRef session = self.lock();
-			if (!session || _timeOutToken.load() != token) return;
+			shared_ptr<GameSession> session = self.lock();
+			if (!session || session->_timeOutToken.load() != token) return;
 			LOG_WARN(Timeout, "{} Timeout!", log);
 			session->Disconnect("Time Out");
 		});

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "NetEvent.h"
 #include "NetAddress.h"
 #include "NetObject.h"

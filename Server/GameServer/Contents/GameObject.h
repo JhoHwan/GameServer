@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <typeindex>
 #include <type_traits>

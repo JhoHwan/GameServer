@@ -22,6 +22,6 @@ public:
 private:
     shared_ptr<PlayerCharacter> _playerRef;
     shared_ptr<JobQueue> _jobQueue;
-    atomic<uint32> _timeOutToken;
+    atomic<uint64> _timeOutToken;
 };
 

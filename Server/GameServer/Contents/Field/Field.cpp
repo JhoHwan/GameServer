@@ -260,26 +260,29 @@ void Field::RequestUsePortal(const weak_ptr<PlayerCharacter>& playerRef, uint32 
 
 		auto portalData = self->_fieldData->FieldsPortals[portalId];
 		Vector3 playerPos = player->GetCurrentPosition(GetTickCount64());
+		auto targetPortalId = portalData.TargetPortalId;
+
 		if(500.0f <= Vector3::Dist2D(portalData.Position, playerPos))
 		{
 			return;
 		}
 
-		GameManager::Instance().ProcessMoveField(player, portalData.TargetMapId, portalId);
+		GameManager::Instance().ProcessMoveField(player, portalData.TargetMapId, targetPortalId);
 	});
 }
 
 void Field::FindPath(const Vector3& startPos, const Vector3& endPos, OUT std::vector<Vector3>& pathResult)
 {
 	auto start = std::chrono::high_resolution_clock::now();
+
 	dtQueryFilter filter;
 	filter.setIncludeFlags(0xffff);
 	filter.setExcludeFlags(0);
 
 	float extents[3] = { 0.5f, 1.0f, 0.5f };
 
-	dtPolyRef StartPolyRef = 0;
-	dtPolyRef EndPolyRef = 0;
+	dtPolyRef startPolyRef = 0;
+	dtPolyRef endPolyRef = 0;
 	
 	// Convert Engine coordinates (cm) to Detour coordinates (m)
 	float startPt[3] { (float)startPos.x / 100.0f, (float)startPos.z / 100.0f, (float)startPos.y / 100.0f };
@@ -288,12 +291,31 @@ void Field::FindPath(const Vector3& startPos, const Vector3& endPos, OUT std::ve
 	float StartNearestPt[3];
 	float EndNearestPt[3];
 
-	_navQuery->findNearestPoly(startPt, extents, &filter, &StartPolyRef, StartNearestPt);
-	_navQuery->findNearestPoly(endPt, extents, &filter, &EndPolyRef, EndNearestPt);
+	_navQuery->findNearestPoly(startPt, extents, &filter, &startPolyRef, StartNearestPt);
+	_navQuery->findNearestPoly(endPt, extents, &filter, &endPolyRef, EndNearestPt);
 
-	if (!StartPolyRef || !EndPolyRef)
+	if (!startPolyRef || !endPolyRef)
 	{
 		LOG_DEBUG(PathFind, "Failed to find start or end polygon on NavMesh!");
+		return;
+	}
+
+	float t = 0;
+	float hitNormal[3];
+	dtPolyRef rayPath[20];
+	int rayPathCount = 0;
+
+	_navQuery->raycast(startPolyRef, startPt, endPt, &filter, &t, hitNormal, rayPath, &rayPathCount, 20);
+	if(t >= 1.0)
+	{
+		LOG_DEBUG(NavMesh, "Straight Path")
+		pathResult.push_back(startPos);
+		pathResult.push_back(endPos);
+
+		auto end = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+		LOG_DEBUG(PathFind, "Execution Time : {}us", duration);
+
 		return;
 	}
 
@@ -301,7 +323,7 @@ void Field::FindPath(const Vector3& startPos, const Vector3& endPos, OUT std::ve
 	dtPolyRef path[MAX_PATH_POLYS];
 	int pathCount = 0;
 
-	_navQuery->findPath(StartPolyRef, EndPolyRef, StartNearestPt, EndNearestPt, &filter, path, &pathCount, MAX_PATH_POLYS);
+	_navQuery->findPath(startPolyRef, endPolyRef, StartNearestPt, EndNearestPt, &filter, path, &pathCount, MAX_PATH_POLYS);
 
 	if (pathCount == 0)
 	{

@@ -1,4 +1,4 @@
-﻿#include "ServerPacketHandler.h"
+#include "ServerPacketHandler.h"
 #include "Contents/Player.h"
 #include "../Contents/Field/Field.h"
 #include "GameSession.h"
@@ -46,8 +46,6 @@ bool Handle_CS_USE_PORTAL(SessionRef& session, Protocol::CS_USE_PORTAL& pkt)
 bool Handle_CS_FIELD_LOADING_COMPLETE(SessionRef& session, Protocol::CS_FIELD_LOADING_COMPLETE& pkt)
 {
     shared_ptr<GameSession> gSession = static_pointer_cast<GameSession>(session);
-    gSession->CancelTimeOut();
-    gSession->SetTimeOut(20000, "HeartBeat");
 
     shared_ptr<PlayerCharacter> player = gSession->GetPlayer();
     if (!player)

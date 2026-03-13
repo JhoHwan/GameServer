@@ -1,4 +1,4 @@
-﻿#include "JobTimer.h"
+#include "JobTimer.h"
 #include "JobQueue.h"
 #include "LogManager.h"
 

@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <cmath>
 #include "Struct.pb.h"
 #include "nlohmann/json.hpp"

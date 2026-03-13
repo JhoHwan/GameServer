@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "DetourNavMesh.h"
 #include "Protocol.pb.h"
 #include "Util/Vector3.h"

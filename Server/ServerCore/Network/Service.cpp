@@ -1,4 +1,4 @@
-﻿#include "Service.h"
+#include "Service.h"
 #include "Listener.h"
 #include "NetCore.h"
 #include "SocketUtils.h"

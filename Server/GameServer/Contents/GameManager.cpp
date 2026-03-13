@@ -1,4 +1,4 @@
-﻿#include "GameManager.h"
+#include "GameManager.h"
 
 #include "Field/Field.h"
 #include "GameObject.h"
@@ -74,6 +74,5 @@ void GameManager::ProcessMoveField(const shared_ptr<PlayerCharacter>& player, ui
     loadPacket.set_target_map_id(player->GetLoadingMapId());
     session->Send(ServerPacketHandler::MakeSendBuffer(loadPacket));
 
-    session->CancelTimeOut();
     session->SetTimeOut(60000, "Map Loading");
 }

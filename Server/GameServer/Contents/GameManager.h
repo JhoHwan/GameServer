@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 class GameManager : public Singleton<GameManager>, public AsyncActor
 {

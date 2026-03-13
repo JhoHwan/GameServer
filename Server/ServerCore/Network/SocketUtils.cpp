@@ -1,4 +1,4 @@
-﻿#include "SocketUtils.h"
+#include "SocketUtils.h"
 
 /*----------------
 	SocketUtils
