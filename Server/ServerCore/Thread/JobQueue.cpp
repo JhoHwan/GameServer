@@ -19,26 +19,32 @@ void JobQueue::Push(JobRef job)
 	}
 }
 
-void JobQueue::Execute(int32 executeCount)
+int32 JobQueue::Execute()
 {
-	int currentJobCount = 0;
+	auto start = GetTickCount64();
+	int processedJobCount = 0;
 	while (true)
 	{
-		JobRef jobs[32];
-		int32 cnt = 0;
+		auto now = GetTickCount64();
+		if(now - start > 10)
+		{
+			GGlobalJobQueue.enqueue(shared_from_this());
+			break;
+		}
 
-		const auto jobCount = static_cast<int>(_jobs.try_dequeue_bulk(jobs, 32));
+		JobRef jobs[64];
+		const auto dequeueJobCount = static_cast<int>(_jobs.try_dequeue_bulk(jobs, 64));
 
-		for(int i = 0; i < jobCount; i++)
+		for(int i = 0; i < dequeueJobCount; i++)
 		{
 			jobs[i]->Execute();
 			jobs[i].reset();
 		}
+		processedJobCount += dequeueJobCount;
 
-		if (_jobCount.fetch_sub(jobCount) == jobCount)
+		if (_jobCount.fetch_sub(dequeueJobCount) == dequeueJobCount)
 		{
 			_isExecute.store(false);
-
 
 			if (_jobCount.load() > 0)
 			{
@@ -48,15 +54,9 @@ void JobQueue::Execute(int32 executeCount)
 			 		continue;
 				}
 			}
-			
-			return;
-		}
-
-		currentJobCount += jobCount;
-		if (currentJobCount >= executeCount)
-		{
-			GGlobalJobQueue.enqueue(shared_from_this()); // 글로벌 잡큐 추가 후 해제
-			return;
+			break;
 		}
 	}
+
+	return processedJobCount;
 }

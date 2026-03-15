@@ -30,7 +30,7 @@ public:
 
 public:
 	void	Push(JobRef job);
-	void	Execute(int32 executeCount);
+	int32	Execute();
 
 protected:
 	//LockQueue<JobRef> _jobs;

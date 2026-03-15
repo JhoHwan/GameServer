@@ -34,6 +34,10 @@ public:
 	shared_ptr<Service>	GetService() const { return _service.lock(); }
 	void				SetService(const shared_ptr<Service>& service) { _service = service; }
 
+#ifndef _WIN32
+	void FlushSend();
+#endif
+
 public:
 						/* 정보 관련 */
 	void				SetNetAddress(NetAddress address) { _netAddress = address; }
@@ -53,10 +57,6 @@ private:
 	bool				RegisterConnect();
 	bool				RegisterDisconnect();
 	void				RegisterRecv();
-
-#ifndef _WIN32
-	void FlushSend();
-#endif
 
 	void				RegisterSend();
 

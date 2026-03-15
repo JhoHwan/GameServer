@@ -24,7 +24,10 @@ void Session::Send(SendBufferRef sendBuffer)
 
 	_sendQueue.enqueue(std::move(sendBuffer));
 
-	RegisterSend();
+	if(_sendRegistered.exchange(true) == false)
+	{
+		LSendSessionList.push_back(GetSessionRef());
+	}
 }
 
 bool Session::Connect()
@@ -37,7 +40,10 @@ void Session::Disconnect(const char* cause)
 	if (_connected.exchange(false) == false)
 		return;
 
-	LOG_WARN(Network, "Session Disconnected (Handle: {}). Reason: {}", (uint64)_socket, cause);
+	if (strcmp(cause, "Invalid Error") == 0)
+	{
+		LOG_WARN(Network, "Session Disconnected (Handle: {}). Reason: {}", (uint64)_socket, cause);
+	}
 
 	RegisterDisconnect();
 }
@@ -132,7 +138,7 @@ void Session::FlushSend()
 	int32 totalSentBytes = 0;
 	while(true)
 	{
-		constexpr int MAX_IOV = 64;
+		constexpr int MAX_IOV = 128;
 
 		_sendQueue.try_dequeue_bulk(back_inserter(_pendingSendQueue), MAX_IOV);
 
