@@ -25,7 +25,7 @@ Field::Field(uint64 id, const FieldData* fieldData) : _navMesh(fieldData->NavMes
 
 Field::~Field()
 {
-	LOG_DEBUG(Default, "FieldInstance : {} is Destroyed", _id);
+	LOG_DEBUG(Default, "FieldInstance : {}{} is Destroyed", GetMapID(), GetInstanceID());
 	dtFreeNavMeshQuery(_navQuery);
 }
 
@@ -44,12 +44,12 @@ void Field::Init()
 void Field::EnterPlayer(weak_ptr<PlayerCharacter> player)
 {
 	_destroyToken.fetch_add(1);
+
 	DoAsync([self = shared_from_this(), playerWeak = std::move(player)]()
 	{
 		auto player = playerWeak.lock();
 		if(!player) return;
 
-		self->_currentPlayerCount.fetch_add(1);
 		self->_players.insert(player);
 
 		auto playerSpawnPos = player->GetPendingSpawnPos();
@@ -64,7 +64,7 @@ void Field::EnterPlayer(weak_ptr<PlayerCharacter> player)
 			player->GetObjectInfo(packet.mutable_my_info()->mutable_object_info());
 			SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(packet);
 			auto session = player->GetSession();
-			if (session) session->Send(sendBuffer);
+			if (session) session->SendPacket(sendBuffer);
 		}
 
 		// 주변 유저에게 새로 들어온 플레이어 스폰
@@ -110,13 +110,13 @@ void Field::EnterPlayer(weak_ptr<PlayerCharacter> player)
 
 			{
 				SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(packet);
-				session->Send(sendBuffer);
+				session->SendPacket(sendBuffer);
 			}
 
 			for(auto& movePacket : movePackets)
 			{
 				SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(movePacket);
-				session->Send(sendBuffer);
+				session->SendPacket(sendBuffer);
 			}
 
 		}
@@ -127,7 +127,7 @@ void Field::BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerCharacter
 {
 	DoAsync([self = shared_from_this(), sendBuffer = std::move(sendBuffer), except]()
 	{
-		vector<weak_ptr<Session>> sessions;
+		vector<weak_ptr<GameSession>> sessions;
 		sessions.reserve(self->_players.size());
 
 		for (auto& player : self->_players)
@@ -137,10 +137,10 @@ void Field::BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerCharacter
 			if (session) sessions.push_back(session);
 		}
 
-		for (auto sessionRef : sessions)
+		for (const weak_ptr<GameSession>& sessionRef : sessions)
 		{
-			if(auto session = sessionRef.lock())
-				session->Send(sendBuffer);
+			if(shared_ptr<GameSession> session = sessionRef.lock())
+				session->SendPacket(sendBuffer);
 		}
 	});
 }
@@ -163,10 +163,10 @@ void Field::PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Protocol::
 		auto& time = player->GetMoveStartTime();
 		if(player->IsMoving() && now - time < MOVE_REQUEST_MIN_INTERVAL)
 		{
-			LOG_DEBUG(Default, "MOVE_REQUEST_MIN_INTERVAL ");
+			//LOG_DEBUG(Default, "MOVE_REQUEST_MIN_INTERVAL ");
 			if(Vector3::Dist2D(dest, player->GetDestinationPosition()) <= MOVE_REQUEST_MIN_DIST)
 			{
-				LOG_DEBUG(Default, "MOVE_REQUEST_MIN_DIST ");
+				//LOG_DEBUG(Default, "MOVE_REQUEST_MIN_DIST ");
 				return;
 			}
 		}
@@ -213,9 +213,8 @@ void Field::LeavePlayer(shared_ptr<PlayerCharacter> player)
 		{
 			self->_players.erase(player);
 		}
-		self->_currentPlayerCount.fetch_sub(1);
 
-		if(self->_players.empty())
+		if(self->_currentPlayerCount.fetch_sub(1) == 1)
 		{
 			JobRef job = make_shared<Job>([self, fieldId = self->_id, Token = self->_destroyToken.load()]()
 			{
@@ -257,7 +256,7 @@ void Field::RequestUsePortal(const weak_ptr<PlayerCharacter>& playerRef, uint32 
 		shared_ptr<PlayerCharacter> player = playerRef.lock();
 		if(player == nullptr) return;
 		if(self->_fieldData->FieldsPortals.size() <= portalId) return;
-		LOG_DEBUG(Field, "[Player {}] Request Use Portal. Portal ID : {}", player->GetInstanceID(), portalId);
+		//LOG_DEBUG(Field, "[Player {}] Request Use Portal. Portal ID : {}", player->GetInstanceID(), portalId);
 
 		auto portalData = self->_fieldData->FieldsPortals[portalId];
 		Vector3 playerPos = player->GetCurrentPosition(GetTickCount64());
@@ -297,7 +296,7 @@ void Field::FindPath(const Vector3& startPos, const Vector3& endPos, OUT std::ve
 
 	if (!startPolyRef || !endPolyRef)
 	{
-		LOG_DEBUG(PathFind, "Failed to find start or end polygon on NavMesh!");
+		//LOG_DEBUG(PathFind, "Failed to find start or end polygon on NavMesh!");
 		return;
 	}
 
@@ -309,13 +308,13 @@ void Field::FindPath(const Vector3& startPos, const Vector3& endPos, OUT std::ve
 	_navQuery->raycast(startPolyRef, startPt, endPt, &filter, &t, hitNormal, rayPath, &rayPathCount, 20);
 	if(t >= 1.0)
 	{
-		LOG_DEBUG(NavMesh, "Straight Path")
+		//LOG_DEBUG(NavMesh, "Straight Path")
 		pathResult.push_back(startPos);
 		pathResult.push_back(endPos);
 
 		auto end = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-		LOG_DEBUG(PathFind, "Execution Time : {}us", duration);
+		//LOG_DEBUG(PathFind, "Execution Time : {}us", duration);
 
 		return;
 	}
@@ -341,7 +340,7 @@ void Field::FindPath(const Vector3& startPos, const Vector3& endPos, OUT std::ve
 	
 	if(straightPathCount > 0)
 	{
-		LOG_DEBUG(PathFind, "Found Straight Path! Points: {}", straightPathCount);
+		//LOG_DEBUG(PathFind, "Found Straight Path! Points: {}", straightPathCount);
 		for (int i = 0; i < straightPathCount; ++i)
 		{
 			// Detour: X, Y, Z (m) -> Engine: X, Z, Y (cm)
@@ -351,5 +350,5 @@ void Field::FindPath(const Vector3& startPos, const Vector3& endPos, OUT std::ve
 
 	auto end = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-	LOG_DEBUG(PathFind, "Execution Time : {}us", duration);
+	//LOG_DEBUG(PathFind, "Execution Time : {}us", duration);
 }

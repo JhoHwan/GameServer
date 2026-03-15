@@ -5,6 +5,7 @@
 #include "Contents/Field/Field.h"
 #include "Contents/Player.h"
 #include "Packet/ServerPacketHandler.h"
+#include "Util/MonitorManager.h"
 
 GameSession::GameSession() : _jobQueue(make_shared<JobQueue>()), _timeOutToken(0)
 {
@@ -12,26 +13,31 @@ GameSession::GameSession() : _jobQueue(make_shared<JobQueue>()), _timeOutToken(0
 
 GameSession::~GameSession()
 {
-	LOG_INFO(Default, "GameSession::~GameSession()");
+	LOG_DEBUG(Default, "GameSession::~GameSession()");
 }
 
 void GameSession::OnRecvPacket(BYTE* buffer, int32 len)
 {
+	GMonitorManager.AddInPacket();
 	auto sessionRef = GetSessionRef();
 	ServerPacketHandler::HandlePacket(sessionRef, buffer, len);
 }
 
 void GameSession::OnConnected()
 {
-	LOG_INFO(Default, "Client Connected : {}", GetAddress().GetIpAddress());
-	SetTimeOut(10000, "Login Request");
+	GMonitorManager.AddCCU();
+
+	//LOG_INFO(Default, "Client Connected : {}", GetAddress().GetIpAddress());
+	SetTimeOut(30000, "Login Request");
 }
 
 void GameSession::OnDisconnected()
 {
 	PacketSession::OnDisconnected();
 
-	LOG_WARN(Default, "Client DisConnected : {}", GetAddress().GetIpAddress());
+	GMonitorManager.ReleaseCCU();
+
+	LOG_DEBUG(Default, "Client DisConnected : {}", GetAddress().GetIpAddress());
 
 	if(_playerRef)
 	{
@@ -57,7 +63,7 @@ void GameSession::SetTimeOut(uint64 time, const string& log)
 			if (curToken != token) return;
 
 
-			LOG_WARN(Timeout, "{} Timeout!", log);
+			LOG_DEBUG(Timeout, "{} Timeout!", log);
 			session->Disconnect("Time Out");
 		});
 	LJobTimer.Reserve(time, GetJobQueue(), job);
@@ -66,4 +72,10 @@ void GameSession::SetTimeOut(uint64 time, const string& log)
 void GameSession::CancelTimeOut()
 {
 	_timeOutToken.fetch_add(1);
+}
+
+void GameSession::SendPacket(const SendBufferRef& sendBuffer)
+{
+	GMonitorManager.AddOutPacket();
+	Session::Send(sendBuffer);
 }

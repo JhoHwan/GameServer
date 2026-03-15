@@ -15,10 +15,15 @@ protected:
 public:
     void SetTimeOut(uint64 time, const string& log);
     void CancelTimeOut();
+    void SendPacket(const SendBufferRef& sendBuffer);
 
     void SetPlayer(const shared_ptr<PlayerCharacter>& player) { _playerRef = player; }
     shared_ptr<PlayerCharacter> GetPlayer() const { return _playerRef; }
     shared_ptr<JobQueue> GetJobQueue() { return _jobQueue; }
+
+private:
+    using Session::Send;
+
 private:
     shared_ptr<PlayerCharacter> _playerRef;
     shared_ptr<JobQueue> _jobQueue;

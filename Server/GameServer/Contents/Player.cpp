@@ -62,7 +62,7 @@ void PlayerCharacter::SetMoveInfo(std::vector<Vector3> waypoints, uint64 startTi
 		if(moveToken != self->_moveStartTime) return;
 
 		auto arrivalPos = self->_moveWaypoints.back();
-		LOG_INFO(PathFind, "Player {}{} Arrive [{}, {}, {}]", self->GetSubID(), self->GetInstanceID(), arrivalPos.x, arrivalPos.y, arrivalPos.z);
+		//LOG_INFO(PathFind, "Player {}{} Arrive [{}, {}, {}]", self->GetSubID(), self->GetInstanceID(), arrivalPos.x, arrivalPos.y, arrivalPos.z);
 
 		if(self->_isMoving)
 		{
@@ -98,6 +98,7 @@ Vector3 PlayerCharacter::GetCurrentPosition(uint64 now) const
 
 			Vector3 diff = end - start;
 			Vector3 currentPos = start + (diff * ratio);
+			Transform()->SetPos(currentPos);
 			//LOG_DEBUG(Default, "Player Position Update [{}, {}, {}]", currentPos.x, currentPos.y, currentPos.z);
 			return currentPos;
 		}

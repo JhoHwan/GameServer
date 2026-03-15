@@ -20,7 +20,7 @@ void GameManager::ProcessEnterGame(std::weak_ptr<GameSession> session)
         // TODO : 토큰 인증 & DB 요청 후 아래 내용 콜백으로 등록
         Protocol::SC_ENTER_GAME_RESULT packet;
         packet.set_success(true); // 추후 DB 요청 결과 or 인증 결과에 따라 변경
-        session->Send(ServerPacketHandler::MakeSendBuffer(packet));
+        session->SendPacket(ServerPacketHandler::MakeSendBuffer(packet));
 
         auto player = GameObject::Create<PlayerCharacter>(session);
 
@@ -37,7 +37,7 @@ void GameManager::ProcessEnterGame(std::weak_ptr<GameSession> session)
         player->SetLoadingInfo(targetMapId, playerSpawnPos);
 
         loadPacket.set_target_map_id(targetMapId);
-        session->Send(ServerPacketHandler::MakeSendBuffer(loadPacket));
+        session->SendPacket(ServerPacketHandler::MakeSendBuffer(loadPacket));
 
         session->CancelTimeOut();
         session->SetTimeOut(60000, "Map Loading");
@@ -72,7 +72,7 @@ void GameManager::ProcessMoveField(const shared_ptr<PlayerCharacter>& player, ui
     Protocol::SC_START_FIELD_LOADING loadPacket;
 
     loadPacket.set_target_map_id(player->GetLoadingMapId());
-    session->Send(ServerPacketHandler::MakeSendBuffer(loadPacket));
+    session->SendPacket(ServerPacketHandler::MakeSendBuffer(loadPacket));
 
     session->SetTimeOut(60000, "Map Loading");
 }

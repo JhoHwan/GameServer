@@ -21,6 +21,7 @@ public:
 
 	void Init();
 
+	void PreEnter() { _currentPlayerCount.fetch_add(1); }
 	void EnterPlayer(weak_ptr<PlayerCharacter> player);
 	void BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerCharacter>& except = nullptr);
 
@@ -53,7 +54,7 @@ private:
 private:
 	std::unordered_set<shared_ptr<PlayerCharacter>> _players;
 
-	const uint32 MAX_PLAYERS = 32;
+	const uint32 MAX_PLAYERS = 36;
 
 	atomic<uint32> _currentPlayerCount {0};
 	atomic<uint64> _destroyToken{0};

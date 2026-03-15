@@ -65,7 +65,7 @@ bool Handle_CS_REQUEST_MOVE(SessionRef& session, Protocol::CS_REQUEST_MOVE& pkt)
     auto player = gSession->GetPlayer();
     if (player == nullptr) return false;
 
-    LOG_INFO(PathFind, "Player{} Request Move : [{}, {}, {}]", player->GetId(), pkt.pos().x(), pkt.pos().y(), pkt.pos().z());
+    //LOG_INFO(PathFind, "Player{} Request Move : [{}, {}, {}]", player->GetId(), pkt.pos().x(), pkt.pos().y(), pkt.pos().z());
 
     auto field = player->GetField();
     if(field == nullptr) return true;
@@ -84,7 +84,7 @@ bool Handle_CS_TIME_SYNC(SessionRef& session, Protocol::CS_TIME_SYNC& pkt)
     res.set_server_tick(GetTickCount64());
 
     SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(res);
-    session->Send(sendBuffer);
+    gameSession->SendPacket(sendBuffer);
 
     return true;
 }

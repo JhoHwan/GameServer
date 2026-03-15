@@ -23,6 +23,9 @@ NetCore::~NetCore()
 bool NetCore::Register(const NetObjectRef& netObject)
 {
     const HANDLE socket = netObject->GetHandle();
+    if (socket < 0 || socket >= REGISTRY_SIZE)
+        return false;
+
     auto gen = _registry[socket].gen.fetch_add(1)+1;
     _registry[socket].netObject.store(netObject);
     uint64 ticket =  (static_cast<uint64>(gen) << 32) | socket;
@@ -43,6 +46,9 @@ bool NetCore::Register(const NetObjectRef& netObject)
 void NetCore::UnRegister(const NetObjectRef& netObject)
 {
     const HANDLE socket = netObject->GetHandle();
+    if (socket < 0 || socket >= REGISTRY_SIZE)
+        return;
+
     _registry[socket].netObject.store(nullptr);
 
     if(socket != INVALID_SOCKET)
@@ -72,13 +78,15 @@ bool NetCore::Dispatch(const int32 timeoutMs)
         uint32 fd = static_cast<uint32>(ticket & 0xFFFFFFFF);
         uint32 gen = static_cast<uint32>(ticket >> 32);
 
+        if (fd >= REGISTRY_SIZE) continue;
+
         NetObjectRef netObject = nullptr;
         if(_registry[fd].gen.load() == gen)
         {
             netObject = _registry[fd].netObject.load();
         }
 
-        if(!netObject) return false;
+        if(!netObject) continue;
 
         NetEvent netEvent{};
         netEvent.eventFlags = events[i].events;
@@ -91,7 +99,13 @@ bool NetCore::Dispatch(const int32 timeoutMs)
 bool NetCore::Update(const NetObjectRef& netObject, uint32 eventFlags)
 {
     const auto socket = netObject->GetHandle();
-    if(socket == INVALID_SOCKET) return false;
+    if (socket < 0 || socket >= REGISTRY_SIZE)
+        return false;
+
+    // Race condition check: Verify if this netObject is still the one registered for this socket
+    if (_registry[socket].netObject.load() != netObject)
+        return false;
+
     epoll_event event{};
 
     uint32 gen = _registry[socket].gen.load();
@@ -102,7 +116,11 @@ bool NetCore::Update(const NetObjectRef& netObject, uint32 eventFlags)
 
     if (epoll_ctl(_handle, EPOLL_CTL_MOD, socket, &event) == -1)
     {
-        perror("epoll_ctl MOD error");
+        // Suppress expected race condition errors during disconnect
+        if (errno != ENOENT && errno != EBADF)
+        {
+            perror("epoll_ctl MOD error");
+        }
         return false;
     }
 

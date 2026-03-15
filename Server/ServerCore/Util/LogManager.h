@@ -32,7 +32,6 @@ struct LogData
 class LogManager : public Singleton<LogManager>
 {
 public:
-    LogManager() = default;
     ~LogManager() { Stop(); }
 
     bool Init(ELogLevel logLevel);

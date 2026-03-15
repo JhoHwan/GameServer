@@ -8,6 +8,8 @@
 #include "LogManager.h"
 #include <nlohmann/json.hpp>
 
+#include "Util/MonitorManager.h"
+
 namespace fs = std::filesystem;
 
 FieldManager& GFieldManager = FieldManager::Instance();
@@ -45,19 +47,19 @@ shared_ptr<Field> FieldManager::Create(uint16 mapid)
     shared_ptr<Field> field = nullptr;
     uint16 instanceID = _instanceIDGenerator.fetch_add(1);
     uint64 fieldId = MakeFieldID(mapid, instanceID);
-    {
-        WRITE_LOCK;
-        auto fieldIt = _fieldDatas.find(mapid);
-        if (fieldIt == _fieldDatas.end()) return nullptr;
-        const FieldData* const fieldData = fieldIt->second.get();
 
-        field = make_shared<Field>(fieldId, fieldData);
-        field->Init();
-        _fields[mapid].insert(field);
-        _fieldIdInstanceMap[fieldId] = field;
-    }
+    auto fieldIt = _fieldDatas.find(mapid);
+    if (fieldIt == _fieldDatas.end()) return nullptr;
+    const FieldData* const fieldData = fieldIt->second.get();
 
-    LOG_INFO(Default, "FieldManager : {} is Created", fieldId);
+    field = make_shared<Field>(fieldId, fieldData);
+    field->Init();
+    _fields[mapid].insert(field);
+    _fieldIdInstanceMap[fieldId] = field;
+
+    field->PreEnter();
+    GMonitorManager.AddFieldCount();
+    LOG_INFO(Default, "FieldManager : {}{} is Created", field->GetMapID(), field->GetInstanceID());
     return field;
 }
 
@@ -81,6 +83,8 @@ void FieldManager::Destroy(uint64 fieldId)
         return;
     }
 
+    GMonitorManager.ReleaseFieldCount();
+
     _fields[mapId].erase(field);
     if(_fields[mapId].empty())
     {
@@ -90,30 +94,20 @@ void FieldManager::Destroy(uint64 fieldId)
 
 shared_ptr<Field> FieldManager::GetField(uint16 mapId)
 {
-    shared_ptr<Field> field = nullptr;
+    WRITE_LOCK;
+    auto it = _fields.find(mapId);
+    if(it != _fields.end())
     {
-        READ_LOCK;
-        auto fieldIt = _fields.find(mapId);
-        if(fieldIt != _fields.end())
+        for(const auto& field : it->second)
         {
-            auto fields = fieldIt->second;
-            for(const auto& f : fields)
+            if(field->CanEnterField())
             {
-                if(f->CanEnterField())
-                {
-                    field = f;
-                    break;
-                }
+                field->PreEnter();
+                return field;
             }
         }
     }
-
-    if (field == nullptr)
-    {
-        field = Create(mapId);
-    }
-
-    return field;
+    return Create(mapId);
 }
 
 uint64 FieldManager::MakeFieldID(uint16 mapId, uint64 instanceId)
