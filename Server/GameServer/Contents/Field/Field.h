@@ -25,28 +25,22 @@ public:
 	void EnterPlayer(weak_ptr<PlayerCharacter> player);
 	void BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerCharacter>& except = nullptr);
 
-	void PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Protocol::Vector3& pos);
 
 	void LeavePlayer(std::shared_ptr<PlayerCharacter> player);
 
 	void UpdatePlayerPosition();
 
 public:
-	uint16 GetMapID() const
-	{
-		return static_cast<uint16>(_id >> 48);
-	}
-
+	uint16 GetMapID() const { return static_cast<uint16>(_id >> 48); }
 	uint64 GetID() const { return _id; }
 	uint64 GetInstanceID() const
-	{
-		return (_id & 0x0000FFFFFFFFFFFFULL);
-	}
+	{ return (_id & 0x0000FFFFFFFFFFFFULL); }
 
 	uint32 GetPlayerCount() const {return _currentPlayerCount.load(); }
 	bool CanEnterField() const {return GetPlayerCount() < MAX_PLAYERS; }
 
-	void RequestUsePortal(const weak_ptr<PlayerCharacter>& playerRef, uint32 portalId);
+	void HandleRequestUsePortal(const weak_ptr<PlayerCharacter>& playerRef, uint32 portalId);
+	void HandleRequestMove(const weak_ptr<PlayerCharacter>& playerRef, const Vector3& dest);
 
 private:
 	void FindPath(const Vector3& pos, const Vector3& endPos, OUT std::vector<Vector3>& result);
@@ -63,6 +57,7 @@ private:
 	dtNavMesh* _navMesh;
 	dtNavMeshQuery* _navQuery;
 
+private:
 	const FieldData* const _fieldData;
 };
 

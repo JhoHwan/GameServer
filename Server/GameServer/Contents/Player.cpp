@@ -1,9 +1,12 @@
 #include "pch.h"
 #include "Player.h"
+
+#include <utility>
 #include "GameSession.h"
 #include "LogManager.h"
+#include "Field/Field.h"
 
-PlayerCharacter::PlayerCharacter(weak_ptr<GameSession> session) : _sessionRef(session)
+PlayerCharacter::PlayerCharacter(weak_ptr<GameSession> session) : _sessionRef(std::move(session))
 {
 	uint16 objectTag = MakeTag(EObjectType::Player, 1);
 	SetId(objectTag);
@@ -25,54 +28,53 @@ void PlayerCharacter::Init()
 	if (session) session->SetPlayer(player);
 }
 
-void PlayerCharacter::SetMoveInfo(std::vector<Vector3> waypoints, uint64 startTime, float speed)
+void PlayerCharacter::HandleMoveRequest(const Protocol::Vector3& dest)
 {
-	if(waypoints.empty()) return;
+	constexpr int32 MOVE_REQUEST_MIN_INTERVAL = 500;
+	constexpr float MOVE_REQUEST_MIN_DIST = 300.0f;
 
-	_moveWaypoints = std::move(waypoints);
-
-	_moveArrivalTimes.clear();
-	_moveArrivalTimes.reserve(_moveWaypoints.size());
-	_moveArrivalTimes.push_back(startTime);
-
-	_moveStartTime = startTime;
-	_moveSpeed = speed;
-	_isMoving = true;
-
-	uint64 accumulatedTime = startTime;
-	float totalDist = 0;
-	for(int i = 1; i < _moveWaypoints.size(); i++)
+	auto now = GetTickCount64();
+	auto& time = GetMoveStartTime();
+	if(IsMoving() && now - time < MOVE_REQUEST_MIN_INTERVAL)
 	{
-		float dist = Vector3::Dist2D(_moveWaypoints[i-1], _moveWaypoints[i]);
-		totalDist += dist;
-
-		float seconds = dist / speed;
-
-		uint64 timeToTravel = static_cast<uint64>(seconds * 1000.0f);
-		accumulatedTime += timeToTravel;
-		_moveArrivalTimes.push_back(accumulatedTime);
+		if(Vector3::Dist2D(dest, GetDestinationPosition()) <= MOVE_REQUEST_MIN_DIST)
+		{
+			return;
+		}
 	}
 
-	JobRef job = make_shared<Job>([weakGameObject = weak_from_this(), moveToken = _moveStartTime]()
+	GetField()->HandleRequestMove(GetPlayerRef(), dest);
+}
+
+void PlayerCharacter::SetMoveInfo(vector<Vector3> wayPoints, vector<uint64> moveArrivalTime, uint64 moveStartTime)
+{
+	DoAsync([self = GetPlayerRef(), wayPoints = std::move(wayPoints), moveArrivalTime = std::move(moveArrivalTime), moveStartTime]()
 	{
-		auto gameObject = weakGameObject.lock();
-		if (!gameObject) return;
+		self->_moveWaypoints = wayPoints;
+		self->_moveStartTime = moveStartTime;
+		self->_isMoving = true;
+		self->_moveArrivalTimes = moveArrivalTime;
 
-		auto self = static_pointer_cast<PlayerCharacter>(gameObject);
-		if(moveToken != self->_moveStartTime) return;
-
-		auto arrivalPos = self->_moveWaypoints.back();
-		//LOG_INFO(PathFind, "Player {}{} Arrive [{}, {}, {}]", self->GetSubID(), self->GetInstanceID(), arrivalPos.x, arrivalPos.y, arrivalPos.z);
-
-		if(self->_isMoving)
+		JobRef job = make_shared<Job>([weakGameObject = self->weak_from_this(), moveToken = self->_moveStartTime]()
 		{
-			self->_isMoving = false;
-			self->Transform()->SetPos(arrivalPos);
-		}
-	});
+			auto gameObject = weakGameObject.lock();
+			if (!gameObject) return;
 
-	//LOG_DEBUG(PathFind, "Arrive at {} ({}ms)", accumulatedTime, accumulatedTime - _moveStartTime);
-	LJobTimer.Reserve(accumulatedTime - _moveStartTime, GetJobQueue(), job);
+			auto self = static_pointer_cast<PlayerCharacter>(gameObject);
+			if(moveToken != self->_moveStartTime) return;
+
+			auto arrivalPos = self->_moveWaypoints.back();
+			LOG_INFO(PathFind, "Player {}{} Arrive [{}, {}, {}]", self->GetSubID(), self->GetInstanceID(), arrivalPos.x, arrivalPos.y, arrivalPos.z);
+
+			if(self->_isMoving)
+			{
+				self->_isMoving = false;
+				self->Transform()->SetPos(arrivalPos);
+			}
+		});
+
+		LJobTimer.Reserve(self->_moveArrivalTimes.back() - GetTickCount64(), self->GetJobQueue(), job);
+	});
 }
 
 Vector3 PlayerCharacter::GetCurrentPosition(uint64 now) const
@@ -99,7 +101,6 @@ Vector3 PlayerCharacter::GetCurrentPosition(uint64 now) const
 			Vector3 diff = end - start;
 			Vector3 currentPos = start + (diff * ratio);
 			Transform()->SetPos(currentPos);
-			//LOG_DEBUG(Default, "Player Position Update [{}, {}, {}]", currentPos.x, currentPos.y, currentPos.z);
 			return currentPos;
 		}
 	}

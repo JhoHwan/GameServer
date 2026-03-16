@@ -51,13 +51,13 @@ add_executable(GameServer
     "${PACKET_DIR}/ServerPacketHandler.h"
 )
 
-# (3) 클라이언트 패킷 생성 스크립트 실행 (POST_BUILD)
-# add_executable 이후에 위치해야 합니다.
-add_custom_command(
-    TARGET GameServer POST_BUILD
-    COMMAND "${CLIENT_GEN_SCRIPT}"
-    COMMENT "Running Client Packet Generator..."
-)
+if (WIN32)
+    add_custom_command(
+            TARGET GameServer POST_BUILD
+            COMMAND "${CLIENT_GEN_SCRIPT}"
+            COMMENT "Running Client Packet Generator..."
+    )
+endif ()
 
 # GameServer 전용 pch.h 설정
 target_precompile_headers(GameServer PRIVATE pch.h)
@@ -65,7 +65,6 @@ target_precompile_headers(GameServer PRIVATE pch.h)
 # ServerCore 조립하기! 
 target_link_libraries(GameServer PRIVATE ServerCore)
 
-# 서드파티(Protobuf 등) 헤더 경로 추가
 target_include_directories(GameServer PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Proto
@@ -73,13 +72,11 @@ target_include_directories(GameServer PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/Detour/Include
 )
 
-# Protobuf 정적 라이브러리 경로 재설정 (정확한 링크를 위해 사용 직전 정의)
 if (WIN32)
     set(PROTOBUF_LIB "${CMAKE_CURRENT_SOURCE_DIR}/../../ThirdParty/Protobuf/Lib/libprotobufd.lib")
     target_link_libraries(GameServer PRIVATE ${PROTOBUF_LIB})
 else()
     set(PROTOBUF_LIB "${CMAKE_CURRENT_SOURCE_DIR}/../../ThirdParty/Protobuf/Lib/libprotobuf.a")
-    # 리눅스에서는 정적 라이브러리를 먼저 쓰고, 그 뒤에 시스템 라이브러리(pthread 등)를 씀
     target_link_libraries(GameServer PRIVATE ${PROTOBUF_LIB} pthread)
 endif()
 
@@ -87,13 +84,11 @@ endif()
 # CONFIGURE_DEPENDS 옵션: 파일이 새로 생기거나 삭제되면 CMake가 알아서 재구성(Re-configure)되게 만듦
 file(GLOB_RECURSE RESOURCE_FILES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/Resources/*")
 
-# 2. 리소스 복사를 전담하는 가짜 타겟(Custom Target) 생성
 add_custom_target(CopyResources ALL
-        # 플랫폼(Windows/Linux) 상관없이 동작하는 내장 복사 명령어 사용
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_CURRENT_SOURCE_DIR}/Resources"
         "${CMAKE_CURRENT_BINARY_DIR}/Resources"
-        DEPENDS ${RESOURCE_FILES} # 💡 핵심: 리소스 파일들의 타임스탬프(수정 시간)가 변하면 이 타겟을 다시 실행함
+        DEPENDS ${RESOURCE_FILES}
         COMMENT "Syncing Resources directory..."
 )
 

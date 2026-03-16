@@ -65,7 +65,7 @@ message SC_MOVE_PATH
 {
     uint64 object_id = 1;
     uint64 start_server_tick = 2;
-    repeated Vector3 waypoints = 3;
+    repeated WayPoint waypoints = 3;
 }
 
 message CS_TIME_SYNC

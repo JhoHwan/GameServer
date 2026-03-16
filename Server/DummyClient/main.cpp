@@ -18,54 +18,53 @@ atomic<int32> GConnectedCount = 0;
 void WorkerMain(uint32 id, const NetCoreRef& netCore)
 {
 	LThreadId = id;
-    while (GIsRunning)
-    {
-        // Epoll 완료 처리
-        netCore->Dispatch(5);
+	while (GIsRunning)
+	{
+		netCore->Dispatch(5);
+		{
+			auto now = GetTickCount64();
+			LJobTimer.Distribute(now);
+		}
 
-        {
-            auto now = GetTickCount64();
-            LJobTimer.Distribute(now);
-        }
+		// Job처리
+		int32 processCount = 0;
+		auto start = GetTickCount64();
+		while(true)
+		{
+			auto now = GetTickCount64();
+			if(processCount >= 64)
+			{
+				processCount = 0;
+				if(now - start >= 20)
+				{
+					break;
+				}
+			}
 
-        // Job 처리 (최대 10ms씩 끊어서 수행)
-        auto start = chrono::steady_clock::now();
+			JobQueueRef jobQueue;
+			if(LJobQueue.empty())
+			{
+				if(!GGlobalJobQueue.try_dequeue(jobQueue)) break;
+			}
+			else
+			{
+				jobQueue = LJobQueue.front();
+				LJobQueue.pop();
+			}
 
-        while (!LJobQueue.empty())
-        {
-            auto now = chrono::steady_clock::now();
-            auto duration = chrono::duration_cast<chrono::milliseconds>(now - start).count();
-            if (duration >= 10)
-            {
-                while (!LJobQueue.empty())
-                {
-                    GGlobalJobQueue.enqueue(LJobQueue.front());
-                    LJobQueue.pop();
-                }
-                break;
-            }
+			processCount += jobQueue->Execute();
+		}
 
-            JobQueueRef jobQueue = LJobQueue.front();
-            LJobQueue.pop();
-
-            jobQueue->Execute(64);
-        }
-
-        while (true)
-        {
-            auto now = chrono::steady_clock::now();
-            auto duration = chrono::duration_cast<chrono::milliseconds>(now - start).count();
-            if (duration >= 10) break;
-
-            JobQueueRef jobQueue;
-            if (!GGlobalJobQueue.try_dequeue(jobQueue)) break;
-            if (!jobQueue) break;
-
-            jobQueue->Execute(64);
-        }
-    }
+		if(!LSendSessionList.empty())
+		{
+			for(auto& session : LSendSessionList)
+			{
+				session->FlushSend();
+			}
+			LSendSessionList.clear();
+		}
+	}
 }
-
 int main()
 {
     ClientPacketHandler::Init();

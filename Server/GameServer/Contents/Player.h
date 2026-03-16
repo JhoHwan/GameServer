@@ -17,8 +17,13 @@ public:
 	void Init() override;
 
 public:
-	void SetMoveInfo(vector<Vector3> waypoints, uint64 startTime, float speed);
+	void HandleMoveRequest(const Protocol::Vector3& dest);
+
+
+public:
+	void SetMoveInfo(vector<Vector3> wayPoints, vector<uint64> moveArrivalTime, uint64 moveStartTime);
 	const vector<Vector3>& GetWaypoints() const { return _moveWaypoints; }
+	float GetMoveSpeed() const { return _moveSpeed; }
 
 	const uint64& GetMoveStartTime() const { return _moveStartTime; }
 	Vector3 GetCurrentPosition(uint64 now) const;
@@ -34,6 +39,7 @@ public:
 
 public:
 	shared_ptr<GameSession> GetSession() const { return _sessionRef.lock(); }
+	shared_ptr<PlayerCharacter> GetPlayerRef() {return static_pointer_cast<PlayerCharacter>(shared_from_this()); }
 
 	bool IsMoving() const{return _isMoving;}
 

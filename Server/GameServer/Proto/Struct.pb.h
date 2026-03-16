@@ -54,11 +54,15 @@ extern PlayerInfoDefaultTypeInternal _PlayerInfo_default_instance_;
 class Vector3;
 struct Vector3DefaultTypeInternal;
 extern Vector3DefaultTypeInternal _Vector3_default_instance_;
+class WayPoint;
+struct WayPointDefaultTypeInternal;
+extern WayPointDefaultTypeInternal _WayPoint_default_instance_;
 }  // namespace Protocol
 PROTOBUF_NAMESPACE_OPEN
 template<> ::Protocol::ObjectInfo* Arena::CreateMaybeMessage<::Protocol::ObjectInfo>(Arena*);
 template<> ::Protocol::PlayerInfo* Arena::CreateMaybeMessage<::Protocol::PlayerInfo>(Arena*);
 template<> ::Protocol::Vector3* Arena::CreateMaybeMessage<::Protocol::Vector3>(Arena*);
+template<> ::Protocol::WayPoint* Arena::CreateMaybeMessage<::Protocol::WayPoint>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace Protocol {
 
@@ -568,6 +572,174 @@ class PlayerInfo final :
   union { Impl_ _impl_; };
   friend struct ::TableStruct_Struct_2eproto;
 };
+// -------------------------------------------------------------------
+
+class WayPoint final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Protocol.WayPoint) */ {
+ public:
+  inline WayPoint() : WayPoint(nullptr) {}
+  ~WayPoint() override;
+  explicit PROTOBUF_CONSTEXPR WayPoint(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  WayPoint(const WayPoint& from);
+  WayPoint(WayPoint&& from) noexcept
+    : WayPoint() {
+    *this = ::std::move(from);
+  }
+
+  inline WayPoint& operator=(const WayPoint& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline WayPoint& operator=(WayPoint&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const WayPoint& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const WayPoint* internal_default_instance() {
+    return reinterpret_cast<const WayPoint*>(
+               &_WayPoint_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    3;
+
+  friend void swap(WayPoint& a, WayPoint& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(WayPoint* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(WayPoint* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  WayPoint* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<WayPoint>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const WayPoint& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const WayPoint& from) {
+    WayPoint::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(WayPoint* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Protocol.WayPoint";
+  }
+  protected:
+  explicit WayPoint(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kPosFieldNumber = 1,
+    kArrivalOffsetMsFieldNumber = 2,
+  };
+  // .Protocol.Vector3 pos = 1;
+  bool has_pos() const;
+  private:
+  bool _internal_has_pos() const;
+  public:
+  void clear_pos();
+  const ::Protocol::Vector3& pos() const;
+  PROTOBUF_NODISCARD ::Protocol::Vector3* release_pos();
+  ::Protocol::Vector3* mutable_pos();
+  void set_allocated_pos(::Protocol::Vector3* pos);
+  private:
+  const ::Protocol::Vector3& _internal_pos() const;
+  ::Protocol::Vector3* _internal_mutable_pos();
+  public:
+  void unsafe_arena_set_allocated_pos(
+      ::Protocol::Vector3* pos);
+  ::Protocol::Vector3* unsafe_arena_release_pos();
+
+  // uint32 arrival_offset_ms = 2;
+  void clear_arrival_offset_ms();
+  uint32_t arrival_offset_ms() const;
+  void set_arrival_offset_ms(uint32_t value);
+  private:
+  uint32_t _internal_arrival_offset_ms() const;
+  void _internal_set_arrival_offset_ms(uint32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Protocol.WayPoint)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::Protocol::Vector3* pos_;
+    uint32_t arrival_offset_ms_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_Struct_2eproto;
+};
 // ===================================================================
 
 
@@ -867,9 +1039,125 @@ inline void PlayerInfo::set_allocated_object_info(::Protocol::ObjectInfo* object
   // @@protoc_insertion_point(field_set_allocated:Protocol.PlayerInfo.object_info)
 }
 
+// -------------------------------------------------------------------
+
+// WayPoint
+
+// .Protocol.Vector3 pos = 1;
+inline bool WayPoint::_internal_has_pos() const {
+  return this != internal_default_instance() && _impl_.pos_ != nullptr;
+}
+inline bool WayPoint::has_pos() const {
+  return _internal_has_pos();
+}
+inline void WayPoint::clear_pos() {
+  if (GetArenaForAllocation() == nullptr && _impl_.pos_ != nullptr) {
+    delete _impl_.pos_;
+  }
+  _impl_.pos_ = nullptr;
+}
+inline const ::Protocol::Vector3& WayPoint::_internal_pos() const {
+  const ::Protocol::Vector3* p = _impl_.pos_;
+  return p != nullptr ? *p : reinterpret_cast<const ::Protocol::Vector3&>(
+      ::Protocol::_Vector3_default_instance_);
+}
+inline const ::Protocol::Vector3& WayPoint::pos() const {
+  // @@protoc_insertion_point(field_get:Protocol.WayPoint.pos)
+  return _internal_pos();
+}
+inline void WayPoint::unsafe_arena_set_allocated_pos(
+    ::Protocol::Vector3* pos) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.pos_);
+  }
+  _impl_.pos_ = pos;
+  if (pos) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:Protocol.WayPoint.pos)
+}
+inline ::Protocol::Vector3* WayPoint::release_pos() {
+  
+  ::Protocol::Vector3* temp = _impl_.pos_;
+  _impl_.pos_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::Protocol::Vector3* WayPoint::unsafe_arena_release_pos() {
+  // @@protoc_insertion_point(field_release:Protocol.WayPoint.pos)
+  
+  ::Protocol::Vector3* temp = _impl_.pos_;
+  _impl_.pos_ = nullptr;
+  return temp;
+}
+inline ::Protocol::Vector3* WayPoint::_internal_mutable_pos() {
+  
+  if (_impl_.pos_ == nullptr) {
+    auto* p = CreateMaybeMessage<::Protocol::Vector3>(GetArenaForAllocation());
+    _impl_.pos_ = p;
+  }
+  return _impl_.pos_;
+}
+inline ::Protocol::Vector3* WayPoint::mutable_pos() {
+  ::Protocol::Vector3* _msg = _internal_mutable_pos();
+  // @@protoc_insertion_point(field_mutable:Protocol.WayPoint.pos)
+  return _msg;
+}
+inline void WayPoint::set_allocated_pos(::Protocol::Vector3* pos) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete _impl_.pos_;
+  }
+  if (pos) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(pos);
+    if (message_arena != submessage_arena) {
+      pos = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, pos, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  _impl_.pos_ = pos;
+  // @@protoc_insertion_point(field_set_allocated:Protocol.WayPoint.pos)
+}
+
+// uint32 arrival_offset_ms = 2;
+inline void WayPoint::clear_arrival_offset_ms() {
+  _impl_.arrival_offset_ms_ = 0u;
+}
+inline uint32_t WayPoint::_internal_arrival_offset_ms() const {
+  return _impl_.arrival_offset_ms_;
+}
+inline uint32_t WayPoint::arrival_offset_ms() const {
+  // @@protoc_insertion_point(field_get:Protocol.WayPoint.arrival_offset_ms)
+  return _internal_arrival_offset_ms();
+}
+inline void WayPoint::_internal_set_arrival_offset_ms(uint32_t value) {
+  
+  _impl_.arrival_offset_ms_ = value;
+}
+inline void WayPoint::set_arrival_offset_ms(uint32_t value) {
+  _internal_set_arrival_offset_ms(value);
+  // @@protoc_insertion_point(field_set:Protocol.WayPoint.arrival_offset_ms)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

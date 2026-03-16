@@ -96,9 +96,8 @@ void Field::EnterPlayer(weak_ptr<PlayerCharacter> player)
 					for(const auto& waypoint : waypoints)
 					{
 						auto* newWayPoint = movePacket.add_waypoints();
-						newWayPoint->set_x(waypoint.x);
-						newWayPoint->set_y(waypoint.y);
-						newWayPoint->set_z(waypoint.z);
+						newWayPoint->mutable_pos()->CopyFrom(waypoint.ToProto());
+
 					}
 					movePackets.push_back(std::move(movePacket));
 				}
@@ -142,60 +141,6 @@ void Field::BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerCharacter
 			if(shared_ptr<GameSession> session = sessionRef.lock())
 				session->SendPacket(sendBuffer);
 		}
-	});
-}
-
-void Field::PlayerRequestMove(weak_ptr<PlayerCharacter> player, const Protocol::Vector3& dest)
-{
-	constexpr int32 MOVE_REQUEST_MIN_INTERVAL = 500;
-	constexpr float MOVE_REQUEST_MIN_DIST = 300.0f;
-	DoAsync([self = shared_from_this(), playerRef = std::move(player), dest]()
-	{
-		auto player = playerRef.lock();
-		if(player == nullptr) return;
-		if(!self->_players.contains(player))
-		{
-			LOG_ERROR(Default, "PlayerRequestMove Error");
-			return;
-		}
-
-		auto now = GetTickCount64();
-		auto& time = player->GetMoveStartTime();
-		if(player->IsMoving() && now - time < MOVE_REQUEST_MIN_INTERVAL)
-		{
-			//LOG_DEBUG(Default, "MOVE_REQUEST_MIN_INTERVAL ");
-			if(Vector3::Dist2D(dest, player->GetDestinationPosition()) <= MOVE_REQUEST_MIN_DIST)
-			{
-				//LOG_DEBUG(Default, "MOVE_REQUEST_MIN_DIST ");
-				return;
-			}
-		}
-
-		Vector3 startPos = player->GetCurrentPosition(now);
-		Vector3 endPos(dest);
-
-		std::vector<Vector3> serverWaypoints;
-		self->FindPath(startPos, endPos, serverWaypoints);
-
-		Protocol::SC_MOVE_PATH pkt;
-		pkt.set_start_server_tick(now);
-		pkt.set_object_id(player->GetId());
-
-		for (int i = 0; i < serverWaypoints.size(); i++)
-		{
-			LOG_DEBUG(PathFind, "[{}] : [{}, {}, {}]", i, serverWaypoints[i].x, serverWaypoints[i].y, serverWaypoints[i].z);
-
-			auto* waypoint = pkt.add_waypoints();
-			waypoint->set_x(serverWaypoints[i].x);
-			waypoint->set_y(serverWaypoints[i].y);
-			waypoint->set_z(serverWaypoints[i].z);
-
-			serverWaypoints[i] = Vector3(*waypoint); // Ensure serverWaypoints matches exact packet format if needed, but they are already identical.
-		}
-		player->SetMoveInfo(std::move(serverWaypoints), now, 500.0f);
-
-		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
-		self->BroadCast(sendBuffer);
 	});
 }
 
@@ -249,7 +194,7 @@ void Field::UpdatePlayerPosition()
 	LJobTimer.Reserve(500, GetJobQueue(), job);
 }
 
-void Field::RequestUsePortal(const weak_ptr<PlayerCharacter>& playerRef, uint32 portalId)
+void Field::HandleRequestUsePortal(const weak_ptr<PlayerCharacter>& playerRef, uint32 portalId)
 {
 	DoAsync([self = shared_from_this(), playerRef = playerRef, portalId]()
 	{
@@ -271,7 +216,56 @@ void Field::RequestUsePortal(const weak_ptr<PlayerCharacter>& playerRef, uint32 
 	});
 }
 
-void Field::FindPath(const Vector3& startPos, const Vector3& endPos, OUT std::vector<Vector3>& pathResult)
+void Field::HandleRequestMove(const weak_ptr<PlayerCharacter>& playerRef, const Vector3& dest)
+{
+	DoAsync([self = shared_from_this(), playerRef = playerRef, dest = dest]()
+	{
+		auto player = playerRef.lock();
+		if(player == nullptr || !self->_players.contains(player)) return;
+
+		auto now = GetTickCount64();
+		vector<Vector3> wayPoints;
+
+		self->FindPath(player->GetCurrentPosition(now), dest, wayPoints);
+
+		if(wayPoints.empty()) return;
+
+		auto speed = player->GetMoveSpeed();
+
+		vector<uint64> moveArrivalTimes;
+		moveArrivalTimes.reserve(wayPoints.size());
+		moveArrivalTimes.push_back(now);
+
+		uint64 totalTime = now;
+		float totalDist = 0;
+		for(int i = 1; i < wayPoints.size(); i++)
+		{
+			float dist = Vector3::Dist(wayPoints[i-1], wayPoints[i]);
+			totalDist += dist;
+
+			float seconds = dist / speed;
+			auto timeToTravel = static_cast<uint64>(seconds * 1000.0f);
+			totalTime += timeToTravel;
+			moveArrivalTimes.push_back(totalTime);
+		}
+
+		Protocol::SC_MOVE_PATH pkt;
+		pkt.set_object_id(player->GetId());
+		pkt.set_start_server_tick(now);
+		for(int i = 0; i < wayPoints.size(); i++)
+		{
+			Protocol::WayPoint* wayPoint = pkt.add_waypoints();
+			wayPoint->mutable_pos()->CopyFrom(wayPoints[i].ToProto());
+			wayPoint->set_arrival_offset_ms(static_cast<uint32>(moveArrivalTimes[i] - now));
+		}
+
+		self->BroadCast(ServerPacketHandler::MakeSendBuffer(pkt));
+
+		player->SetMoveInfo(std::move(wayPoints), std::move(moveArrivalTimes), now);
+	});
+}
+
+void Field::FindPath(const Vector3& startPos, const Vector3& endPos, OUT std::vector<Vector3>& outWayPoints)
 {
 	auto start = std::chrono::high_resolution_clock::now();
 
@@ -309,8 +303,8 @@ void Field::FindPath(const Vector3& startPos, const Vector3& endPos, OUT std::ve
 	if(t >= 1.0)
 	{
 		//LOG_DEBUG(NavMesh, "Straight Path")
-		pathResult.push_back(startPos);
-		pathResult.push_back(endPos);
+		outWayPoints.push_back(startPos);
+		outWayPoints.push_back(endPos);
 
 		auto end = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
@@ -344,7 +338,7 @@ void Field::FindPath(const Vector3& startPos, const Vector3& endPos, OUT std::ve
 		for (int i = 0; i < straightPathCount; ++i)
 		{
 			// Detour: X, Y, Z (m) -> Engine: X, Z, Y (cm)
-			pathResult.emplace_back(straightPath[i*3] * 100.0f, straightPath[i*3+2] * 100.0f, straightPath[i*3+1] * 100.0f);
+			outWayPoints.emplace_back(straightPath[i*3] * 100.0f, straightPath[i*3+2] * 100.0f, straightPath[i*3+1] * 100.0f);
 		}
 	}
 

@@ -11,7 +11,7 @@ SET SCRIPT_PATH=PacketGenerator.py
 SET PROTO_DIR=..\GameServer\Proto
 
 :: 4. 언리얼 클라이언트 경로 설정 (Network 폴더로 통합)
-SET TARGET_DIR=C:\UnrealProject\MP2\Source\MP2\Network
+SET TARGET_DIR=C:\Project\GameServer\Client\MP2\Source\MP2\Network
 
 :: ==========================================================
 

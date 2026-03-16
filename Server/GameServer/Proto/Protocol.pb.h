@@ -1911,22 +1911,22 @@ class SC_MOVE_PATH final :
     kObjectIdFieldNumber = 1,
     kStartServerTickFieldNumber = 2,
   };
-  // repeated .Protocol.Vector3 waypoints = 3;
+  // repeated .Protocol.WayPoint waypoints = 3;
   int waypoints_size() const;
   private:
   int _internal_waypoints_size() const;
   public:
   void clear_waypoints();
-  ::Protocol::Vector3* mutable_waypoints(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::Vector3 >*
+  ::Protocol::WayPoint* mutable_waypoints(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::WayPoint >*
       mutable_waypoints();
   private:
-  const ::Protocol::Vector3& _internal_waypoints(int index) const;
-  ::Protocol::Vector3* _internal_add_waypoints();
+  const ::Protocol::WayPoint& _internal_waypoints(int index) const;
+  ::Protocol::WayPoint* _internal_add_waypoints();
   public:
-  const ::Protocol::Vector3& waypoints(int index) const;
-  ::Protocol::Vector3* add_waypoints();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::Vector3 >&
+  const ::Protocol::WayPoint& waypoints(int index) const;
+  ::Protocol::WayPoint* add_waypoints();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::WayPoint >&
       waypoints() const;
 
   // uint64 object_id = 1;
@@ -1955,7 +1955,7 @@ class SC_MOVE_PATH final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::Vector3 > waypoints_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::WayPoint > waypoints_;
     uint64_t object_id_;
     uint64_t start_server_tick_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -2772,38 +2772,38 @@ inline void SC_MOVE_PATH::set_start_server_tick(uint64_t value) {
   // @@protoc_insertion_point(field_set:Protocol.SC_MOVE_PATH.start_server_tick)
 }
 
-// repeated .Protocol.Vector3 waypoints = 3;
+// repeated .Protocol.WayPoint waypoints = 3;
 inline int SC_MOVE_PATH::_internal_waypoints_size() const {
   return _impl_.waypoints_.size();
 }
 inline int SC_MOVE_PATH::waypoints_size() const {
   return _internal_waypoints_size();
 }
-inline ::Protocol::Vector3* SC_MOVE_PATH::mutable_waypoints(int index) {
+inline ::Protocol::WayPoint* SC_MOVE_PATH::mutable_waypoints(int index) {
   // @@protoc_insertion_point(field_mutable:Protocol.SC_MOVE_PATH.waypoints)
   return _impl_.waypoints_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::Vector3 >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::WayPoint >*
 SC_MOVE_PATH::mutable_waypoints() {
   // @@protoc_insertion_point(field_mutable_list:Protocol.SC_MOVE_PATH.waypoints)
   return &_impl_.waypoints_;
 }
-inline const ::Protocol::Vector3& SC_MOVE_PATH::_internal_waypoints(int index) const {
+inline const ::Protocol::WayPoint& SC_MOVE_PATH::_internal_waypoints(int index) const {
   return _impl_.waypoints_.Get(index);
 }
-inline const ::Protocol::Vector3& SC_MOVE_PATH::waypoints(int index) const {
+inline const ::Protocol::WayPoint& SC_MOVE_PATH::waypoints(int index) const {
   // @@protoc_insertion_point(field_get:Protocol.SC_MOVE_PATH.waypoints)
   return _internal_waypoints(index);
 }
-inline ::Protocol::Vector3* SC_MOVE_PATH::_internal_add_waypoints() {
+inline ::Protocol::WayPoint* SC_MOVE_PATH::_internal_add_waypoints() {
   return _impl_.waypoints_.Add();
 }
-inline ::Protocol::Vector3* SC_MOVE_PATH::add_waypoints() {
-  ::Protocol::Vector3* _add = _internal_add_waypoints();
+inline ::Protocol::WayPoint* SC_MOVE_PATH::add_waypoints() {
+  ::Protocol::WayPoint* _add = _internal_add_waypoints();
   // @@protoc_insertion_point(field_add:Protocol.SC_MOVE_PATH.waypoints)
   return _add;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::Vector3 >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::Protocol::WayPoint >&
 SC_MOVE_PATH::waypoints() const {
   // @@protoc_insertion_point(field_list:Protocol.SC_MOVE_PATH.waypoints)
   return _impl_.waypoints_;

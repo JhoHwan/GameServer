@@ -20,3 +20,9 @@ message PlayerInfo
 {
 	ObjectInfo object_info = 1;
 }
+
+message WayPoint
+{
+	Vector3 pos = 1;
+	uint32 arrival_offset_ms = 2;
+}

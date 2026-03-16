@@ -37,7 +37,7 @@ bool Handle_CS_USE_PORTAL(SessionRef& session, Protocol::CS_USE_PORTAL& pkt)
     auto field = player->GetField();
     if(field == nullptr) return true;
 
-    field->RequestUsePortal(player, pkt.portal_id());
+    field->HandleRequestUsePortal(player, pkt.portal_id());
 
     return true;
 }
@@ -67,9 +67,7 @@ bool Handle_CS_REQUEST_MOVE(SessionRef& session, Protocol::CS_REQUEST_MOVE& pkt)
 
     //LOG_INFO(PathFind, "Player{} Request Move : [{}, {}, {}]", player->GetId(), pkt.pos().x(), pkt.pos().y(), pkt.pos().z());
 
-    auto field = player->GetField();
-    if(field == nullptr) return true;
-    field->PlayerRequestMove(player, pkt.pos());
+    player->HandleMoveRequest(pkt.pos());
 
     return true;
 }

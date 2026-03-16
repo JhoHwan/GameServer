@@ -367,19 +367,19 @@ const char descriptor_table_protodef_Protocol_2eproto[] PROTOBUF_SECTION_VARIABL
   "YER\022\"\n\004info\030\001 \003(\0132\024.Protocol.PlayerInfo\""
   "&\n\021SC_DESPAWN_PLAYER\022\021\n\tplayer_id\030\001 \001(\004\""
   "1\n\017CS_REQUEST_MOVE\022\036\n\003pos\030\001 \001(\0132\021.Protoc"
-  "ol.Vector3\"b\n\014SC_MOVE_PATH\022\021\n\tobject_id\030"
-  "\001 \001(\004\022\031\n\021start_server_tick\030\002 \001(\004\022$\n\twayp"
-  "oints\030\003 \003(\0132\021.Protocol.Vector3\"#\n\014CS_TIM"
-  "E_SYNC\022\023\n\013client_tick\030\001 \001(\004\"8\n\014SC_TIME_S"
-  "YNC\022\023\n\013client_tick\030\001 \001(\004\022\023\n\013server_tick\030"
-  "\002 \001(\004b\006proto3"
+  "ol.Vector3\"c\n\014SC_MOVE_PATH\022\021\n\tobject_id\030"
+  "\001 \001(\004\022\031\n\021start_server_tick\030\002 \001(\004\022%\n\twayp"
+  "oints\030\003 \003(\0132\022.Protocol.WayPoint\"#\n\014CS_TI"
+  "ME_SYNC\022\023\n\013client_tick\030\001 \001(\004\"8\n\014SC_TIME_"
+  "SYNC\022\023\n\013client_tick\030\001 \001(\004\022\023\n\013server_tick"
+  "\030\002 \001(\004b\006proto3"
   ;
 static const ::_pbi::DescriptorTable* const descriptor_table_Protocol_2eproto_deps[1] = {
   &::descriptor_table_Struct_2eproto,
 };
 static ::_pbi::once_flag descriptor_table_Protocol_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_Protocol_2eproto = {
-    false, false, 773, descriptor_table_protodef_Protocol_2eproto,
+    false, false, 774, descriptor_table_protodef_Protocol_2eproto,
     "Protocol.proto",
     &descriptor_table_Protocol_2eproto_once, descriptor_table_Protocol_2eproto_deps, 1, 14,
     schemas, file_default_instances, TableStruct_Protocol_2eproto::offsets,
@@ -2566,7 +2566,7 @@ const char* SC_MOVE_PATH::_InternalParse(const char* ptr, ::_pbi::ParseContext* 
         } else
           goto handle_unusual;
         continue;
-      // repeated .Protocol.Vector3 waypoints = 3;
+      // repeated .Protocol.WayPoint waypoints = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr -= 1;
@@ -2620,7 +2620,7 @@ uint8_t* SC_MOVE_PATH::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteUInt64ToArray(2, this->_internal_start_server_tick(), target);
   }
 
-  // repeated .Protocol.Vector3 waypoints = 3;
+  // repeated .Protocol.WayPoint waypoints = 3;
   for (unsigned i = 0,
       n = static_cast<unsigned>(this->_internal_waypoints_size()); i < n; i++) {
     const auto& repfield = this->_internal_waypoints(i);
@@ -2644,7 +2644,7 @@ size_t SC_MOVE_PATH::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // repeated .Protocol.Vector3 waypoints = 3;
+  // repeated .Protocol.WayPoint waypoints = 3;
   total_size += 1UL * this->_internal_waypoints_size();
   for (const auto& msg : this->_impl_.waypoints_) {
     total_size +=
