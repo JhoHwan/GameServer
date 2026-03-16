@@ -79,7 +79,8 @@ void Field::EnterPlayer(weak_ptr<PlayerCharacter> player)
 
 		// 새로 들어온 플레이어에게 주변 유저 스폰
 		{
-			if(self->_players.empty()) return;
+			if(self->_players.size() <= 1) return;
+
 			Protocol::SC_SPAWN_PLAYER packet;
 			vector<Protocol::SC_MOVE_PATH> movePackets;
 			movePackets.reserve(self->_players.size());
@@ -89,17 +90,37 @@ void Field::EnterPlayer(weak_ptr<PlayerCharacter> player)
 				other->GetObjectInfo(packet.add_info()->mutable_object_info());
 				if(other->IsMoving())
 				{
-					Protocol::SC_MOVE_PATH movePacket;
-					movePacket.set_start_server_tick(other->GetMoveStartTime());
-					movePacket.set_object_id(other->GetId());
-					const auto& waypoints = other->GetWaypoints();
-					for(const auto& waypoint : waypoints)
-					{
-						auto* newWayPoint = movePacket.add_waypoints();
-						newWayPoint->mutable_pos()->CopyFrom(waypoint.ToProto());
+					uint64 now = GetTickCount64();
+					Vector3 currentPos = other->GetCurrentPosition(now);
 
+					Protocol::SC_MOVE_PATH movePacket;
+					movePacket.set_object_id(other->GetId());
+					movePacket.set_start_server_tick(now);
+
+					{
+						auto* firstWP = movePacket.add_waypoints();
+						firstWP->mutable_pos()->CopyFrom(currentPos.ToProto());
+						firstWP->set_arrival_offset_ms(0);
 					}
-					movePackets.push_back(std::move(movePacket));
+
+					const auto& waypoints = other->GetWaypoints();
+					const auto& arrivalTimes = other->GetArrivalTimes();
+
+					for (size_t i = 0; i < arrivalTimes.size(); ++i)
+					{
+						if (arrivalTimes[i] <= now) continue;
+
+						auto* wp = movePacket.add_waypoints();
+						wp->mutable_pos()->CopyFrom(waypoints[i].ToProto());
+
+						auto offset = static_cast<uint32>(arrivalTimes[i] - now);
+						wp->set_arrival_offset_ms(offset);
+					}
+
+					if (movePacket.waypoints_size() > 0)
+					{
+						movePackets.push_back(std::move(movePacket));
+					}
 				}
 			}
 

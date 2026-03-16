@@ -36,12 +36,15 @@ public:
 		_loadingMapId = pendingMapId;
 		_pendingSpawnPos = pos;
 	}
+	bool IsMoving() const{return _isMoving;}
+
+	const vector<uint64>& GetArrivalTimes() const { return _moveArrivalTimes; }
 
 public:
 	shared_ptr<GameSession> GetSession() const { return _sessionRef.lock(); }
 	shared_ptr<PlayerCharacter> GetPlayerRef() {return static_pointer_cast<PlayerCharacter>(shared_from_this()); }
 
-	bool IsMoving() const{return _isMoving;}
+
 
 private:
 	weak_ptr<GameSession> _sessionRef;
