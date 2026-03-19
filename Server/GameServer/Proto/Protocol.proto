@@ -59,6 +59,7 @@ message SC_DESPAWN_PLAYER
 message CS_REQUEST_MOVE
 {
     Vector3 pos = 1;
+    uint64 client_tick = 2;
 }
 
 message SC_MOVE_PATH
@@ -68,13 +69,20 @@ message SC_MOVE_PATH
     repeated WayPoint waypoints = 3;
 }
 
-message CS_TIME_SYNC
-{
-    uint64 client_tick = 1;
-}
-
 message SC_TIME_SYNC
 {
-    uint64 client_tick = 1;
-    uint64 server_tick = 2;
+    int64 server_offset = 1;
+    uint32 rtt = 2;
+}
+
+message SC_PING
+{
+    uint64 server_send_tick = 1;
+}
+
+message CS_PONG
+{
+    uint64 server_send_tick = 1;
+    uint64 client_recv_tick = 2;
+    uint64 client_send_tick = 3;
 }

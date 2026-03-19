@@ -27,8 +27,9 @@ enum : uint16
 	PKT_SC_DESPAWN_PLAYER = 1009,
 	PKT_CS_REQUEST_MOVE = 1010,
 	PKT_SC_MOVE_PATH = 1011,
-	PKT_CS_TIME_SYNC = 1012,
-	PKT_SC_TIME_SYNC = 1013,
+	PKT_SC_TIME_SYNC = 1012,
+	PKT_SC_PING = 1013,
+	PKT_CS_PONG = 1014,
 };
 
 // Custom Handlers
@@ -38,7 +39,7 @@ bool Handle_CS_REQ_MOVE_FIELD(SessionRef& session, Protocol::CS_REQ_MOVE_FIELD& 
 bool Handle_CS_USE_PORTAL(SessionRef& session, Protocol::CS_USE_PORTAL& pkt);
 bool Handle_CS_FIELD_LOADING_COMPLETE(SessionRef& session, Protocol::CS_FIELD_LOADING_COMPLETE& pkt);
 bool Handle_CS_REQUEST_MOVE(SessionRef& session, Protocol::CS_REQUEST_MOVE& pkt);
-bool Handle_CS_TIME_SYNC(SessionRef& session, Protocol::CS_TIME_SYNC& pkt);
+bool Handle_CS_PONG(SessionRef& session, Protocol::CS_PONG& pkt);
 
 class ServerPacketHandler
 {
@@ -52,7 +53,7 @@ public:
 		GPacketHandler[PKT_CS_USE_PORTAL] = [](SessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::CS_USE_PORTAL>(Handle_CS_USE_PORTAL, session, buffer, len); };
 		GPacketHandler[PKT_CS_FIELD_LOADING_COMPLETE] = [](SessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::CS_FIELD_LOADING_COMPLETE>(Handle_CS_FIELD_LOADING_COMPLETE, session, buffer, len); };
 		GPacketHandler[PKT_CS_REQUEST_MOVE] = [](SessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::CS_REQUEST_MOVE>(Handle_CS_REQUEST_MOVE, session, buffer, len); };
-		GPacketHandler[PKT_CS_TIME_SYNC] = [](SessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::CS_TIME_SYNC>(Handle_CS_TIME_SYNC, session, buffer, len); };
+		GPacketHandler[PKT_CS_PONG] = [](SessionRef& session, BYTE* buffer, int32 len) { return HandlePacket<Protocol::CS_PONG>(Handle_CS_PONG, session, buffer, len); };
 	}
 
 	static bool HandlePacket(SessionRef& session, BYTE* buffer, int32 len)
@@ -68,6 +69,7 @@ public:
 	static SendBufferRef MakeSendBuffer(Protocol::SC_DESPAWN_PLAYER& pkt) { return MakeSendBuffer(pkt, PKT_SC_DESPAWN_PLAYER); }
 	static SendBufferRef MakeSendBuffer(Protocol::SC_MOVE_PATH& pkt) { return MakeSendBuffer(pkt, PKT_SC_MOVE_PATH); }
 	static SendBufferRef MakeSendBuffer(Protocol::SC_TIME_SYNC& pkt) { return MakeSendBuffer(pkt, PKT_SC_TIME_SYNC); }
+	static SendBufferRef MakeSendBuffer(Protocol::SC_PING& pkt) { return MakeSendBuffer(pkt, PKT_SC_PING); }
 
 private:
 	template<typename PacketType, typename ProcessFunc>

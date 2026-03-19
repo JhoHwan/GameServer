@@ -40,7 +40,7 @@ public:
 	bool CanEnterField() const {return GetPlayerCount() < MAX_PLAYERS; }
 
 	void HandleRequestUsePortal(const weak_ptr<PlayerCharacter>& playerRef, uint32 portalId);
-	void HandleRequestMove(const weak_ptr<PlayerCharacter>& playerRef, const Vector3& dest);
+	void HandleRequestMove(const weak_ptr<PlayerCharacter>& playerRef, const Vector3& dest, const uint64& startServerTick);
 
 private:
 	void FindPath(const Vector3& pos, const Vector3& endPos, OUT std::vector<Vector3>& result);

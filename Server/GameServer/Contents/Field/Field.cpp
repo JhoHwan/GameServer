@@ -11,6 +11,7 @@
 #include "Contents/GameManager.h"
 #include "Packet/ServerPacketHandler.h"
 #include "Detour/Include/DetourNavMeshQuery.h"
+#include "Util/Time.h"
 
 
 Field::Field(uint64 id, const FieldData* fieldData) : _navMesh(fieldData->NavMesh), _id(id), _fieldData(fieldData)
@@ -79,51 +80,39 @@ void Field::EnterPlayer(weak_ptr<PlayerCharacter> player)
 
 		// 새로 들어온 플레이어에게 주변 유저 스폰
 		{
-			if(self->_players.size() <= 1) return;
+		        if(self->_players.size() <= 1) return;
 
-			Protocol::SC_SPAWN_PLAYER packet;
-			vector<Protocol::SC_MOVE_PATH> movePackets;
-			movePackets.reserve(self->_players.size());
-			for (const shared_ptr<PlayerCharacter>& other : self->_players)
-			{
-				if (other == player) continue;
-				other->GetObjectInfo(packet.add_info()->mutable_object_info());
-				if(other->IsMoving())
-				{
-					uint64 now = GetTickCount64();
-					Vector3 currentPos = other->GetCurrentPosition(now);
+		        Protocol::SC_SPAWN_PLAYER packet;
+		        vector<Protocol::SC_MOVE_PATH> movePackets;
+		        movePackets.reserve(self->_players.size());
+		        for (const shared_ptr<PlayerCharacter>& other : self->_players)
+		        {
+		                if (other == player) continue;
+		                other->GetObjectInfo(packet.add_info()->mutable_object_info());
+		                if(other->IsMoving())
+		                {
+		                        Protocol::SC_MOVE_PATH movePacket;
+		                        movePacket.set_object_id(other->GetId());
+		                        movePacket.set_start_server_tick(other->GetMoveStartTime());
 
-					Protocol::SC_MOVE_PATH movePacket;
-					movePacket.set_object_id(other->GetId());
-					movePacket.set_start_server_tick(now);
+		                        const auto& waypoints = other->GetWaypoints();
+		                        const auto& arrivalTimes = other->GetArrivalTimes();
 
-					{
-						auto* firstWP = movePacket.add_waypoints();
-						firstWP->mutable_pos()->CopyFrom(currentPos.ToProto());
-						firstWP->set_arrival_offset_ms(0);
-					}
+		                        for (size_t i = 0; i < waypoints.size(); ++i)
+		                        {
+		                                auto* wp = movePacket.add_waypoints();
+		                                wp->mutable_pos()->CopyFrom(waypoints[i].ToProto());
 
-					const auto& waypoints = other->GetWaypoints();
-					const auto& arrivalTimes = other->GetArrivalTimes();
+		                                auto offset = static_cast<uint32>(arrivalTimes[i] - other->GetMoveStartTime());
+		                                wp->set_arrival_offset_ms(offset);
+		                        }
 
-					for (size_t i = 0; i < arrivalTimes.size(); ++i)
-					{
-						if (arrivalTimes[i] <= now) continue;
-
-						auto* wp = movePacket.add_waypoints();
-						wp->mutable_pos()->CopyFrom(waypoints[i].ToProto());
-
-						auto offset = static_cast<uint32>(arrivalTimes[i] - now);
-						wp->set_arrival_offset_ms(offset);
-					}
-
-					if (movePacket.waypoints_size() > 0)
-					{
-						movePackets.push_back(std::move(movePacket));
-					}
-				}
-			}
-
+		                        if (movePacket.waypoints_size() > 0)
+		                        {
+		                                movePackets.push_back(std::move(movePacket));
+		                        }
+		                }
+		        }
 			if (packet.info_size() == 0) return;
 			auto session = player->GetSession();
 			if (!session) return;
@@ -196,7 +185,7 @@ void Field::UpdatePlayerPosition()
 {
 	//LOG_DEBUG(FieldInstance, "UpdatePlayerPosition");
 
-	uint64 now = GetTickCount64();
+	uint64 now = Time::GetServerTime();
 	for(auto& player : _players)
 	{
 		if(player->IsMoving())
@@ -225,7 +214,7 @@ void Field::HandleRequestUsePortal(const weak_ptr<PlayerCharacter>& playerRef, u
 		//LOG_DEBUG(Field, "[Player {}] Request Use Portal. Portal ID : {}", player->GetInstanceID(), portalId);
 
 		auto portalData = self->_fieldData->FieldsPortals[portalId];
-		Vector3 playerPos = player->GetCurrentPosition(GetTickCount64());
+		Vector3 playerPos = player->GetCurrentPosition(Time::GetServerTime());
 		auto targetPortalId = portalData.TargetPortalId;
 
 		if(500.0f <= Vector3::Dist2D(portalData.Position, playerPos))
@@ -237,17 +226,16 @@ void Field::HandleRequestUsePortal(const weak_ptr<PlayerCharacter>& playerRef, u
 	});
 }
 
-void Field::HandleRequestMove(const weak_ptr<PlayerCharacter>& playerRef, const Vector3& dest)
+void Field::HandleRequestMove(const weak_ptr<PlayerCharacter>& playerRef, const Vector3& dest, const uint64& startServerTick)
 {
-	DoAsync([self = shared_from_this(), playerRef = playerRef, dest = dest]()
+	DoAsync([self = shared_from_this(), playerRef = playerRef, dest = dest, startServerTick = startServerTick]()
 	{
 		auto player = playerRef.lock();
 		if(player == nullptr || !self->_players.contains(player)) return;
 
-		auto now = GetTickCount64();
 		vector<Vector3> wayPoints;
 
-		self->FindPath(player->GetCurrentPosition(now), dest, wayPoints);
+		self->FindPath(player->GetCurrentPosition(startServerTick), dest, wayPoints);
 
 		if(wayPoints.empty()) return;
 
@@ -255,9 +243,9 @@ void Field::HandleRequestMove(const weak_ptr<PlayerCharacter>& playerRef, const 
 
 		vector<uint64> moveArrivalTimes;
 		moveArrivalTimes.reserve(wayPoints.size());
-		moveArrivalTimes.push_back(now);
+		moveArrivalTimes.push_back(startServerTick);
 
-		uint64 totalTime = now;
+		uint64 totalTime = startServerTick;
 		float totalDist = 0;
 		for(int i = 1; i < wayPoints.size(); i++)
 		{
@@ -272,17 +260,17 @@ void Field::HandleRequestMove(const weak_ptr<PlayerCharacter>& playerRef, const 
 
 		Protocol::SC_MOVE_PATH pkt;
 		pkt.set_object_id(player->GetId());
-		pkt.set_start_server_tick(now);
-		for(int i = 0; i < wayPoints.size(); i++)
+		pkt.set_start_server_tick(startServerTick);
+		for (int i = 0; i < wayPoints.size(); i++)
 		{
 			Protocol::WayPoint* wayPoint = pkt.add_waypoints();
 			wayPoint->mutable_pos()->CopyFrom(wayPoints[i].ToProto());
-			wayPoint->set_arrival_offset_ms(static_cast<uint32>(moveArrivalTimes[i] - now));
+			wayPoint->set_arrival_offset_ms(static_cast<uint32>(moveArrivalTimes[i] - startServerTick));
 		}
 
 		self->BroadCast(ServerPacketHandler::MakeSendBuffer(pkt));
 
-		player->SetMoveInfo(std::move(wayPoints), std::move(moveArrivalTimes), now);
+		player->SetMoveInfo(std::move(wayPoints), std::move(moveArrivalTimes), startServerTick);
 	});
 }
 

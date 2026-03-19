@@ -18,6 +18,7 @@
 #include "LogManager.h"
 #include "Contents/Field/FieldManager.h"
 #include "Util/MonitorManager.h"
+#include "Util/Time.h"
 
 std::atomic<bool> GIsRunning{true};
 
@@ -76,7 +77,7 @@ int main()
 {
 	ServerPacketHandler::Init();
 
-	if(!LogManager::Instance().Init(ELogLevel::Info))
+	if(!LogManager::Instance().Init(ELogLevel::Debug))
 	{
 		cerr << "LogManager init Failed" << endl;
 		return 0;
@@ -94,6 +95,7 @@ int main()
 		10000);
 
 	LOG_INFO(Default, "=======Server Start========");
+	Time::InitServerStartTime();
 	if(!service->Start())
 	{
 		LOG_INFO(Default, "Service Start Failed");

@@ -5,6 +5,7 @@
 #include "GameSession.h"
 #include "LogManager.h"
 #include "Field/Field.h"
+#include "Util/Time.h"
 
 PlayerCharacter::PlayerCharacter(weak_ptr<GameSession> session) : _sessionRef(std::move(session))
 {
@@ -28,14 +29,13 @@ void PlayerCharacter::Init()
 	if (session) session->SetPlayer(player);
 }
 
-void PlayerCharacter::HandleMoveRequest(const Protocol::Vector3& dest)
+void PlayerCharacter::HandleMoveRequest(const Protocol::Vector3& dest, uint64 startServerTick)
 {
 	constexpr int32 MOVE_REQUEST_MIN_INTERVAL = 500;
 	constexpr float MOVE_REQUEST_MIN_DIST = 300.0f;
 
-	auto now = GetTickCount64();
 	auto& time = GetMoveStartTime();
-	if(IsMoving() && now - time < MOVE_REQUEST_MIN_INTERVAL)
+	if(IsMoving() && startServerTick - time < MOVE_REQUEST_MIN_INTERVAL)
 	{
 		if(Vector3::Dist2D(dest, GetDestinationPosition()) <= MOVE_REQUEST_MIN_DIST)
 		{
@@ -43,7 +43,7 @@ void PlayerCharacter::HandleMoveRequest(const Protocol::Vector3& dest)
 		}
 	}
 
-	GetField()->HandleRequestMove(GetPlayerRef(), dest);
+	GetField()->HandleRequestMove(GetPlayerRef(), dest, startServerTick);
 }
 
 void PlayerCharacter::SetMoveInfo(vector<Vector3> wayPoints, vector<uint64> moveArrivalTime, uint64 moveStartTime)
@@ -73,7 +73,7 @@ void PlayerCharacter::SetMoveInfo(vector<Vector3> wayPoints, vector<uint64> move
 			}
 		});
 
-		LJobTimer.Reserve(self->_moveArrivalTimes.back() - GetTickCount64(), self->GetJobQueue(), job);
+		LJobTimer.Reserve(self->_moveArrivalTimes.back() - moveStartTime, self->GetJobQueue(), job);
 	});
 }
 

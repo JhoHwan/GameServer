@@ -17,8 +17,7 @@ public:
 	void Init() override;
 
 public:
-	void HandleMoveRequest(const Protocol::Vector3& dest);
-
+	void HandleMoveRequest(const Protocol::Vector3& dest, uint64 startServerTick);
 
 public:
 	void SetMoveInfo(vector<Vector3> wayPoints, vector<uint64> moveArrivalTime, uint64 moveStartTime);

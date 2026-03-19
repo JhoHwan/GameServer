@@ -56,6 +56,8 @@ bool Handle_CS_FIELD_LOADING_COMPLETE(SessionRef& session, Protocol::CS_FIELD_LO
     auto field = GFieldManager.GetField(player->GetLoadingMapId());
     if(field) field->EnterPlayer(player);
 
+    gSession->CancelTimeOut();
+
     return true;
 }
 
@@ -67,22 +69,17 @@ bool Handle_CS_REQUEST_MOVE(SessionRef& session, Protocol::CS_REQUEST_MOVE& pkt)
 
     //LOG_INFO(PathFind, "Player{} Request Move : [{}, {}, {}]", player->GetId(), pkt.pos().x(), pkt.pos().y(), pkt.pos().z());
 
-    player->HandleMoveRequest(pkt.pos());
+    auto startServerTick = pkt.client_tick() + gSession->GetOffset();
+    player->HandleMoveRequest(pkt.pos(), startServerTick);
 
     return true;
 }
 
-bool Handle_CS_TIME_SYNC(SessionRef& session, Protocol::CS_TIME_SYNC& pkt)
+bool Handle_CS_PONG(SessionRef& session, Protocol::CS_PONG& pkt)
 {
-    shared_ptr<GameSession> gameSession = static_pointer_cast<GameSession>(session);
-    gameSession->SetTimeOut(20000, "HeartBeat");
-
-    Protocol::SC_TIME_SYNC res;
-    res.set_client_tick(pkt.client_tick());
-    res.set_server_tick(GetTickCount64());
-
-    SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(res);
-    gameSession->SendPacket(sendBuffer);
-
+    auto gSession = static_pointer_cast<GameSession>(session);
+    gSession->HandlePong(pkt.server_send_tick(), pkt.client_recv_tick(), pkt.client_send_tick());
     return true;
 }
+
+
