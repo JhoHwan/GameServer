@@ -29,7 +29,7 @@ public:
 	const Vector3& GetPos() const { return _position; }
 	float GetYaw() const { return _yaw; }
 
-	void SetPos(const Vector3& netPos) {_position = netPos; };
+	void SetPos(const Vector3& netPos) { _position = netPos; }
 
 private:
 	Vector3 _position;

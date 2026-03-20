@@ -4,8 +4,8 @@
 #include <type_traits>
 #include "Component.h"
 
+class Field;
 using GameObjectRef = std::weak_ptr<class GameObject>;
-
 namespace Protocol
 {
 	class ObjectInfo;
@@ -30,61 +30,61 @@ concept GameObjectType = std::is_base_of_v<GameObject, T>;
 
 class GameObject : public enable_shared_from_this<GameObject>
 {
-private:
-	static constexpr uint64 OBJECT_TAG_SHIFT = 48;
-	static constexpr uint64 OBJECT_TYPE_SHIFT = 12;
-	static constexpr uint64 INSTANCE_MASK = 0x0000FFFFFFFFFFFFULL;
-	static constexpr uint64 SUB_ID_MASK = 0x0FFFULL;
+	friend class Field;
+public:
+	virtual ~GameObject();
 
-	static uint64 MakeID(uint16 objectTag, uint64 instanceID)
-	{
-		return (static_cast<uint64>(objectTag) << OBJECT_TAG_SHIFT) | (instanceID & INSTANCE_MASK);
-	}
+protected:
+	GameObject();
+	virtual void Init();
+	virtual void OnSpawn();
+	virtual void OnDespawn();
+
 
 public:
-	uint16 GetTag()
+	uint16 GetTag() const
 	{
 		return static_cast<uint16>(GetId() >> OBJECT_TAG_SHIFT);
 	}
 
-	EObjectType GetType()
+	EObjectType GetType() const
 	{
 		return static_cast<EObjectType>(GetId() >> 60);
 	}
 
-	uint64 GetInstanceID()
+	uint64 GetInstanceID() const
 	{
 		return (GetId() & INSTANCE_MASK);
 	}
 
-	uint16 GetSubID()
+	uint16 GetSubID() const
 	{
 		return static_cast<uint16>((GetId() >> OBJECT_TAG_SHIFT) & SUB_ID_MASK);
 	}
 
 protected:
-	static uint16 MakeTag(EObjectType objectType, uint16 subId)
+	constexpr static uint16 MakeTag(EObjectType objectType, uint16 subId)
 	{
 		return (static_cast<uint16>(objectType) << OBJECT_TYPE_SHIFT) | (subId & SUB_ID_MASK);
 	}
 
-protected:
-	GameObject();
-	virtual void Init();
 
-public:
+private:
 	template <GameObjectType T, typename... Args>
 	static std::shared_ptr<T> Create(Args&&... args)
 	{
 		std::shared_ptr<T> newObject{ std::make_shared<T>(std::forward<Args>(args)...) };
+		newObject->SetId(T::TAG);
 		newObject->Init();
 
 		return newObject;
 	}
 
-	virtual ~GameObject();
+	void SetId(uint16 tag) { _id = MakeId(tag, _instanceIdGenerator.fetch_add(1)); }
+	void SetField(const shared_ptr<Field>& field) { _field = field; }
+	static uint64 MakeId(uint16 objectTag, uint64 instanceID)
+	{ return (static_cast<uint64>(objectTag) << OBJECT_TAG_SHIFT) | (instanceID & INSTANCE_MASK); }
 
-	virtual void Destroy() {}
 
 public:
 	uint64 GetId() const { return _id; }
@@ -96,28 +96,20 @@ public:
 
 	template<ComponentType T, typename... Args>
 	std::shared_ptr<T> AddComponent(Args&&... args);
-
-	shared_ptr<class Field> GetField() { return _field; }
-	void SetField(shared_ptr<class Field> field) { _field = field; }
-
+	shared_ptr<Field> GetField() { return _field; }
 	void GetObjectInfo(Protocol::ObjectInfo* info) const;
-
-protected:
-	void SetId(uint16 tag)
-	{
-		_id = MakeID(tag, _instanceIdGenerator.fetch_add(1));
-	}
-
 
 private:
 	static inline atomic<uint64> _instanceIdGenerator{ 1 };
+	static constexpr uint64 OBJECT_TAG_SHIFT = 48;
+	static constexpr uint64 OBJECT_TYPE_SHIFT = 12;
+	static constexpr uint64 INSTANCE_MASK = 0x0000FFFFFFFFFFFFULL;
+	static constexpr uint64 SUB_ID_MASK = 0x0FFFULL;
 
-private:
 	uint64 _id = 0;
 	std::unordered_map<std::type_index, std::shared_ptr<Component>> _components;
-
 	std::shared_ptr<TransformComponent> _transform;
-	std::shared_ptr<class Field> _field;
+	std::shared_ptr<Field> _field;
 
 };
 

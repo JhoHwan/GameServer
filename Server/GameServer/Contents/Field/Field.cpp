@@ -42,96 +42,6 @@ void Field::Init()
 	LJobTimer.Reserve(500, GetJobQueue(), job);
 }
 
-void Field::EnterPlayer(weak_ptr<PlayerCharacter> player)
-{
-	_destroyToken.fetch_add(1);
-
-	DoAsync([self = shared_from_this(), playerWeak = std::move(player)]()
-	{
-		auto player = playerWeak.lock();
-		if(!player) return;
-
-		self->_players.insert(player);
-
-		auto playerSpawnPos = player->GetPendingSpawnPos();
-
-		player->Transform()->SetPos(playerSpawnPos);
-		player->SetField(self);
-
-		player->SetLoadingInfo(0, Vector3::Zero());
-
-		{
-			Protocol::SC_ENTER_FIELD packet;
-			player->GetObjectInfo(packet.mutable_my_info()->mutable_object_info());
-			SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(packet);
-			auto session = player->GetSession();
-			if (session) session->SendPacket(sendBuffer);
-		}
-
-		// 주변 유저에게 새로 들어온 플레이어 스폰
-		{
-			Protocol::SC_SPAWN_PLAYER packet;
-			Protocol::PlayerInfo* playerInfo = packet.add_info();
-			player->GetObjectInfo(playerInfo->mutable_object_info());
-
-			SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(packet);
-			self->BroadCast(sendBuffer, player);
-		}
-
-		// 새로 들어온 플레이어에게 주변 유저 스폰
-		{
-		        if(self->_players.size() <= 1) return;
-
-		        Protocol::SC_SPAWN_PLAYER packet;
-		        vector<Protocol::SC_MOVE_PATH> movePackets;
-		        movePackets.reserve(self->_players.size());
-		        for (const shared_ptr<PlayerCharacter>& other : self->_players)
-		        {
-		                if (other == player) continue;
-		                other->GetObjectInfo(packet.add_info()->mutable_object_info());
-		                if(other->IsMoving())
-		                {
-		                        Protocol::SC_MOVE_PATH movePacket;
-		                        movePacket.set_object_id(other->GetId());
-		                        movePacket.set_start_server_tick(other->GetMoveStartTime());
-
-		                        const auto& waypoints = other->GetWaypoints();
-		                        const auto& arrivalTimes = other->GetArrivalTimes();
-
-		                        for (size_t i = 0; i < waypoints.size(); ++i)
-		                        {
-		                                auto* wp = movePacket.add_waypoints();
-		                                wp->mutable_pos()->CopyFrom(waypoints[i].ToProto());
-
-		                                auto offset = static_cast<uint32>(arrivalTimes[i] - other->GetMoveStartTime());
-		                                wp->set_arrival_offset_ms(offset);
-		                        }
-
-		                        if (movePacket.waypoints_size() > 0)
-		                        {
-		                                movePackets.push_back(std::move(movePacket));
-		                        }
-		                }
-		        }
-			if (packet.info_size() == 0) return;
-			auto session = player->GetSession();
-			if (!session) return;
-
-			{
-				SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(packet);
-				session->SendPacket(sendBuffer);
-			}
-
-			for(auto& movePacket : movePackets)
-			{
-				SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(movePacket);
-				session->SendPacket(sendBuffer);
-			}
-
-		}
-	});
-}
-
 void Field::BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerCharacter>& except)
 {
 	DoAsync([self = shared_from_this(), sendBuffer = std::move(sendBuffer), except]()
@@ -154,31 +64,22 @@ void Field::BroadCast(SendBufferRef sendBuffer, const shared_ptr<PlayerCharacter
 	});
 }
 
-void Field::LeavePlayer(shared_ptr<PlayerCharacter> player)
+void Field::LeavePlayer(const shared_ptr<PlayerCharacter>& player)
 {
-	DoAsync([self = shared_from_this(), player = std::move(player)]() {
-		player->SetField(nullptr);
+	if(_players.contains(player))
+	{
+		_players.erase(player);
+	}
 
-		Protocol::SC_DESPAWN_PLAYER pkt;
-		pkt.set_player_id(player->GetId());
-		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
-		self->BroadCast(sendBuffer);
-
-		if(self->_players.contains(player))
+	if(_currentPlayerCount.fetch_sub(1) == 1)
+	{
+		JobRef job = make_shared<Job>([self = shared_from_this(), fieldId =_id, token = _destroyToken.load()]()
 		{
-			self->_players.erase(player);
-		}
-
-		if(self->_currentPlayerCount.fetch_sub(1) == 1)
-		{
-			JobRef job = make_shared<Job>([self, fieldId = self->_id, Token = self->_destroyToken.load()]()
-			{
-				if(self->_destroyToken.load() != Token) return;
-				GFieldManager.Destroy(fieldId);
-			});
-			LJobTimer.Reserve(10000, self->GetJobQueue(), job);
-		}
-	});
+			if(self->_destroyToken.load() != token) return;
+			GFieldManager.Destroy(fieldId);
+		});
+		LJobTimer.Reserve(10000, GetJobQueue(), job);
+	}
 }
 
 void Field::UpdatePlayerPosition()
@@ -204,6 +105,18 @@ void Field::UpdatePlayerPosition()
 	LJobTimer.Reserve(500, GetJobQueue(), job);
 }
 
+void Field::Despawn(uint64 id)
+{
+	DoAsync([self = shared_from_this(), id]()
+	{
+		if(!self->_objects.contains(id)) return;
+
+		auto& object = self->_objects[id];
+		object->OnDespawn();
+		self->_objects.erase(id);
+	});
+}
+
 void Field::HandleRequestUsePortal(const weak_ptr<PlayerCharacter>& playerRef, uint32 portalId)
 {
 	DoAsync([self = shared_from_this(), playerRef = playerRef, portalId]()
@@ -211,18 +124,18 @@ void Field::HandleRequestUsePortal(const weak_ptr<PlayerCharacter>& playerRef, u
 		shared_ptr<PlayerCharacter> player = playerRef.lock();
 		if(player == nullptr) return;
 		if(self->_fieldData->FieldsPortals.size() <= portalId) return;
-		//LOG_DEBUG(Field, "[Player {}] Request Use Portal. Portal ID : {}", player->GetInstanceID(), portalId);
 
 		auto portalData = self->_fieldData->FieldsPortals[portalId];
 		Vector3 playerPos = player->GetCurrentPosition(Time::GetServerTime());
 		auto targetPortalId = portalData.TargetPortalId;
-
+		auto targetMapId = portalData.TargetMapId;
 		if(500.0f <= Vector3::Dist2D(portalData.Position, playerPos))
 		{
 			return;
 		}
+		LOG_DEBUG(Field, "[Player {}] Request Use Portal. Portal ID : {}, Target MapId: {}", player->GetInstanceID(), portalId, targetMapId);
 
-		GameManager::Instance().ProcessMoveField(player, portalData.TargetMapId, targetPortalId);
+		GameManager::Instance().ProcessMoveField(player, targetMapId, targetPortalId);
 	});
 }
 
@@ -273,6 +186,13 @@ void Field::HandleRequestMove(const weak_ptr<PlayerCharacter>& playerRef, const 
 		player->SetMoveInfo(std::move(wayPoints), std::move(moveArrivalTimes), startServerTick);
 	});
 }
+
+void Field::EnterPlayer(const shared_ptr<PlayerCharacter>& player)
+{
+	_destroyToken.fetch_add(1);
+	_players.insert(player);
+}
+
 
 void Field::FindPath(const Vector3& startPos, const Vector3& endPos, OUT std::vector<Vector3>& outWayPoints)
 {

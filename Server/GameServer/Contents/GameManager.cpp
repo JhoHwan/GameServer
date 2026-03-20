@@ -10,38 +10,29 @@
 #include "Packet/ServerPacketHandler.h"
 #include "Util/Vector3.h"
 
-void GameManager::ProcessEnterGame(std::weak_ptr<GameSession> session)
+void GameManager::ProcessEnterGame(const std::weak_ptr<GameSession>& sessionRef)
 {
-    DoAsync([sessionWeak = std::move(session)]()
-    {
-        auto session = sessionWeak.lock();
-        if (!session) return;
+    auto session = sessionRef.lock();
+    if (!session) return;
 
-        // TODO : 토큰 인증 & DB 요청 후 아래 내용 콜백으로 등록
-        Protocol::SC_ENTER_GAME_RESULT packet;
-        packet.set_success(true); // 추후 DB 요청 결과 or 인증 결과에 따라 변경
-        session->SendPacket(ServerPacketHandler::MakeSendBuffer(packet));
+    // TODO : 토큰 인증 & DB 요청 후 아래 내용 콜백으로 등록
+    Protocol::SC_ENTER_GAME_RESULT packet;
+    packet.set_success(true); // 추후 DB 요청 결과 or 인증 결과에 따라 변경
+    session->SendPacket(ServerPacketHandler::MakeSendBuffer(packet));
 
-        auto player = GameObject::Create<PlayerCharacter>(session);
+    // TODO : 입장 로드 맵 아이디 하드 코딩됨(DB연동 후 받아와야함)
+    auto targetMapId = 1000;
+    auto fieldData = GFieldManager.GetFieldData(targetMapId);
+    if(!fieldData) return;
+    Vector3 playerSpawnPos {fieldData->PlayerStarts[0]};
 
-        Protocol::SC_START_FIELD_LOADING loadPacket;
+    session->SetLoadingInfo(targetMapId, playerSpawnPos);
 
-        //auto targetMapId = player->GetLoadingMapId();
+    Protocol::SC_START_FIELD_LOADING loadPacket;
+    loadPacket.set_target_map_id(targetMapId);
+    session->SendPacket(ServerPacketHandler::MakeSendBuffer(loadPacket));
 
-        // TODO : 입장 로드 맵 아이디 하드 코딩됨
-        auto targetMapId = 1000;
-        auto fieldData = GFieldManager.GetFieldData(targetMapId);
-        if(!fieldData) return;
-        auto playerSpawnPos = fieldData->PlayerStarts[0];
-
-        player->SetLoadingInfo(targetMapId, playerSpawnPos);
-
-        loadPacket.set_target_map_id(targetMapId);
-        session->SendPacket(ServerPacketHandler::MakeSendBuffer(loadPacket));
-
-        session->CancelTimeOut();
-        session->SetTimeOut(60000, "Map Loading");
-    });
+    session->SetTimeOut(60000, "Map Loading");
 }
 
 void GameManager::ProcessMoveField(const shared_ptr<PlayerCharacter>& player, uint16 targetMapId, int32 targetPortalId)
@@ -66,12 +57,11 @@ void GameManager::ProcessMoveField(const shared_ptr<PlayerCharacter>& player, ui
         playerSpawnPos = targetFieldData->PlayerStarts[0];
     }
 
-    oldField->LeavePlayer(player);
-    player->SetLoadingInfo(targetMapId, playerSpawnPos);
+    oldField->Despawn(player->GetId());
+    session->SetLoadingInfo(targetMapId, playerSpawnPos);
 
     Protocol::SC_START_FIELD_LOADING loadPacket;
-
-    loadPacket.set_target_map_id(player->GetLoadingMapId());
+    loadPacket.set_target_map_id(targetMapId);
     session->SendPacket(ServerPacketHandler::MakeSendBuffer(loadPacket));
 
     session->SetTimeOut(60000, "Map Loading");

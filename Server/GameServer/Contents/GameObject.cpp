@@ -3,10 +3,10 @@
 #include "Component.h"
 #include "Struct.pb.h"
 
-GameObject::GameObject() 
+GameObject::GameObject()
 {
-
 }
+
 
 GameObject::~GameObject()
 {
@@ -24,4 +24,12 @@ void GameObject::GetObjectInfo(OUT Protocol::ObjectInfo* info) const
 void GameObject::Init()
 {
 	_transform = AddComponent<TransformComponent>();
+}
+
+void GameObject::OnSpawn()
+{
+}
+
+void GameObject::OnDespawn()
+{
 }

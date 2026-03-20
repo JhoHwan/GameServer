@@ -7,6 +7,7 @@ class GameSession : public PacketSession
 public:
     GameSession();
     ~GameSession() override;
+
 protected:
     void OnRecvPacket(BYTE* buffer, int32 len) override;
     void OnConnected() override;
@@ -25,10 +26,17 @@ public:
     void HandlePong(const uint64& T1, const uint64& T2, const uint64& T3);
     int64 GetOffset() const { return _serverOffset.load(); }
 
+    void SetLoadingInfo(uint64 loadingMapId, const Vector3& spawnPos) { _loadingMapId = loadingMapId; _spawnPos = spawnPos; }
+    uint64 GetLoadingMapId() const { return _loadingMapId; }
+    const Vector3& GetSpawnPos() const { return _spawnPos; }
+
 private:
     using Session::Send;
 
 private:
+    uint64 _loadingMapId;
+    Vector3 _spawnPos;
+
     shared_ptr<PlayerCharacter> _playerRef;
     shared_ptr<JobQueue> _jobQueue;
     atomic<uint64> _timeOutToken;

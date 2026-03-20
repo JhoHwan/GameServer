@@ -45,18 +45,12 @@ bool Handle_CS_USE_PORTAL(SessionRef& session, Protocol::CS_USE_PORTAL& pkt)
 bool Handle_CS_FIELD_LOADING_COMPLETE(SessionRef& session, Protocol::CS_FIELD_LOADING_COMPLETE& pkt)
 {
     shared_ptr<GameSession> gSession = static_pointer_cast<GameSession>(session);
-
-    shared_ptr<PlayerCharacter> player = gSession->GetPlayer();
-    if (!player)
-    {
-        gSession->Disconnect("Invalid Error");
-        return false;
-    }
-
-    auto field = GFieldManager.GetField(player->GetLoadingMapId());
-    if(field) field->EnterPlayer(player);
-
     gSession->CancelTimeOut();
+
+    if(auto field = GFieldManager.GetField(gSession->GetLoadingMapId()))
+    {
+        field->Spawn<PlayerCharacter>(gSession->GetSpawnPos(), gSession);
+    }
 
     return true;
 }
